@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="180" height="54" viewBox="0 0 180 54" fill="none">
+  <defs>
+    <linearGradient id="paper" x1="8" y1="22" x2="174" y2="31" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFF6DD"/>
+      <stop offset="1" stop-color="#EEF5E7"/>
+    </linearGradient>
+    <path id="outline" d="M24 3H144C155.6 3 165 12.4 165 24C165 25.8 164.8 27.5 164.4 29.1L178 35L161.6 35.5C157.9 41.2 151.4 45 144 45H24A21 21 0 0 1 24 3Z"/>
+  </defs>
+  <use href="#outline" fill="url(#paper)"/>
+</svg>
