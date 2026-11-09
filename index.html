@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="description" content="逛喜欢的小店，领每日好礼。奇遇街 H5 互动演示。">
+  <meta http-equiv="refresh" content="0;url=street-3d.html?from=mall">
+  <title>奇遇街 · 今天逛点喜欢的</title>
+  <link rel="icon" href="data:,">
+  <script>
+    const destination = new URL('street-3d.html', location.href);
+    destination.search = location.search;
+    destination.searchParams.set('from', 'mall');
+    destination.hash = location.hash;
+    location.replace(destination);
+  </script>
+</head>
+<body><a href="street-3d.html?from=mall">打开奇遇街</a></body>
+</html>

@@ -1,0 +1,14 @@
+/* One continuous home feed, with navigation above the scrolling street. */
+#app .home-scroll{height:100%;overflow-y:auto;overflow-x:hidden;overscroll-behavior-y:contain;touch-action:pan-y;scroll-padding-top:76px;scrollbar-width:none}
+#app .home-scroll::-webkit-scrollbar{display:none}
+#app .home-scroll:focus-visible{outline:2px solid #f2c58e;outline-offset:-3px}
+#app .topbar{top:0;left:0;right:0;height:64px;padding:23px 20px 14px 18px;z-index:20;isolation:isolate}
+#app .topbar:before{content:'';position:absolute;inset:0;z-index:-1;background:linear-gradient(180deg,#fff4e5,#fffdfa);box-shadow:0 1px 0 #eadfd2;opacity:0;transition:opacity .18s ease}
+#app.home-scrolled .topbar:before{opacity:1}
+#app .topbar nav{flex:none;gap:0;padding:3px 5px;border:1px solid #fffef7db;border-radius:22px;background:linear-gradient(150deg,#fffef9ed,#fff8e6db);box-shadow:0 3px 12px #4b623b14,inset 0 1px 0 #ffffffb3;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+#app .topbar nav button{position:relative;padding:4px 10px;border-radius:16px;line-height:18px;color:#44382b;transition:background .15s,color .15s}
+#app .topbar nav button+button:before{content:'';position:absolute;left:0;top:8px;width:1px;height:10px;background:#b7a68b47}
+#app .topbar nav button:hover,#app .topbar nav button:focus-visible{background:#fff0d8;color:#bb622b}
+#app .recent{display:block;height:auto;min-height:251px;overflow:visible;padding:16px 13px 22px}
+#app .recent-scroll{display:block;overflow:visible;padding:0 1px 16px}
+#app.has-modal .home-scroll{overflow-y:hidden}

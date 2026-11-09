@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#70d5f3">
+  <title>奇遇街 · 今天逛点喜欢的</title>
+  <link rel="icon" href="data:,">
+  <link rel="preload" as="image" href="assets/street.png">
+  <link rel="preload" as="image" href="assets/kitchen-front.png">
+  <link rel="stylesheet" href="styles.css?v=ground-walk-5">
+  <script defer src="assets/icons.js"></script>
+  <script defer src="walking.js?v=depth-navigation-1"></script>
+  <script defer src="rig-street-motion.js?v=4"></script>
+  <script defer src="street-navigation.js?v=rig-ui-6"></script>
+  <script defer src="shop-views.js?v=4"></script>
+  <link rel="stylesheet" href="popup-ui.css?v=8">
+  <link rel="stylesheet" href="home-scroll.css?v=2">
+  <script defer src="rewards-flow.js?v=2"></script>
+  <script defer src="app.js?v=home-page-scroll-1"></script>
+  <script type="module" src="ip-rig-stage2/street-character.js?v=4"></script>
+  <style>
+  .street{overflow:clip}
+  .app[data-character="off"] #walkerPosition,.app[data-character="off"] #guide,.app[data-character="off"] #walkTrail,.app[data-character="off"] #skipWalk{display:none!important}
+  .app[data-scene-asset="kitchen-front"] #world .shop-hotspot,.app[data-scene-mode="store"] .new-tag,.app[data-scene-mode="store"] .street-depth-mask{display:none!important}
+  #storeDoorHit{position:absolute;left:0;top:150px;width:414px;height:405px;background:transparent;z-index:3}
+  #storeDoorHit:focus-visible{outline-offset:-8px;border-radius:16px}
+  .scene-curtain{position:absolute;inset:0;z-index:6;pointer-events:auto;background:#edf8f5;opacity:0}
+  .app[data-navigation="cut"] .topbar,.app[data-navigation="cut"] .daily-progress,.app[data-navigation="cut"] .street-actions{pointer-events:none}
+  #walkerPosition{position:absolute;left:0;top:0;width:0;height:0;z-index:5;transform-origin:0 0;pointer-events:none;will-change:transform}
+  .rig-street-canvas{position:absolute;left:-96px;top:-144px;width:192px;height:192px;pointer-events:none}
+  .street-depth-mask{position:absolute;left:0;top:0;width:414px;height:646px;z-index:5;transform-origin:0 0;pointer-events:none}
+  .street-depth-mask img{position:absolute;inset:0;width:414px;height:646px}
+  .app[data-character="rigged"] .guide{
+    width:180px;height:48px;min-height:48px;padding:0 16px;border:0;border-radius:26px;
+    background:none;color:#2b3d2d;font-size:15px;font-weight:750;line-height:20px;letter-spacing:-.3px;
+    display:flex;align-items:center;justify-content:center;
+    white-space:nowrap;text-align:center;transform:rotate(-2deg);transform-origin:left center;
+    box-shadow:none;isolation:isolate;transition:filter .15s;
+  }
+  .app[data-character="rigged"] .guide:before{
+    content:"";position:absolute;inset:0 auto auto 0;width:180px;height:54px;z-index:0;pointer-events:none;
+    background:url('assets/speech-bubble-light.svg?v=2') center top/180px 54px no-repeat;
+    filter:none;
+  }
+  .app[data-character="rigged"] .guide:after{
+    display:none;
+  }
+  .app[data-character="rigged"] .guide .guide-copy{
+    position:relative;z-index:1;-webkit-text-stroke:0;
+  }
+  .app[data-character="rigged"] .guide:hover{box-shadow:none}
+  .app[data-character="rigged"] .guide:hover:before{filter:none}
+  .app[data-character="rigged"] .guide[data-side="right"]{
+    width:144px;padding:0 12px 0 18px;transform:rotate(2deg);transform-origin:left bottom;
+  }
+  .app[data-character="rigged"] .guide[data-side="right"]:before{
+    width:144px;background-size:144px 54px;transform:scaleX(-1);
+  }
+  </style>
+</head>
+<body>
+  <main class="preview-layout">
+    <aside class="preview-note" aria-label="体验说明">
+      <span class="preview-kicker">Q I Y U  S T R E E T</span>
+      <h1>今天，<br>逛点喜欢的。</h1>
+      <p>一家眼前的小店，<br>一条值得走走的街。</p>
+      <div class="preview-steps"><span>01</span> 小伙伴招手，陪你逛街<br><span>02</span> 点击零食铺，沿路走到店前<br><span>03</span> 进店挑选，或一键返回街道</div>
+      <div class="preview-tools"><button id="replay">重播逛街</button><button id="reset">重置体验</button></div>
+      <div class="preview-scenarios"><a href="street-3d.html?from=mall&demo=first&v=popup-ui-1">首日领券</a><a href="street-3d.html?from=mall&demo=seventh&v=popup-ui-1">第7天抽奖</a><a href="street-3d.html?from=mall&demo=wallet&v=coupon-cards-1">多张券</a></div>
+      <label class="motion-setting"><input id="motionToggle" type="checkbox"> 减少动效</label>
+      <small>街道总览 / 店前近景<br>商品、价格与交易均为模拟</small>
+    </aside>
+    <div class="phone-shell" id="phoneShell">
+      <div class="app" id="app" data-testid="app-screen" data-character="rigged">
+        <header class="topbar"><button class="icon-button back" id="back" aria-label="返回主推店"><i data-lucide="chevron-left"></i></button><strong>奇遇街</strong><nav aria-label="活动入口"><button id="rules">规则</button><button id="rewards">我的奖励</button><button id="favorites">收藏</button></nav></header>
+        <div class="home-scroll" id="homeScroll" role="region" aria-label="奇遇街首页，可上下滚动" tabindex="0">
+        <section class="street" aria-label="奇遇街街景">
+          <div class="world" id="world">
+            <img class="street-art" src="assets/street.png" alt="圆角薄荷色纸巾铺、橙色零食铺和蓝色厨房铺沿着小路排列" draggable="false">
+            <button class="shop-hotspot paper" data-shop="paper" aria-label="进入纸巾补货铺"><span>进入纸巾铺</span></button>
+            <button class="shop-hotspot snack" data-shop="snack" aria-label="查看零食小铺"><span>去零食小铺</span></button>
+            <button class="shop-hotspot kitchen" data-shop="kitchen" aria-label="查看厨房帮手铺"><span>去厨房帮手铺</span></button>
+            <span class="new-tag">NEW</span>
+          </div>
+          <button id="storeDoorHit" hidden aria-label="进入当前店铺"></button>
+          <div id="walkerPosition" hidden aria-hidden="true"></div>
+          <div class="walk-trail" id="walkTrail" aria-hidden="true"></div>
+          <button class="guide" id="guide" hidden><span class="guide-copy">点家小店，逛逛去～</span></button>
+          <button class="skip-walk" id="skipWalk" hidden>跳过动效</button>
+          <button class="daily-progress" id="daily" aria-label="查看七天每日奖励"><span>已来<b id="visitCount">1</b>天 · 明日<b id="nextValue">5</b>元券</span><div class="daily-track"><span id="progressFill"></span></div><i class="gift-icon" data-lucide="gift"></i></button>
+          <div class="street-actions"><button class="side-action claim-action" id="claim"><i data-lucide="ticket-percent"></i><span id="claimText">领3元券</span></button><button class="primary-action" id="enter">逛纸巾铺</button><button class="side-action" id="switch"><i data-lucide="refresh-cw"></i><span>换家店</span></button></div>
+          <p class="coupon-condition" id="couponCondition">满9.9减3 · 限指定商品 · 今日有效</p>
+          <span class="walk-status sr-only" id="walkStatus" role="status" aria-live="polite"></span>
+        </section>
+        <section class="recent" aria-labelledby="recentTitle"><div class="recent-heading"><h2 id="recentTitle">最近看过</h2><span>上下滑动看更多</span></div><div class="recent-scroll" id="recentScroll"><div class="recent-grid" id="recentGrid"></div><p class="simulation-note">价格为模拟</p></div></section>
+        </div>
+        <div class="overlay" id="overlay" hidden><section class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle" tabindex="-1"></section></div>
+        <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+      </div>
+    </div>
+  </main>
+</body>
+</html>

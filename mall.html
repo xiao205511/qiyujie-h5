@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#f7f8fa">
+  <title>商城 · 奇遇街入口</title>
+  <link rel="icon" href="data:,">
+  <link rel="preload" as="image" href="assets/mall-reference.png">
+  <link rel="preload" as="image" href="assets/entry-coupon-orange-3d.png">
+  <script defer src="mall-entry.js?v=orange-ticket-3"></script>
+  <style>
+    *{box-sizing:border-box}
+    body{margin:0;background:#edf0f3;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;color:#202128}
+    .mall-screen{position:relative;width:min(100%,414px);margin:0 auto;background:#f7f8fa}
+    .mall-reference{display:block;width:100%;height:auto;user-select:none}
+    .qiyujie-entry{position:absolute;left:56.2%;top:15.8%;width:16%;height:6.1%;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding-top:.5%;gap:4px;background:#f7f8fa;color:#202128;text-decoration:none;font-size:clamp(11px,3.14vw,13px);font-weight:400;line-height:18px;-webkit-tap-highlight-color:transparent}
+    .entry-symbol{display:block;position:relative;width:45.29%;aspect-ratio:1;perspective:100px;flex:none}
+    .entry-store,.entry-coupon{position:absolute;inset:0;display:block;width:100%;height:100%;margin:0;backface-visibility:hidden;transition:transform 360ms cubic-bezier(.22,.8,.26,1),opacity 240ms ease;pointer-events:none}
+    .entry-store{opacity:1;transform:translateY(0) rotateX(0)}
+    .entry-coupon{opacity:0;transform:translateY(5px) rotateX(-65deg)}
+    .entry-coupon img{position:absolute;left:7%;top:-10%;display:block;width:86%;height:120%;object-fit:fill}
+    .qiyujie-entry[data-phase="coupon"] .entry-store{opacity:0;transform:translateY(-5px) rotateX(65deg)}
+    .qiyujie-entry[data-phase="coupon"] .entry-coupon{opacity:1;transform:translateY(0) rotateX(0)}
+    .qiyujie-entry:focus-visible{outline:2px solid #ff742a;outline-offset:-2px;border-radius:6px}
+    .qiyujie-entry:active .entry-symbol{transform:scale(.93)}
+    @media(prefers-reduced-motion:reduce){.entry-store,.entry-coupon{transition:none!important}.qiyujie-entry .entry-store{opacity:1!important;transform:none!important}.qiyujie-entry .entry-coupon{display:none!important}}
+    @media(min-width:700px){body{padding:24px 0}.mall-screen{box-shadow:0 14px 50px #16202c1c;border-radius:20px;overflow:hidden}}
+  </style>
+</head>
+<body>
+  <main class="mall-screen" aria-label="商城首页">
+    <img class="mall-reference" src="assets/mall-reference.png" width="1260" height="2720" alt="商城首页参考画面，包含搜索、工具区、购物节活动与推荐商品。" draggable="false">
+    <a class="qiyujie-entry" href="street-3d.html?from=mall" aria-label="奇遇街，逛喜欢的小店" data-phase="icon">
+      <span class="entry-symbol" aria-hidden="true">
+        <img class="entry-store" src="assets/qiyujie-entry.svg?v=mono-30-v3" width="30" height="30" alt="">
+        <span class="entry-coupon"><img src="assets/entry-coupon-orange-3d.png" width="30" height="30" alt=""></span>
+      </span>
+      <span>奇遇街</span>
+    </a>
+  </main>
+</body>
+</html>
