@@ -1,11 +1,11 @@
 /* Bright cream popup family; street navigation and character scale are unchanged. */
-#app{--popup-ink:#432719;--popup-muted:#887b71;--popup-line:#f5dfcd;--popup-cream:#fffaf4;--popup-orange:#ff5c0b;overflow:clip}
+#app{--popup-max-height:85%;--popup-ink:#432719;--popup-muted:#887b71;--popup-line:#f5dfcd;--popup-cream:#fffaf4;--popup-orange:#ff5c0b;overflow:clip}
 .phone-shell{overflow:clip}
 #app .overlay{background:#263b3d55}
 #app.has-modal .world,#app.has-modal #walkerPosition,#app.has-modal .street-depth-mask,#app.has-modal .street-actions,#app.has-modal .coupon-condition,#app.has-modal .guide,#app.has-modal .recent{filter:blur(3px)}
-#app .modal{color:var(--popup-ink);background:linear-gradient(155deg,#fffefa,#fff8ef);border:1px solid #fff9ef;box-shadow:0 12px 30px #45382120;scrollbar-width:thin;scrollbar-color:#ead8c6 transparent}
+#app .modal{max-height:var(--popup-max-height);color:var(--popup-ink);background:linear-gradient(155deg,#fffefa,#fff8ef);border:1px solid #fff9ef;box-shadow:0 12px 30px #45382120;scrollbar-width:thin;scrollbar-color:#ead8c6 transparent}
 #app .modal h2{font-weight:800;letter-spacing:-.5px;color:#3b2117}
-#app .modal.center{top:20px;width:344px;border-radius:28px;padding:28px 23px 23px;max-height:calc(100% - 90px)}
+#app .modal.center{top:20px;width:344px;border-radius:28px;padding:28px 23px 23px}
 #app .modal.center h2{font-size:26px;line-height:1.35;margin:0 0 20px;text-align:center}
 #app .modal-close{right:13px;top:13px;width:32px;height:32px;color:#6d716f;border-radius:50%;padding:5px}
 #app .modal-close:hover{background:#eee6dc88}
@@ -36,7 +36,7 @@
 #app .reward-popup .coupon-ticket{margin-bottom:24px}
 #app .reward-coupon-list{display:flex;flex-direction:column;gap:17px;margin:2px 0 22px}
 #app .reward-coupon-list>div{min-width:0;flex:none}
-#app .modal.sheet.rewards-sheet{display:flex;flex-direction:column;padding:0;max-height:80%;overflow:clip}
+#app .modal.sheet.rewards-sheet{display:flex;flex-direction:column;padding:0;overflow:clip}
 #app .rewards-sheet-header{flex:none;padding:29px 23px 20px}
 #app .rewards-sheet-header h2{font-size:24px;line-height:32px;margin:0 34px 8px 0}
 #app .rewards-sheet-header p{font-size:12px;line-height:20px;color:#968778;margin:0}
@@ -61,10 +61,10 @@
 #app .claim-success-popup h2{font-size:29px}
 #app .benefit-ticket{background:#fff1d8;border:1px solid #f9d5a8;border-radius:18px;padding:20px 10px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:10px}
 #app .benefit-ticket .lucide{width:38px;height:38px;color:#ff8d28}#app .benefit-ticket strong{font-size:21px}#app .benefit-ticket span{font-size:12px;color:#a18970}
-#app .modal.sheet{border-radius:29px 29px 0 0;padding:23px 18px 18px;border-bottom:0;max-height:82%;animation:sheet-in .28s cubic-bezier(.2,.8,.2,1)}
+#app .modal.sheet{border-radius:29px 29px 0 0;padding:23px 18px 18px;border-bottom:0;animation:sheet-in .28s cubic-bezier(.2,.8,.2,1)}
 #app .modal.sheet:before{width:31px;height:3px;background:#dbd6cd;top:8px;left:calc(50% - 15px)}
-#app .modal.sheet.shop-sheet{display:flex;flex-direction:column;height:var(--shop-sheet-height,auto);max-height:78%;min-height:575px;background:linear-gradient(150deg,#fffefa,#fff8f0);padding:0;overflow:clip;transition:height .28s cubic-bezier(.2,.8,.2,1),max-height .28s cubic-bezier(.2,.8,.2,1)}
-#app .modal.sheet.shop-sheet.is-expanded{height:calc(100% - 64px);max-height:calc(100% - 64px)}
+#app .modal.sheet.shop-sheet{display:flex;flex-direction:column;height:var(--shop-sheet-height,auto);min-height:min(575px,var(--popup-max-height));background:linear-gradient(150deg,#fffefa,#fff8f0);padding:0;overflow:clip;transition:height .28s cubic-bezier(.2,.8,.2,1),max-height .28s cubic-bezier(.2,.8,.2,1)}
+#app .modal.sheet.shop-sheet.is-expanded{height:var(--popup-max-height)}
 #app .modal.shop-sheet:after{display:none}
 #app .shop-sheet>.sheet-head{flex:none;margin:0;padding:23px 20px 15px}
 #app .shop-products-scroll{flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;padding:0 18px 19px;scroll-padding:14px;scrollbar-width:thin;scrollbar-color:#ead8c6 transparent}
@@ -109,7 +109,7 @@
 #app .daily-row .day-state{font-size:10px}
 #app .daily-row .day-label{width:35px}
 #app .simple-sheet .wide-cta{margin-top:17px}
-#app .modal.daily-sheet{height:80%;max-height:82%;padding:0;overflow:clip;display:flex;flex-direction:column}
+#app .modal.daily-sheet{height:80%;padding:0;overflow:clip;display:flex;flex-direction:column}
 #app .daily-sheet-header{flex:none;padding:31px 22px 23px}
 #app .daily-sheet-header h2{font-size:23px;line-height:1.45;letter-spacing:-.3px;font-weight:750;margin:0 34px 11px 0}
 #app .daily-sheet-header p{font-size:13px;line-height:22px;color:#8e7f70;margin:0;display:flex;align-items:center;gap:4px}
@@ -134,7 +134,7 @@
 #app .daily-sheet-footer .simulation-note{font-size:11px;line-height:18px;margin:12px 0 0;color:#a59380}
 #app .rule-block{border-color:#f1e2d3;margin-top:17px}
 #app .rule-block p{color:#968778}
-#app .detail-sheet{padding:22px 20px 19px;max-height:84%;height:auto}
+#app .detail-sheet{padding:22px 20px 19px;height:auto}
 #app .detail-sheet .sheet-head{justify-content:flex-start;gap:12px;margin-bottom:15px}
 #app .detail-sheet .sheet-head h2{font-size:21px;margin:0}
 #app .detail-back,#app .detail-close{background:transparent;padding:4px;display:grid;place-items:center;color:#77796f}
@@ -155,7 +155,7 @@
 #app .detail-coupon span{font-size:10px;color:#ab9884;margin-top:4px;display:block}
 #app .detail-footer{border-top:1px solid #f1e3d3;padding-top:14px}
 #app .detail-footer .simulation-note{margin-top:9px}
-#app .modal.checkout-popup{top:auto;bottom:0;left:0;right:0;width:100%;border-radius:29px 29px 0 0;padding:28px 24px max(22px,env(safe-area-inset-bottom));max-height:82%}
+#app .modal.checkout-popup{top:auto;bottom:0;left:0;right:0;width:100%;border-radius:29px 29px 0 0;padding:28px 24px max(22px,env(safe-area-inset-bottom))}
 #app .checkout-popup h2{font-size:25px;line-height:1.35;text-align:center;margin:0 0 20px}
 #app .checkout-product{margin:0 0 13px;padding:10px 8px;background:#fffaf3;border:1px solid #f3e4d4;border-radius:15px;gap:12px;min-height:111px}
 #app .checkout-product .product-art{width:90px;height:90px;mix-blend-mode:multiply;flex:none}
