@@ -40,6 +40,8 @@
       target.dataset.facing=facingFor(slot.position);
       target.style.cssText=spriteStyle(slot.shop,slot.position);
       target.innerHTML='<span class="storefront-sprite" aria-hidden="true"></span>';
+      const neighbor=doc.querySelector(`[data-front-neighbor="${slot.position}"]`);
+      if(neighbor){neighbor.style.cssText=spriteStyle(slot.shop,slot.position);neighbor.dataset.facing=facingFor(slot.position);}
     }
     doc.querySelector('#app').classList.add('has-daily-shops');
   }

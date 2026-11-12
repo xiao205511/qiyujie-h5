@@ -15,11 +15,11 @@
   <script defer src="rig-street-motion.js?v=4"></script>
   <script defer src="street-navigation.js?v=second-doorstep-1"></script>
   <script defer src="shop-hit-areas.js?v=1"></script>
-  <script defer src="shop-views.js?v=scene-group-1"></script>
+  <script defer src="shop-views.js?v=front-context-1"></script>
   <link rel="stylesheet" href="popup-ui.css?v=sheet-close-align-1">
   <link rel="stylesheet" href="home-scroll.css?v=recent-square-1">
   <link rel="stylesheet" href="commerce-ui.css?v=checkout-dock-row-1">
-  <link rel="stylesheet" href="daily-shops.css?v=scene-group-1">
+  <link rel="stylesheet" href="daily-shops.css?v=front-context-1">
   <link rel="stylesheet" href="palette.css?v=street-labels-1">
   <script defer src="rewards-flow.js?v=8"></script>
   <script defer src="shopping-basket.js?v=3"></script>
@@ -96,6 +96,8 @@
           <div class="storefront-scene" id="storefrontScene" hidden>
             <img class="street-art" id="storefrontBackdrop" src="assets/street-soft-palette-v1.png" alt="当前店铺门前街景" draggable="false">
             <div class="storefront-front" id="storefrontFront" role="img" hidden></div>
+            <div class="storefront-neighbor" data-front-neighbor="paper" aria-hidden="true"></div>
+            <div class="storefront-neighbor" data-front-neighbor="snack" aria-hidden="true"></div>
             <button id="storeDoorHit" hidden aria-label="进入当前店铺"></button>
           </div>
           <div id="walkerPosition" hidden aria-hidden="true"></div>
