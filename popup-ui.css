@@ -1,5 +1,5 @@
 /* Bright cream popup family; street navigation and character scale are unchanged. */
-#app{--popup-max-height:85%;--popup-ink:#432719;--popup-muted:#887b71;--popup-line:#f5dfcd;--popup-cream:#fffaf4;--popup-orange:#ff5c0b;overflow:clip}
+#app{--popup-max-height:85%;--popup-ink:#432719;--popup-muted:#887b71;--popup-line:#f5dfcd;--popup-cream:#fffaf4;--popup-orange:#ff5c0b;--reward-action-inset:30px;overflow:clip}
 .phone-shell{overflow:clip}
 #app .overlay{background:#263b3d55}
 #app.has-modal .world,#app.has-modal #walkerPosition,#app.has-modal .street-depth-mask,#app.has-modal .street-actions,#app.has-modal .coupon-condition,#app.has-modal .guide,#app.has-modal .recent{filter:blur(3px)}
@@ -14,20 +14,31 @@
 #app .quiet-action{font-size:13px;color:#857c72;margin-top:13px;padding:4px 12px}
 #app .secondary-cta{margin-top:12px;min-height:43px;border-radius:23px;width:100%;background:#fffaf5;border:1px solid #f4d9c4;font-size:16px;color:#706456;font-weight:650}
 #app .reward-popup{overflow:visible;margin-top:30px}
-#app .offer-popup{padding-top:31px}
+#app .offer-popup{padding-top:37px}
 #app .eyebrow{font-size:12px;text-align:center;color:#a27a4d;letter-spacing:.5px;margin:0 0 7px}
 #app .offer-popup h2{font-size:25px;margin-bottom:22px}
-#app .coupon-ticket{position:relative;isolation:isolate;display:flex;flex-direction:column;align-items:stretch;min-height:144px;padding:0;background:none;border:0;border-radius:0;box-shadow:none;overflow:visible}
+#app .coupon-ticket{position:relative;isolation:isolate;display:flex;flex-direction:column;align-items:stretch;min-height:104px;padding:0;background:none;border:0;border-radius:0;box-shadow:none;overflow:visible}
 #app .coupon-ticket:before,#app .coupon-ticket:after{content:none;display:none}
+/* Grouped coupons reveal a second sheet beneath the readable front coupon. */
+#app .coupon-ticket:has(.coupon-stack-count){margin-bottom:10px}
+#app .coupon-ticket:has(.coupon-stack-count):before{content:'';display:block;position:absolute;inset:10px 7px -10px;width:auto;height:auto;border:1px solid var(--q-orange-line);border-radius:18px;background:#ffe4d5;z-index:0;pointer-events:none}
+#app .coupon-ticket.is-unavailable:has(.coupon-stack-count):before{background:#eee7dc;border-color:#ded5c8}
 #app .coupon-shape{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:0;overflow:visible}
-#app .coupon-main{position:relative;z-index:1;width:100%;display:flex;align-items:center;flex:1;min-height:98px;padding:12px 10px 8px}
-#app .coupon-amount{width:37%;font-size:68px;line-height:1;font-weight:850;letter-spacing:-3px;color:#ff5b0a;padding:0;text-shadow:none}
-#app .coupon-amount small{font-size:28px;font-weight:800;letter-spacing:-1px;margin-right:2px}
-#app .coupon-copy{min-width:0;padding:10px 5px 10px 15px;border-color:#efbd92}
-#app .coupon-copy strong{font-size:20px;line-height:27px;letter-spacing:-.5px;font-weight:800}
+#app .coupon-main{position:relative;z-index:1;width:100%;display:flex;align-items:center;flex:1;min-height:104px;padding:14px 30px}
+#app .coupon-stack-count{position:absolute;left:1px;top:1px;bottom:auto;padding:2px 8px;border-radius:17px 0 8px 0;background:var(--q-action);color:#fff;font-size:10px;line-height:16px;font-weight:650;letter-spacing:0;white-space:nowrap}
+#app .is-unavailable .coupon-stack-count{background:#eae1d4;color:#a38e76}
+#app .coupon-amount{width:30%;font-size:60px;line-height:1;font-weight:850;letter-spacing:-3px;color:#ff5b0a;padding:0;text-align:left;text-shadow:none}
+#app .coupon-amount small{font-size:25px;font-weight:800;letter-spacing:-1px;margin-right:2px}
+#app .coupon-ticket.is-two-digit .coupon-amount{font-size:52px}
+#app .coupon-ticket.is-two-digit .coupon-amount small{font-size:22px}
+#app .coupon-ticket.is-three-digit .coupon-amount{font-size:38px;letter-spacing:-2px}
+#app .coupon-ticket.is-three-digit .coupon-amount small{font-size:18px}
+#app .coupon-copy{min-width:0;padding:0 0 0 13px;border-color:#efbd92}
+#app .coupon-copy strong{display:block;padding-right:70px;font-size:20px;line-height:27px;letter-spacing:-.5px;font-weight:800}
 #app .coupon-copy .coupon-label{font-size:11px;line-height:18px;color:#a37b5e;margin-top:5px}
-#app .coupon-footer{position:relative;z-index:1;flex:none;display:flex;align-items:center;justify-content:space-between;gap:8px;border-top:1px dashed #edc8a3;margin:0 15px;padding:9px 0 12px;min-height:46px}
-#app .coupon-validity{font-size:11px;line-height:18px;color:#9b7a5e;white-space:nowrap}
+#app .coupon-copy .coupon-validity{display:block;font-size:10px;line-height:16px;color:#9b7a5e;white-space:nowrap;margin-top:4px}
+#app .coupon-main>.coupon-use-action,#app .coupon-main>.coupon-status{position:absolute;top:15px;right:var(--reward-action-inset)}
+#app .coupon-main>.coupon-use-action{top:50%;transform:translateY(-50%)}
 #app .coupon-status{font-size:11px;line-height:18px;font-weight:600;color:#e67a32;background:#ffdbb4;border-radius:10px;padding:1px 7px;white-space:nowrap}
 #app .coupon-ticket.is-unavailable .coupon-amount{color:#b6a18a}
 #app .coupon-ticket.is-unavailable .coupon-copy strong{color:#998773}
@@ -48,19 +59,18 @@
 #app .ticket-terms{color:#667271;font-size:13px;font-weight:600;margin:15px 0 24px;text-align:center}
 #app .success-sub{color:#9a8f83;font-size:12px;margin:-11px 0 22px;text-align:center}
 #app .popup-footnote{font-size:11px;color:#a19385;text-align:center;margin:13px 0 0;line-height:1.6}
-#app .popup-mascot{position:absolute;top:-125px;left:calc(50% - 105px);width:210px;height:129px;overflow:hidden;pointer-events:none}
-#app .popup-mascot img{position:absolute;width:340px;height:340px;max-width:none;top:-69px;left:-65px;object-fit:contain}
-#app .portrait-fallback{position:absolute;left:65px;top:25px;display:grid;place-items:center;width:80px;height:80px;background:#fff0b2;border-radius:28px;transform:rotate(-8deg);color:#ff9b25}
-#app .portrait-fallback .lucide{width:48px;height:48px;stroke-width:2}
-#app .portrait-ready .portrait-fallback{display:none}
-#app .hello-rays{position:absolute;left:5px;top:63px;width:28px;height:9px;border-radius:2px;background:#ffdc27;transform:rotate(30deg)}
-#app .hello-rays:after{content:'';position:absolute;top:-20px;left:11px;width:10px;height:22px;border-radius:2px;background:#ffe043;transform:rotate(-18deg)}
+#app .popup-mascot{position:absolute;top:-150px;left:50%;transform:translateX(-50%);width:192px;height:192px;overflow:visible;pointer-events:none}
+#app .popup-mascot img{position:absolute;inset:0;width:100%;height:100%;max-width:none;object-fit:contain;clip-path:polygon(0 0,100% 0,100% 87%,70% 87%,70% 78%,30% 78%,30% 87%,0 87%)}
 #app .reward-success-badge{position:absolute;width:70px;height:70px;left:calc(50% - 35px);top:-42px;background:radial-gradient(circle at 35% 22%,#89fa7e,#28d64c 56%,#0aad35);border:3px solid #a1fa94;border-radius:50%;display:grid;place-items:center;box-shadow:0 5px 8px #228a4233,inset 0 -3px 4px #069c3655}
 #app .reward-success-badge .lucide{width:45px;height:45px;stroke-width:4;color:#fff;filter:drop-shadow(0 2px 1px #1eaa3455)}
 #app .claim-success-popup{padding-top:45px}
 #app .claim-success-popup h2{font-size:29px}
-#app .benefit-ticket{background:#fff1d8;border:1px solid #f9d5a8;border-radius:18px;padding:20px 10px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:10px}
-#app .benefit-ticket .lucide{width:38px;height:38px;color:#ff8d28}#app .benefit-ticket strong{font-size:21px}#app .benefit-ticket span{font-size:12px;color:#a18970}
+#app .benefit-ticket{background:#fff7eb;border:1px solid #eddbc3;border-radius:13px;padding:14px 15px;margin:0 0 22px;text-align:left;display:grid;grid-template-columns:24px minmax(0,1fr);align-items:start;gap:12px}
+#app .benefit-ticket>.lucide{width:24px;height:24px;margin-top:1px;color:var(--popup-orange);stroke-width:1.8}
+#app .benefit-ticket>div{min-width:0}
+#app .benefit-ticket strong{display:block;font-size:17px;line-height:24px;font-weight:700}
+#app .benefit-ticket span{display:block;font-size:11px;line-height:18px;color:#8e7d69;margin-top:3px}
+#app .benefit-ticket small{display:block;font-size:10px;line-height:16px;color:#9e8e7b;margin-top:4px;font-weight:400}
 #app .modal.sheet{border-radius:29px 29px 0 0;padding:23px 18px 18px;border-bottom:0;animation:sheet-in .28s cubic-bezier(.2,.8,.2,1)}
 #app .modal.sheet:before{width:31px;height:3px;background:#dbd6cd;top:8px;left:calc(50% - 15px)}
 #app .modal.sheet.shop-sheet{display:flex;flex-direction:column;height:var(--shop-sheet-height,auto);min-height:min(575px,var(--popup-max-height));background:linear-gradient(150deg,#fffefa,#fff8f0);padding:0;overflow:clip;transition:height .28s cubic-bezier(.2,.8,.2,1),max-height .28s cubic-bezier(.2,.8,.2,1)}
@@ -187,33 +197,47 @@
 #app .tomorrow-reward{display:flex;align-items:center;justify-content:center;gap:8px;font-weight:750;font-size:15px;margin:21px 0;color:#4d3520}
 #app .tomorrow-reward .lucide{width:26px;height:26px;color:#ff8c28;fill:#fff2b2}
 #app .tomorrow-reward b{color:#ff671b}
-#app .lottery-popup{background:transparent;border:0;box-shadow:none;text-align:center;overflow:visible;padding:0 11px;width:354px}
-#app .lottery-popup .modal-close{top:-12px;right:0;color:#fff;background:#24483c22}
-#app .lottery-kicker{color:#fff275;font-size:20px;font-weight:800;margin:0 0 4px;text-shadow:0 1px 1px #606b5140}
-#app .lottery-popup h2{color:white;font-size:29px;margin:0;text-shadow:0 2px 2px #4c554522}
-#app .popup-gift{width:118px;height:110px;position:relative;margin:15px auto -4px;transform:rotate(-9deg)}
-#app .gift-box{position:absolute;left:25px;top:46px;width:73px;height:59px;background:linear-gradient(120deg,#ffe6a4,#ffb158);border:2px solid #fff0c8;border-radius:4px 4px 12px 12px;box-shadow:4px 5px 0 #aa74271f}
-#app .gift-box:after{content:'';position:absolute;top:0;bottom:0;left:28px;width:14px;background:#ff7140}
-#app .gift-lid{position:absolute;left:15px;top:32px;width:91px;height:25px;background:linear-gradient(120deg,#fff9d4,#ffd577);border:2px solid #fff3ce;border-radius:5px;z-index:2;transform:rotate(-9deg)}
-#app .gift-lid:after{content:'';position:absolute;top:-1px;bottom:-1px;left:39px;width:15px;background:#ff8750}
-#app .gift-bow{position:absolute;top:3px;left:40px;width:25px;height:31px;border:7px solid #ffce6e;border-radius:20px 19px 3px 18px;transform:rotate(-23deg);z-index:3}
-#app .gift-bow:after{content:'';position:absolute;left:13px;top:5px;width:25px;height:23px;border:7px solid #ffd57f;border-radius:20px 20px 20px 3px;transform:rotate(23deg)}
-#app .popup-gift i{position:absolute;right:-2px;top:31px;font-size:28px;color:#ffea58;font-style:normal}
-#app .lottery-card{background:linear-gradient(140deg,#fffdf6,#fff2df);border:1px solid #ffd99c;border-radius:26px;padding:20px 18px 16px;box-shadow:0 4px 0 #d69e6433;margin-bottom:23px}
-#app .lottery-card h3{font-size:28px;font-weight:850;margin:0 0 4px}
-#app .lottery-card h3 em{font-size:47px;letter-spacing:-2px;color:#ff630c;font-weight:900;line-height:1;font-style:italic}
-#app .lottery-card>p{margin:0 0 16px;font-size:14px;font-weight:600;color:#7e8177}
-#app .prize-grid{display:grid;grid-template-columns:1fr 1fr;background:#ffebc7;border-radius:16px;padding:14px 5px;gap:14px 4px}
-#app .prize-grid strong{display:block;font-size:13px;color:#50321a}
-#app .prize-grid b{font-size:21px;color:#ff6511;display:block;margin-top:3px;line-height:1}
-#app .lottery-popup .popup-footnote{color:#fffaeb}
-#app .lottery-result-popup .popup-gift{margin:-105px auto 15px}
-#app .lottery-result-popup h2{font-size:25px;margin-bottom:20px}
-#app .lottery-result-card{display:flex;flex-direction:column;align-items:center;background:#ffedd3;border:1px solid #ffce92;border-radius:18px;padding:18px;margin-bottom:24px;gap:5px}
-#app .lottery-result-card>span{color:#ff6810;font-size:24px;font-weight:700;line-height:1}
-#app .lottery-result-card b{font-size:71px;letter-spacing:-3px}
-#app .lottery-result-card strong{font-size:20px}
-#app .lottery-result-card small{font-size:11px;color:#a2876d;margin-top:5px}
+#app .modal.center:is(.lottery-popup,.lottery-result-popup){display:flex;flex-direction:column;width:354px;top:0;padding:0;overflow:clip;text-align:center;border-radius:28px}
+#app .lottery-popup-header{position:relative;flex:none;padding:29px 28px 10px}
+#app .lottery-popup-header .eyebrow{font-size:12px;line-height:19px;letter-spacing:.2px;color:#a27a4d;margin:0 0 6px}
+#app .modal.center .lottery-popup-header h2{font-size:25px;line-height:34px;letter-spacing:-.5px;margin:0;color:var(--popup-ink);font-weight:800}
+#app .lottery-popup-header .modal-close{top:12px;right:11px;color:#6d716f;background:none}
+#app .lottery-popup .lottery-popup-header{padding-top:23px;padding-bottom:8px}
+#app .lottery-popup-scroll{flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;padding:0 23px 3px;scrollbar-width:thin;scrollbar-color:#ead8c6 transparent}
+#app .lottery-popup-scroll:focus-visible{outline:2px solid #f2c58e;outline-offset:-4px;border-radius:8px}
+#app .wheel-intro{display:flex;align-items:center;justify-content:center;gap:8px;margin:0 0 10px;font-size:12px;line-height:20px;color:#9a8876}
+#app .wheel-intro strong{font-size:13px;color:var(--popup-orange);font-weight:750}
+#app .lottery-wheel{position:relative;width:252px;height:252px;margin:10px auto 12px;border-radius:50%;background:linear-gradient(140deg,#ffd39a,#ff9b3b 66%,#ed7824);box-shadow:inset 0 2px 2px #fff5d9,0 5px 0 #d9894340,0 10px 16px #d69a5530}
+#app .wheel-light{position:absolute;left:calc(50% - 2.5px);top:calc(50% - 2.5px);width:5px;height:5px;border-radius:50%;background:#fffbe9;box-shadow:0 0 3px #fff7c9;transform:rotate(var(--light-angle)) translateY(-120px)}
+#app .wheel-rotor{position:absolute;inset:11px;border-radius:50%;overflow:hidden;background:conic-gradient(from -45deg,#fff7e8 0 89.5deg,#f1cea5 89.5deg 90deg,#ffe4b9 90deg 179.5deg,#f1cea5 179.5deg 180deg,#fff7e8 180deg 269.5deg,#f1cea5 269.5deg 270deg,#ffe4b9 270deg 359.5deg,#f1cea5 359.5deg);border:1px solid #fff2d6;box-shadow:inset 0 2px 7px #a5732d1a;transform:rotate(var(--wheel-rotation,0deg));transition:transform var(--spin-duration,2800ms) cubic-bezier(.14,.7,.13,1)}
+#app .wheel-prize{position:absolute;left:calc(50% - 42px);top:calc(50% - 31px);width:84px;height:62px;display:flex;flex-direction:column;align-items:center;justify-content:center;transform:rotate(var(--prize-angle)) translateY(-72px) rotate(calc(-1 * var(--prize-angle)));color:#85431e}
+#app .wheel-prize strong{font-size:22px;line-height:25px;font-weight:850;letter-spacing:-.5px}
+#app .wheel-prize strong small{font-size:12px;letter-spacing:0;margin-left:1px}
+#app .wheel-prize>span{font-size:12px;line-height:17px;font-weight:650;color:#63412b}
+#app .wheel-prize em{font-size:10px;line-height:16px;font-style:normal;color:#a18260;margin-top:2px}
+#app .wheel-pointer{position:absolute;z-index:3;top:-5px;left:calc(50% - 11px);width:22px;height:30px;background:linear-gradient(100deg,#ffbc60,#f47924);clip-path:polygon(0 0,100% 0,50% 100%);filter:drop-shadow(0 2px 1px #ba672a33);pointer-events:none}
+#app .wheel-draw{position:absolute;z-index:4;left:50%;top:50%;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;justify-content:center;width:68px;height:68px;border:4px solid #fff3d7;border-radius:50%;background:linear-gradient(150deg,#ffaf4c,#ff6817 65%,#f0590a);box-shadow:0 3px 8px #c5773740,inset 0 1px 2px #ffddaa;padding:0;color:white;line-height:19px;font-size:15px;font-weight:750}
+#app .wheel-draw strong{font-size:15px;font-weight:750}
+#app .wheel-draw:disabled{color:#fff6e6}
+#app .is-spinning .wheel-light:nth-child(2n){background:#fff;box-shadow:0 0 5px #fff5c5}
+#app .wheel-prize-note{margin:0;font-size:10px;line-height:18px;color:#aa927a}
+#app .wheel-status{margin:0;font-size:12px;line-height:18px;color:#9b7754;min-height:18px}
+#app .lottery-popup-footer{flex:none;padding:17px 23px 22px;background:#fffbf6;border-top:1px solid #f3e5d6;margin-top:14px}
+#app .lottery-popup-footer .popup-footnote{font-size:10px;line-height:18px;color:#a19385;margin-top:11px}
+#app .lottery-popup .lottery-popup-footer{padding-top:14px;padding-bottom:17px;margin-top:12px}
+#app .lottery-popup .lottery-popup-footer .popup-footnote{margin-top:9px}
+#app .lottery-wheel-popup .lottery-popup-footer{padding-top:12px;padding-bottom:14px;margin-top:10px}
+#app .lottery-wheel-popup .lottery-popup-footer .popup-footnote{margin-top:6px}
+#app .lottery-result-popup .lottery-popup-header{padding-top:22px;padding-bottom:8px}
+#app .lottery-result-reward{margin:2px 0 16px}
+#app .lottery-result-summary{font-size:18px;line-height:27px;font-weight:750;color:var(--popup-ink);margin:0;text-align:center}
+#app .lottery-result-summary span{display:block;color:#a18c76;font-size:12px;line-height:20px;font-weight:400;margin-top:3px}
+#app .lottery-result-tickets{display:flex;flex-direction:column;gap:13px;text-align:left;padding-bottom:3px}
+#app .lottery-result-tickets .coupon-copy strong{padding-right:0}
+#app .lottery-result-popup .lottery-popup-footer{margin-top:14px;padding-top:14px;padding-bottom:16px}
+#app .lottery-result-popup .lottery-popup-footer .quiet-action{margin-top:8px}
+#app .lottery-popup-footer .quiet-action{font-size:13px;line-height:20px;margin-top:12px}
+#app .lottery-popup-footer .order-notice{font-size:10px;line-height:18px;margin-top:10px;color:#a19385}
 #app .recent-detail{padding:0;background:none;width:100%;text-align:left}
 #app .recent{display:flex;flex-direction:column;padding:12px 13px 0;overflow:clip}
 #app .recent-heading{display:flex;align-items:center;justify-content:space-between;flex:none;margin:0 5px 10px 7px;gap:10px}
@@ -234,8 +258,142 @@
 #app .modal.sheet>.bottom-sheet-header .bottom-sheet-title{font-family:inherit;font-size:25px;line-height:34px;font-weight:750;letter-spacing:-.5px;color:#3c2418;margin:0}
 #app .modal.sheet>.bottom-sheet-header p{font-size:12px;line-height:20px;color:#9c8d7d;margin:8px 0 0}
 #app .modal.sheet>.bottom-sheet-header:has(>.modal-close){padding-right:56px}
-#app .modal.sheet>.bottom-sheet-header>.modal-close{top:26px;right:17px}
+/* Match the cart's close control, independently of header text height. */
+#app .modal.sheet>.bottom-sheet-header :is(.modal-close,.detail-close,[data-dismiss]){position:absolute;top:26px;right:22px;display:grid;place-items:center;width:34px;height:34px;padding:6px;margin:0;border:0;border-radius:50%;background:transparent;z-index:2}
+#app .modal.sheet>.bottom-sheet-header :is(.modal-close,.detail-close,[data-dismiss])>.lucide{width:23px;height:23px;stroke-width:1.8}
+#app .modal.sheet>.bottom-sheet-header .sheet-actions{position:static;display:flex;align-items:center;align-self:flex-start;gap:9px;min-height:34px;padding:0 43px 0 0;margin:0}
+#app .modal.sheet>.bottom-sheet-header .sheet-actions>button{width:34px;height:34px;padding:6px;margin:0}
 #app .modal.sheet>.bottom-sheet-scroll{flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;padding:0 22px 22px;scroll-padding:14px;scrollbar-width:thin;scrollbar-color:#ead8c6 transparent}
 #app .modal.sheet>.bottom-sheet-scroll:focus-visible{outline:2px solid #f2c58e;outline-offset:-4px}
 #app .modal.sheet.checkout-popup>.bottom-sheet-header{padding-left:56px;padding-right:56px}
 #app .modal.sheet.checkout-popup>.bottom-sheet-scroll{padding-left:24px;padding-right:24px}
+
+/* Usable wallet rewards keep their expiry and action attached to each card. */
+#app .coupon-use-action{flex:none;display:inline-flex;align-items:center;justify-content:center;min-width:68px;min-height:32px;margin:0;border-radius:17px;padding:6px 13px;background:linear-gradient(180deg,#ff9429,#ff610b);border:1px solid #ffb96d;box-shadow:inset 0 1px 1px #ffe4b78c,0 2px 3px #f5822520;color:#fff;font-size:13px;line-height:18px;font-weight:650;white-space:nowrap}
+#app .coupon-use-action:hover{background:linear-gradient(180deg,#ff8720,#f95708)}
+#app .entitlement-card{margin:0 0 17px;padding:18px;border:1px solid #f4ddc3;background:#fff4e2}
+#app .entitlement-card strong{font-size:19px;line-height:27px}
+#app .entitlement-card small{display:block;margin-top:9px;color:#a48c70;font-size:11px;line-height:18px}
+#app .entitlement-card .secondary-cta{margin-top:13px;background:#fffaf2;color:#ad6027}
+#app .benefit-note{display:flex;gap:8px;align-items:center;margin:0 0 16px;padding:11px 13px;border-radius:12px;background:#fff0db;color:#a8723d;font-size:12px;line-height:20px}
+#app .benefit-note .lucide{width:19px;height:19px;flex:none}
+#app .prize-history>div{padding:12px 0;border-bottom:1px solid #f1e2d3}
+#app .prize-history>div:last-child{border:0}
+#app .prize-history strong{font-size:14px;line-height:22px}
+#app .prize-history p{margin-top:4px;font-size:11px;line-height:18px}
+
+/* Keep the full unlock history, with actions only on current rewards. */
+#app .wallet-section{margin:0 0 24px}
+#app .wallet-section-title{display:flex;align-items:center;gap:7px;margin:0 0 12px;color:#634a37;font-size:14px;line-height:22px;font-weight:650}
+#app .wallet-section-title>span{display:inline-flex;align-items:center;justify-content:center;min-width:20px;height:20px;padding:0 6px;border-radius:10px;background:#f5ebde;color:#9b8066;font-size:11px;font-weight:500}
+#app .wallet-section .reward-coupon-list{margin:0}
+#app .wallet-benefit{display:flex;align-items:center;gap:12px;min-height:104px;padding:16px calc(var(--reward-action-inset) - 1px) 16px 16px;border:1px solid #f5d6b2;border-radius:18px;background:#fff3e3;color:#493322}
+#app .wallet-benefit-icon{display:flex;align-items:center;justify-content:center;flex:none;width:40px;height:44px;border-radius:13px;background:#ffe7c9;color:#f18c35}
+#app .wallet-benefit-icon .lucide{width:24px;height:24px}
+#app .wallet-benefit-copy{flex:1;min-width:0}
+#app .wallet-benefit-copy>strong{display:block;font-size:17px;line-height:24px;font-weight:700}
+#app .wallet-benefit-copy>p{margin:5px 0 0;color:#a37f60;font-size:11px;line-height:18px}
+#app .wallet-benefit-copy>small{display:block;margin-top:3px;color:#a37f60;font-size:10px;line-height:16px}
+#app .wallet-reward-status{flex:none;align-self:flex-start;margin-top:1px;padding:4px 7px;border-radius:12px;background:#f1e8db;color:#998570;font-size:11px;line-height:16px;font-weight:600}
+#app .wallet-benefit.is-unavailable{background:#fcf8f1;border-color:#e4d8c8;color:#80705e}
+#app .wallet-benefit.is-unavailable .wallet-benefit-icon{background:#f3ece1;color:#b5a18a}
+#app .wallet-benefit.is-unavailable .wallet-benefit-copy>p,#app .wallet-benefit.is-unavailable .wallet-benefit-copy>small{color:#a89884}
+
+/* The unified cart footer stays visible while product lists scroll. */
+#app .basket-footer{flex:none;display:flex;align-items:center;gap:10px;border-top:1px solid #efdfce;background:#fffaf2;padding:13px 20px 18px}
+#app .basket-summary{display:flex;align-items:center;gap:10px;flex:1;min-width:0;background:none;padding:0;text-align:left}
+#app .basket-summary>span:last-child{min-width:0}
+#app .basket-summary strong{display:block;font-size:17px;line-height:25px;color:#493424;white-space:nowrap;letter-spacing:-.3px}
+#app .basket-summary small{display:block;margin-top:2px;font-size:10px;line-height:17px;color:#a18265;white-space:nowrap}
+#app .basket-symbol{position:relative;flex:none;display:grid;place-items:center;width:40px;height:42px;border-radius:13px;background:#ffedda;color:#b9753b}
+#app .basket-symbol>.lucide{width:24px;height:24px}
+#app .basket-symbol>b{position:absolute;right:-3px;top:-4px;min-width:17px;height:17px;padding:0 4px;border-radius:9px;background:#fb7432;color:#fff;font-size:10px;line-height:17px;text-align:center}
+#app .basket-checkout-cta{flex:none;border-radius:23px;min-height:43px;min-width:92px;padding:10px 14px;color:white;background:linear-gradient(#ff9b2c,#ff610a);border:1px solid #ffb56a;font-size:15px;font-weight:700;box-shadow:inset 0 1px 1px #ffe4b7}
+#app .basket-checkout-cta:disabled{background:#eee5d9;border-color:#eee5d9;color:#b1a18d;box-shadow:none}
+#app .shop-product-row .product-buy{display:flex;align-items:center;gap:3px}
+#app .shop-product-row .product-buy .lucide{width:14px;height:14px}
+#app .basket-quantity{display:flex;align-items:center;gap:8px;flex:none}
+#app .basket-quantity>button{width:27px;height:27px;padding:5px;display:grid;place-items:center;border:1px solid #f1d9bd;border-radius:9px;background:#fff8ec;color:#bd7b42}
+#app .basket-quantity>button:disabled{opacity:.4}
+#app .basket-quantity .lucide{width:14px;height:14px}
+#app .basket-quantity>strong{min-width:13px;text-align:center;font-size:13px;line-height:20px;color:#654b36}
+#app .basket-item{display:flex;gap:12px;align-items:center;border:1px solid #f0e1d2;border-radius:17px;padding:12px;margin:0 0 10px;background:#fffdf8}
+#app .basket-item>.product-art{width:88px;height:88px;flex:none;mix-blend-mode:multiply}
+#app .basket-item-copy{flex:1;min-width:0}
+#app .basket-item-copy>strong{display:block;font-size:15px;line-height:22px;color:#513c2c}
+#app .basket-item-copy>span{display:block;margin-top:5px;font-size:12px;color:#ad8866;line-height:18px}
+#app .basket-item-copy>div{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:9px}
+#app .basket-remove{font-size:11px;line-height:20px;padding:3px 0;background:none;color:#ab9986}
+#app .basket-empty,#app .wallet-empty{padding:34px 10px;text-align:center;color:#aa9580}
+#app .basket-empty>.lucide,#app .wallet-empty>.lucide{width:35px;height:35px;stroke-width:1.5;color:#cbb69c;margin-bottom:12px}
+#app .basket-empty>strong{display:block;font-size:16px;line-height:24px;font-weight:600}
+#app .basket-empty>p,#app .wallet-empty>p{margin:8px 0 0;font-size:12px;line-height:21px}
+#app .basket-sheet .secondary-cta{font-size:14px}
+#app .modal.detail-sheet>.detail-scroll{padding-bottom:0}
+#app .detail-sheet>.detail-footer{flex:none;display:grid;grid-template-columns:44px minmax(0,1fr);gap:12px;align-items:center;padding:14px 22px max(19px,env(safe-area-inset-bottom));background:var(--popup-cream)}
+#app .detail-cart-entry{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;min-height:49px;width:44px;padding:0;background:transparent;color:var(--popup-muted);border-radius:10px}
+#app .detail-cart-entry>.lucide{width:23px;height:23px;stroke-width:1.8;color:var(--popup-orange)}
+#app .detail-cart-entry>span{font-size:10px;line-height:15px;white-space:nowrap}
+#app .detail-purchase-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;min-width:0}
+#app .detail-purchase-actions .wide-cta{width:100%;min-width:0;font-size:18px;min-height:49px;padding:10px}
+#app .detail-purchase-actions .secondary-cta{width:100%;min-width:0;min-height:49px;padding:10px;margin:0;font-size:18px;background:#fff3e3;color:#b87436}
+#app .detail-sheet .sheet-head>.sheet-actions{display:flex;align-self:center;padding:0;margin-left:auto}
+#app .detail-sheet .sheet-actions>.detail-close{position:static;margin:0}
+#app .basket-sheet .detail-close{position:static;background:none;color:#767b72;padding:5px;width:32px;height:32px;flex:none}
+#app .coupon-unavailable{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+#app .coupon-unavailable>button{margin-left:auto;white-space:nowrap;flex:none;padding:5px 10px;border:1px solid #efcba6;border-radius:14px;color:#b77639;background:#fff4e6;font-size:12px;line-height:18px}
+#app .checkout-basket-list{display:flex;flex-direction:column;gap:8px;margin:0 0 8px}
+#app .checkout-basket-item{display:flex;align-items:center;gap:10px;padding:10px;border:1px solid #f1e2d3;border-radius:15px;background:#fffcf8}
+#app .checkout-basket-item>.product-art{width:66px;height:66px;flex:none;mix-blend-mode:multiply}
+#app .checkout-basket-item>div:not(.product-art){min-width:0;flex:1}
+#app .checkout-basket-item strong{display:block;font-size:14px;line-height:21px;color:#634b38}
+#app .checkout-basket-item span{display:block;font-size:11px;line-height:18px;color:#a98e74;margin-top:5px}
+#app .checkout-basket-item>b{font-size:14px;color:#72513a;white-space:nowrap;flex:none}
+#app .basket-checkout-note{margin:10px 0;font-size:10px;line-height:18px;color:#b09a83}
+#app .order-basket-art{display:flex;align-items:center;justify-content:center;gap:5px;margin:5px 0 0}
+#app .order-basket-art>.product-art{width:88px;height:88px;mix-blend-mode:multiply;flex:none}
+#app .order-basket-count{text-align:center;font-size:12px;line-height:20px;color:#9d8269;margin:8px 0 18px}
+
+/* Reward navigation stays in the fixed sheet header. */
+#app .wallet-tabbed-sheet{height:min(600px,var(--popup-max-height));min-height:0}
+#app .modal.wallet-tabbed-sheet>.bottom-sheet-header{padding-bottom:0}
+#app .wallet-tabs{display:flex;gap:24px;margin-top:18px;border-bottom:1px solid #efe4d6}
+#app .wallet-tabs>button{position:relative;padding:0 0 12px;background:none;color:#ab9985;font-size:16px;line-height:24px;font-weight:600;white-space:nowrap}
+#app .wallet-tabs>button>span{display:inline-block;margin-left:4px;font-size:12px;font-weight:500;color:#b09b83}
+#app .wallet-tabs>button[aria-selected=true]{color:#65442d}
+#app .wallet-tabs>button[aria-selected=true]:after{content:'';position:absolute;bottom:-1px;left:0;right:0;height:3px;border-radius:2px;background:#df9a5d}
+#app .modal.wallet-tabbed-sheet>.rewards-sheet-scroll{padding-top:18px}
+#app .wallet-pending{display:flex;align-items:center;gap:10px;padding:12px;border:1px solid #f5dbb7;border-radius:16px;margin:0 0 18px;background:#fff0d9}
+#app .wallet-pending-icon{display:grid;place-items:center;width:32px;height:36px;flex:none;color:#d3934e}
+#app .wallet-pending-icon>.lucide{width:25px;height:25px}
+#app .wallet-pending>div{min-width:0;flex:1}
+#app .wallet-pending strong{display:block;font-size:14px;line-height:21px;color:#875a32}
+#app .wallet-pending small{display:block;margin-top:3px;font-size:10px;line-height:17px;color:#aa8762}
+#app .wallet-pending>button{flex:none;padding:6px 11px;border-radius:16px;background:#ffdfb5;color:#a56932;font-size:12px;line-height:18px;font-weight:600}
+#app .wallet-filters{display:flex;gap:8px;margin:0 0 17px}
+#app .wallet-filters>button{padding:6px 13px;border:1px solid #eedecc;border-radius:16px;background:transparent;color:#a18a73;font-size:12px;line-height:18px}
+#app .wallet-filters>button[aria-pressed=true]{background:#f5e8d7;border-color:#ead5bb;color:#825f3d}
+#app .wallet-order-record h3{font-size:13px;font-weight:600}
+#app .wallet-order-record p{font-size:11px}
+
+/* The street-wide cart stays within reach as the home feed scrolls. */
+#app .home-cart-entry{position:absolute;right:18px;bottom:calc(22px + env(safe-area-inset-bottom,0px));z-index:21;display:grid;place-items:center;width:48px;height:48px;min-height:48px;padding:10px;border:1px solid #eddbc4;border-radius:50%;background:#fffbf3;color:#9a714a;box-shadow:0 4px 15px #715a3826,inset 0 1px 0 #fff;white-space:nowrap}
+#app .home-cart-entry>.lucide{width:25px;height:25px;stroke-width:1.8}
+#app .home-cart-entry>b{position:absolute;top:-3px;right:-3px;display:grid;place-items:center;min-width:20px;height:20px;padding:0 4px;border:2px solid #fffbf3;border-radius:11px;background:#df8e48;color:#fff;font-size:10px;line-height:16px;font-weight:650;text-align:center}
+#app.has-modal .home-cart-entry{display:none}
+
+/* Atmospheric cards keep a separate close control below the card. */
+#app .modal.center,#app .modal.center:is(.lottery-popup,.lottery-result-popup){--atmosphere-top:0px;display:flex;flex-direction:column;flex:0 1 auto;min-height:0;top:0;margin:var(--atmosphere-top) 0 72px;padding:0;overflow:visible;max-height:min(var(--popup-max-height),calc(100% - var(--atmosphere-top) - 104px))}
+#app .modal.center.offer-popup{--atmosphere-top:150px}
+#app .modal.center.claim-success-popup{--atmosphere-top:34px}
+#app .atmosphere-content{flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;padding:28px 23px 23px;border-radius:inherit;scrollbar-width:thin;scrollbar-color:#ead8c6 transparent}
+#app .atmosphere-content:focus-visible{outline:2px solid #f2c58e;outline-offset:-4px}
+#app .offer-popup>.atmosphere-content{padding-top:37px}
+#app .claim-success-popup>.atmosphere-content{padding-top:45px}
+#app .order-success-popup>.atmosphere-content{padding-top:24px}
+#app .modal.center>.atmosphere-close{position:absolute;top:calc(100% + 14px);left:50%;right:auto;transform:translateX(-50%);display:grid;place-items:center;flex:none;width:44px;height:44px;padding:10px;border-radius:50%;background:transparent;color:#fff;z-index:2}
+#app .atmosphere-close:before{content:'';position:absolute;inset:4px;border:1px solid #ffffffb3;border-radius:50%;background:#26303912;pointer-events:none}
+#app .modal.center>.atmosphere-close:hover{background:#ffffff14}
+#app .atmosphere-close>.lucide{position:relative;width:22px;height:22px;stroke-width:1.8}
+#app .modal.center>.lottery-popup-header{border-radius:28px 28px 0 0}
+#app .modal.center>.lottery-popup-footer{border-radius:0 0 28px 28px}

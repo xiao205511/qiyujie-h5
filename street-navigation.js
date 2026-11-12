@@ -8,11 +8,12 @@
   const clamp=(x,a,b)=>Math.max(a,Math.min(b,x)),mix=(a,b,t)=>a+(b-a)*t,smooth=t=>t*t*(3-2*t);
   const stops={
     paper:{point:rigged?[282,534]:[278,548],scale:1,screen:rigged?[282,534]:[278,548],facing:1,arrivalHeading:[-.7,-.7]},
-    snack:{point:rigged?[347,465]:[353,443],scale:rigged?1.3:1.7,screen:rigged?[330,534]:[332,540],facing:1,arrivalHeading:[.35,-.94]},
+    // Stand on the approach pavement beside the nearby shop's left doorstep.
+    snack:{point:rigged?[310,434]:[353,443],scale:rigged?1.3:1.7,screen:rigged?[280,512]:[332,540],facing:1,arrivalHeading:[.35,-.94]},
     kitchen:{point:[292,327],scale:2,screen:[224,510],facing:1,arrivalHeading:[0,-1]},
   };
   const paperSnack=root.QiyuRigStreetMotion
-    ?[stops.paper.point,[298,524],[316,512],[333,494],[343,479],stops.snack.point]
+    ?[stops.paper.point,[286,510],[293,488],[300,466],[306,448],stops.snack.point]
     :[stops.paper.point,[306,541],[334,527],[357,506],[368,485],[363,464],stops.snack.point];
   const snackKitchen=[stops.snack.point,[330,438],[306,430],[286,420],[273,407],[267,395],[270,380],[274,360],[282,343],stops.kitchen.point];
   const paperKitchen=[...paperSnack.slice(0,-1),[347,450],...snackKitchen.slice(1)];
@@ -33,7 +34,12 @@
       return root.QiyuRigStreetMotion?root.QiyuRigStreetMotion.strideFor(point,heading):60*(2*motion.reach*1.3/motion.stance)*sizeAt(point[1])*projected;
     },
   });
-  nav.durationFor=path=>rigged&&path.from==='paper'&&path.to==='snack'?3:root.QiyuRigStreetMotion?clamp(path.gaitLength*root.QiyuRigStreetMotion.period/root.QiyuRigStreetMotion.travelSpeed,2.4,18):clamp(path.gaitLength*motion.period,2.4,8.8);
+  nav.durationFor=path=>rigged?clamp(2.35+path.length/500,2.4,3):clamp(path.gaitLength*motion.period,2.4,8.8);
+  // Keep clip cadence gentle while allowing controlled sliding along the route.
+  nav.gaitForProgress=(path,progress)=>{
+    const cycles=Math.min(path.gaitLength,nav.durationFor(path)/(root.QiyuRigStreetMotion?.period||motion.period)*.78);
+    return cycles*smooth(clamp(progress,0,1));
+  };
   nav.distanceForProgress=(path,progress)=>{
     const p=clamp(progress,0,1),r=.12;
     const travel=p<r?p*p/(2*r*(1-r)):p>1-r?1-(1-p)*(1-p)/(2*r*(1-r)):(p-r/2)/(1-r);

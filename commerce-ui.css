@@ -1,0 +1,158 @@
+/* The commerce surfaces share a fixed title, generous scrolling content and a small action dock. */
+#app .modal.commerce-sheet{height:85%;min-height:0;background:#fcf8f3;border-radius:29px 29px 0 0}
+#app .modal.commerce-sheet>.commerce-header{padding:25px 22px 17px;display:flex;align-items:center;justify-content:space-between;gap:16px;min-height:78px;background:#fffcf8}
+#app .commerce-header .bottom-sheet-title{text-align:left;white-space:nowrap;font-size:25px;line-height:34px}
+#app .commerce-header h2>span{font-size:20px;letter-spacing:0;font-weight:650}
+#app .commerce-header .detail-close{position:static;flex:none;margin:0;padding:6px;background:none;color:#81776e;width:34px;height:34px;display:grid;place-items:center}
+#app .commerce-header .detail-close>.lucide{width:23px;height:23px;stroke-width:1.8}
+#app .modal.commerce-sheet>.commerce-scroll{padding:4px 14px 24px;scroll-padding:16px;overflow-x:hidden;scrollbar-width:thin;scrollbar-color:#d8c9bc transparent}
+#app .commerce-scroll>section+section{margin-top:14px}
+#app .commerce-dock{flex:none;background:#fffcf8;border-top:1px solid #f0e4d9;box-shadow:0 -7px 16px #614a3305;padding-bottom:max(14px,env(safe-area-inset-bottom))}
+#app .commerce-card{background:#fff;border-radius:19px;border:0;width:100%;text-align:left}
+#app .cart-coupon-banner{display:flex;align-items:center;gap:10px;margin:0 0 14px;padding:14px 13px;background:#fff0e5;border-radius:14px;color:#593d28;min-height:64px}
+#app .cart-coupon-banner>.lucide{width:25px;height:25px;flex:none;color:#f76b17;stroke-width:1.8}
+#app .cart-coupon-banner>strong{flex:1;min-width:0;font-size:13px;line-height:21px;font-weight:600}
+#app .cart-coupon-banner>strong>span{color:#ed6f22;white-space:nowrap}
+#app .cart-coupon-banner>button{background:none;color:#9b7b60;font-size:12px;padding:7px 0 7px 6px;white-space:nowrap;flex:none}
+#app .cart-store{border-radius:19px;padding:0 14px;background:#fff;margin:0 0 14px}
+#app .cart-store-heading{display:flex;align-items:center;gap:10px;padding:17px 0 15px;border-bottom:1px solid #f4ede6}
+#app .cart-store-heading>h3{font-size:17px;line-height:25px;font-weight:750;margin:0;flex:1;min-width:0}
+#app .cart-store-heading>button:last-child{display:flex;align-items:center;gap:2px;background:none;color:#a58a72;font-size:12px;padding:3px 0}
+#app .cart-store-heading>button:last-child>.lucide{width:14px;height:14px}
+#app .cart-store-heading>.lucide{width:21px;height:21px;color:#b38b66}
+#app .cart-check{background:white;border:1.5px solid #d5c4b3;border-radius:50%;width:23px;height:23px;flex:none;display:grid;place-items:center;padding:3px;color:white}
+#app .cart-check[aria-checked=true],#app .cart-check[aria-checked=mixed]{background:#ff781b;border-color:#ff781b}
+#app .cart-check>.lucide{width:16px;height:16px;stroke-width:3}
+#app .cart-product{display:flex;gap:10px;align-items:center;padding:19px 0;min-height:137px}
+#app .cart-product+.cart-product{border-top:1px solid #f4ede6}
+#app .cart-product-image{padding:0;background:none;flex:none;border-radius:11px}
+#app .cart-product-image>.product-art{width:96px;height:104px;mix-blend-mode:multiply;border-radius:11px}
+#app .cart-product-copy{flex:1;min-width:0;align-self:stretch;display:flex;flex-direction:column;justify-content:center;gap:8px}
+#app .cart-product-heading{display:flex;align-items:flex-start;gap:8px}
+#app .cart-product-heading>button:first-child{flex:1;min-width:0;text-align:left;padding:0;background:none;font-size:15px;line-height:22px;font-weight:650;color:#483525}
+#app .cart-product-heading>.basket-remove{flex:none;line-height:20px;font-size:10px;padding:0;color:#b29f8e}
+#app .cart-product-copy>span{font-size:11px;line-height:17px;color:#ab9783}
+#app .cart-product-price{display:flex;align-items:center;justify-content:space-between;gap:7px;margin-top:2px}
+#app .cart-product-price>strong{font-size:21px;line-height:27px;font-weight:750;color:#fa6811;letter-spacing:-.4px;white-space:nowrap}
+#app .cart-product .basket-quantity{gap:6px}
+#app .cart-product .basket-quantity>button{width:26px;height:26px;border-radius:9px;padding:5px}
+#app .cart-product .basket-quantity>strong{min-width:12px;font-size:13px}
+#app .cart-coupon-progress{padding:12px 18px 10px;background:#fff2e8}
+#app .cart-coupon-progress>div{display:flex;align-items:center;justify-content:space-between;gap:10px}
+#app .cart-coupon-progress strong{font-size:12px;line-height:20px;font-weight:650;color:#ed6d20}
+#app .cart-coupon-progress strong>span{font-weight:550}
+#app .cart-coupon-progress button{display:flex;gap:0;align-items:center;padding:0;background:none;color:#ec6f21;font-size:12px;font-weight:600;white-space:nowrap}
+#app .cart-coupon-progress button>.lucide{width:14px;height:14px}
+#app .cart-coupon-progress progress{display:block;width:100%;height:4px;border:0;border-radius:3px;overflow:hidden;margin-top:9px;appearance:none;background:#f8d9c0;color:#ff781b}
+#app .cart-coupon-progress progress::-webkit-progress-bar{background:#f8d9c0;border-radius:3px}
+#app .cart-coupon-progress progress::-webkit-progress-value{background:#ff791c;border-radius:3px}
+#app .cart-coupon-progress progress::-moz-progress-bar{background:#ff791c;border-radius:3px}
+#app .cart-settle-row{display:flex;align-items:center;gap:10px;padding:15px 18px 1px;min-height:80px}
+#app .cart-select-all{display:flex;align-items:center;gap:6px;font-size:13px;color:#6e5642;white-space:nowrap}
+#app .cart-settle-total{flex:1;min-width:0;text-align:right}
+#app .cart-settle-total>strong{font-size:12px;line-height:24px;font-weight:550;white-space:nowrap}
+#app .cart-settle-total em{font-size:23px;color:#fa6811;letter-spacing:-.7px;font-style:normal;font-weight:750}
+#app .cart-settle-total>small{display:block;font-size:10px;color:#a28a74;line-height:18px}
+#app .commerce-sheet .basket-checkout-cta{min-height:44px;min-width:100px;font-size:16px;border-radius:24px;padding:9px 15px}
+#app .local-cart-note{display:flex;align-items:center;gap:8px;justify-content:space-between;padding:8px 2px 15px;color:#ab8b70;font-size:11px}
+#app .local-cart-note>button{font-size:11px;color:#b17646;background:none;padding:0}
+#app .shop-cart-footer{padding:15px 18px 19px;gap:12px}
+#app .shop-cart-footer .basket-summary{gap:9px}
+#app .shop-cart-footer .basket-summary>span:last-of-type{min-width:0}
+#app .shop-cart-footer .basket-summary>svg:last-child{width:13px;height:13px;color:#b38a68;flex:none;margin-left:auto}
+#app .shop-cart-footer .basket-summary strong{font-size:13px;line-height:23px;font-weight:550}
+#app .shop-cart-footer .basket-summary em{font-style:normal;color:#f57420;font-size:21px;font-weight:750}
+#app .shop-cart-footer .basket-summary small{font-size:10px;line-height:17px;white-space:normal}
+#app .shop-cart-footer .basket-symbol{width:41px;height:43px}
+#app .shop-cart-footer .basket-checkout-cta{min-width:100px;font-size:16px}
+#app .shop-product-row{min-height:146px;padding:14px 6px;border:0;background:#fff;border-radius:0;gap:13px}
+#app .shop-product-row+.shop-product-row{border-top:1px solid #f1e8dc}
+#app .shop-product-list{gap:0;border-radius:18px;background:#fff;padding:0 9px}
+#app .shop-product-row .row-art,#app .shop-product-row .row-art .product-art{width:108px;height:108px}
+#app .shop-product-row .row-product-copy{gap:9px}
+#app .shop-product-row .row-price-action{gap:10px}
+#app .exclusive-product-prices{display:flex;align-items:baseline;flex-wrap:wrap;gap:3px 6px;min-width:0}
+#app .exclusive-original-price{font-size:11px;line-height:18px;font-weight:400;letter-spacing:0;color:var(--q-muted);white-space:nowrap}
+#app .shop-product-row .price{font-size:25px;letter-spacing:-.6px}
+#app .shop-product-row .product-buy.quick-add{width:29px;height:29px;min-height:29px;padding:5px;border-radius:50%;justify-content:center}
+#app .shop-product-row .product-buy.quick-add>.lucide{width:18px;height:18px}
+#app .shop-product-row .basket-quantity>button{border-radius:50%;width:28px;height:28px}
+#app .shop-product-row .basket-quantity{gap:8px}
+#app .more-product{display:flex;flex-direction:column}
+#app .more-product-detail{display:block;flex:1;width:100%;padding:0;background:transparent;text-align:left;border-radius:7px}
+#app .more-product-footer{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:6px;padding-top:4px;margin-top:auto;min-height:33px}
+#app .more-product-footer .price{line-height:1.2}
+#app .more-product-footer .quick-add{display:grid;place-items:center;flex:none;width:29px;height:29px;min-height:29px;padding:5px;border-radius:50%;border:1px solid #ff683c;background:var(--q-action);color:#fff;box-shadow:inset 0 1px 1px #ffffff55,0 3px 8px #ff4c2826}
+#app .more-product-footer .quick-add>.lucide{width:18px;height:18px}
+#app .more-product-footer .basket-quantity{gap:5px;margin-left:auto}
+#app .more-product-footer .basket-quantity>button{width:25px;height:25px;border-radius:50%}
+#app .more-product-footer .basket-quantity>strong{margin:0;font-size:13px}
+#app .topup-store>h3{margin:5px 5px 12px;font-size:15px;font-weight:650;color:#70503a}
+#app .topup-store+.topup-store{padding-top:10px}
+#app .topup-settle-row{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:16px 20px 2px}
+#app .topup-settle-row strong{font-size:13px;font-weight:600}
+#app .topup-settle-row em{color:#f66a17;font-size:25px;font-style:normal;font-weight:750}
+#app .topup-settle-row small{display:block;color:#a88e75;font-size:11px;line-height:18px;margin-top:3px}
+#app .modal.commerce-sheet>.checkout-scroll{padding:4px 16px 28px}
+#app .checkout-address{display:flex;gap:12px;align-items:center;padding:19px 17px;margin:0 0 18px;min-height:94px}
+#app .checkout-address>.lucide:first-child{width:24px;height:24px;color:#795538;flex:none}
+#app .checkout-address>span{min-width:0;flex:1}
+#app .checkout-address strong{display:block;color:#443526;font-size:15px;line-height:23px;font-weight:650;overflow-wrap:anywhere}
+#app .checkout-address small{display:block;margin-top:7px;color:#a98d75;font-size:12px;line-height:18px}
+#app .checkout-address>.lucide:last-child{width:16px;height:16px;color:#b39982;flex:none}
+#app .checkout-store{padding:0 17px}
+#app .checkout-store-heading{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:19px 0 15px;border-bottom:1px solid #f2eae1}
+#app .checkout-store-heading>h3{font-size:17px;line-height:25px;margin:0;font-weight:750;color:#503723}
+#app .checkout-store-heading>span{font-size:11px;color:#aa927b}
+#app .checkout-line{display:flex;align-items:center;gap:14px;padding:21px 0;min-height:133px}
+#app .checkout-line+.checkout-line{border-top:1px solid #f2eae1}
+#app .checkout-line>.product-art{width:88px;height:91px;flex:none;mix-blend-mode:multiply;border-radius:11px}
+#app .checkout-line>div:not(.product-art){flex:1;min-width:0}
+#app .checkout-line strong{display:block;font-size:15px;line-height:23px;font-weight:650;color:#4b3526}
+#app .checkout-line small{display:block;margin-top:7px;font-size:11px;line-height:17px;color:#ac9985}
+#app .checkout-line span{display:block;margin-top:5px;font-size:12px;line-height:19px;color:#9d8168}
+#app .checkout-line>b{font-size:16px;color:#6d4d35;white-space:nowrap;font-weight:650;align-self:flex-end;padding-bottom:5px}
+#app .checkout-quantity-row{display:flex;align-items:center;justify-content:space-between;gap:15px;border-top:1px solid #f2eae1;padding:17px 0;color:#89715a;font-size:13px}
+#app .checkout-services{padding:4px 17px}
+#app .checkout-services>div,#app .checkout-services>button{display:flex;align-items:center;gap:12px;width:100%;padding:20px 0;min-height:59px;background:none;text-align:left;font-size:13px}
+#app .checkout-services>*+*{border-top:1px solid #f3ece4}
+#app .checkout-services strong{margin-left:auto;color:#a38a73;font-size:12px;line-height:20px;font-weight:450;text-align:right;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:230px}
+#app .checkout-services .lucide{width:15px;height:15px;color:#b39981;flex:none}
+#app .checkout-pricing{padding:21px 17px 18px}
+#app .checkout-pricing>h3{margin:0 0 17px;font-size:18px;font-weight:750;line-height:27px}
+#app .checkout-pricing>div,#app .checkout-pricing>button{display:flex;align-items:center;gap:10px;width:100%;padding:11px 0;background:none;text-align:left;font-size:13px;color:#7a614c}
+#app .checkout-pricing strong{margin-left:auto;font-weight:550;font-size:14px;color:#694a34;white-space:nowrap}
+#app .checkout-pricing .has-discount{color:#ee6c1c}
+#app .checkout-pricing .coupon-change{display:flex;align-items:center;gap:0;color:#a78a71;font-size:11px}
+#app .checkout-pricing .coupon-change>.lucide{width:13px;height:13px}
+#app .checkout-pricing>p{margin:15px 0 0;padding-top:15px;border-top:1px solid #f2e8de;color:#b49e88;font-size:10px;line-height:18px}
+#app .checkout-pricing>.checkout-shortfall{background:#fff4e9;border-radius:10px;padding:10px 9px;font-size:11px;color:#b28159;justify-content:space-between}
+#app .checkout-shortfall>span{display:flex;gap:5px;align-items:center}
+#app .checkout-shortfall .lucide{width:13px;height:13px;flex:none}
+#app .checkout-shortfall>button{background:none;color:#eb7929;padding:0;font-size:11px;font-weight:600}
+#app .checkout-dock{display:flex;align-items:center;gap:14px;padding:14px 20px max(18px,env(safe-area-inset-bottom))}
+#app .checkout-pay-summary{flex:1;min-width:0;margin:0}
+#app .checkout-pay-summary>div>span{display:block;color:#7d634b;font-size:13px;line-height:28px;white-space:nowrap}
+#app .checkout-pay-summary strong{font-size:27px;font-weight:750;color:#f66a17;margin-left:5px;letter-spacing:-.5px}
+#app .checkout-pay-summary small{display:block;font-size:10px;color:#a28c77;line-height:17px;margin-top:3px}
+#app .checkout-dock .wide-cta{flex:0 0 140px;width:140px;min-height:48px;font-size:18px;font-weight:650;margin:0}
+#app .coupon-picker-intro{font-size:12px;line-height:21px;color:#a38c74;padding:6px 4px;margin:0 0 16px}
+#app .coupon-choice{margin:18px 0 24px}
+#app .coupon-choice>div:last-child{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:10px 8px 0;font-size:11px;color:#a38b73}
+#app .coupon-choice>div:last-child>button{padding:5px 9px;border-radius:12px;color:#dd7b32;background:#ffead4;font-size:12px;font-weight:600}
+#app .discount-option{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:15px 14px;width:100%;background:#fff;border-radius:13px;color:#8b6a4c;font-size:13px;text-align:left}
+#app .discount-option>.lucide{width:20px;height:20px;color:#df914c}
+#app .checkout-form{padding:6px 5px}
+#app .checkout-form label{display:block;font-size:13px;color:#8c6d51;line-height:22px;margin-bottom:24px}
+#app .checkout-form input,#app .checkout-form textarea,#app .checkout-form select{display:block;margin-top:9px;width:100%;border:1px solid #efdfcf;border-radius:12px;background:#fff;padding:13px;color:#4f3828;font-size:15px;line-height:24px;font-family:inherit;outline-color:#edb480}
+#app .checkout-form textarea{min-height:102px;resize:vertical}
+#app #checkoutFormError{font-size:12px;color:#cf5d27;line-height:21px}
+#app .edit-dock{padding:17px 20px 22px}
+#app .modal.checkout-edit-sheet{height:65%}
+@media(max-width:360px){#app .cart-settle-row{gap:8px}#app .cart-coupon-banner{padding:12px 10px}}
+/* Keep the local preview within short desktop and mobile windows as well. */
+#app{height:var(--app-height,896px)}
+@media(min-width:801px){.preview-layout{padding:24px;min-height:100dvh}.phone-shell{width:calc(414px * var(--preview-scale,1));height:calc(896px * var(--preview-scale,1))}#app{transform:scale(var(--preview-scale,1))}}
+@media(max-width:800px){.phone-shell{height:calc(var(--app-height,896px) * var(--s))}}
+#app .modal.sheet.checkout-popup.commerce-sheet>.commerce-header{padding:25px 22px 17px}
+#app .modal.sheet.checkout-popup.commerce-sheet>.checkout-scroll{padding:4px 16px 28px}

@@ -1,0 +1,185 @@
+/* Bright mall palette, using assets/mall-reference.png as the local color reference. */
+:root {
+  --q-ink:#27282d;
+  --q-muted:#76767e;
+  --q-subtle:#9999a1;
+  --q-canvas:#f7f8fa;
+  --q-surface:#fffdfa;
+  --q-card:#ffffff;
+  --q-line:#eeeeef;
+  --q-orange:#ff303e;
+  --q-orange-ink:#ec303b;
+  --q-orange-soft:#fff1ec;
+  --q-orange-line:#ffcbbb;
+  --q-sage:#51ab86;
+  --q-action:linear-gradient(105deg,#ff7618 0%,#ff4b28 48%,#ff303e 100%);
+  --orange:var(--q-orange);
+  --muted:var(--q-muted);
+  color:var(--q-ink);
+  background:#f5f6f8;
+}
+
+#app {
+  --popup-ink:var(--q-ink);
+  --popup-muted:var(--q-muted);
+  --popup-line:var(--q-line);
+  --popup-cream:var(--q-surface);
+  --popup-orange:var(--q-orange);
+  color:var(--q-ink);
+  background:var(--q-surface);
+}
+
+/* Bright illustrations sit above clean white product surfaces. */
+#app .street {background:#a3d5e5}
+#app .topbar,#app .topbar nav button {color:var(--q-ink)}
+#app .topbar:before {background:linear-gradient(180deg,#fff6ef,var(--q-surface));box-shadow:0 1px 0 var(--q-line)}
+#app .topbar nav {background:linear-gradient(150deg,#fffdf670,#fff9ed4d);border-color:#fffdf669}
+#app .topbar nav button+button:before {background:#6b65552b}
+#app .topbar nav button:hover,#app .topbar nav button:focus-visible {background:#fffaf54d;color:var(--q-ink)}
+#app .daily-progress {background:#fffdf5f5;color:var(--q-ink)}
+#app .daily-progress b,#app .gift-icon {color:var(--q-orange-ink)}
+#app .gift-icon {fill:#ff5b2720}
+#app .daily-track {background:#ffdfd0}
+#app .daily-track span {background:var(--q-action)}
+#app .side-action {background:#fffaf0;color:var(--q-ink);box-shadow:0 2px 5px #8873531a}
+#app .side-action>.lucide {color:var(--q-sage)}
+#app .claim-action>.lucide {color:var(--q-orange)}
+#app .coupon-condition {color:#756e5f}
+#app .recent {background:var(--q-surface)}
+#app .recent h2,#app .recent-card h3,#app .product-card h3,#app .product-name {color:var(--q-ink)}
+#app .recent-card {background:var(--q-card);border-color:#f0f0f2}
+#app .home-cart-entry {background:#fff;border-color:#ffdfd1;color:#f34c29;box-shadow:0 4px 14px #e653251a,inset 0 1px 0 #fff}
+#app .home-cart-entry>b {background:var(--q-orange);border-color:#fff}
+
+/* Primary actions share a bright orange-red mall gradient. */
+#app .primary-action,#app .wide-cta,#app .basket-checkout-cta,
+#app .shop-product-row .product-buy,#app .coupon-use-action,#app .wheel-draw {
+  background:var(--q-action);
+  border-color:#ff683c;
+  color:#fff;
+  box-shadow:inset 0 1px 1px #ffffff55,0 3px 8px #ff4c2826;
+}
+#app .primary-action {border:1px solid #ff683c}
+#app .coupon-strip button {background:#ff4937;color:#fff}
+#app .secondary-cta,#app .detail-purchase-actions .secondary-cta {
+  background:#fff3e8;color:#ef541e;border-color:#ffd1b8;
+}
+#app .basket-checkout-cta:disabled {
+  background:#ece7de;border-color:#ece7de;color:#a39789;box-shadow:none;
+}
+#app .price,#app .coupon-amount,#app .cart-product-price>strong,
+#app .cart-settle-total em,#app .checkout-pay-summary strong,
+#app .checkout-pricing .has-discount,#app .success-paid span,
+#app .order-row.discount strong,#app .preview-product span,
+#app .shop-cart-footer .basket-summary em,#app .topup-settle-row em {color:var(--q-orange)}
+
+/* White sheets, neutral text and peach benefit surfaces keep the mall colors clear. */
+#app .overlay {background:#22252e52}
+#app .modal,#app .modal.sheet.shop-sheet {background:var(--q-surface);border-color:#fffdf7;box-shadow:0 12px 30px #4f432a1c}
+#app .modal.commerce-sheet {background:var(--q-canvas)}
+#app .modal h2,#app .modal.sheet>.bottom-sheet-header .bottom-sheet-title,
+#app .cart-product-heading>button:first-child,#app .checkout-address strong,
+#app .checkout-store-heading>h3,#app .checkout-line strong,#app .reward-day-copy strong,
+#app .basket-summary strong,#app .checkout-pricing strong {color:var(--q-ink)}
+#app .modal-close,#app .detail-back,#app .detail-close,#app .sheet-actions button {color:#817d71}
+#app .sheet-actions .is-favorite {color:var(--q-orange);fill:#ffe5e3}
+#app .modal.sheet:before {background:#dedee2}
+#app .modal.commerce-sheet>.commerce-header,#app .commerce-dock,#app .basket-footer,
+#app .daily-sheet-footer,#app .rewards-sheet-footer,#app .lottery-popup-footer {background:var(--q-surface);border-color:var(--q-line)}
+#app .sheet-head p,#app .success-sub,#app .popup-footnote,#app .eyebrow,
+#app .modal.sheet>.bottom-sheet-header p,#app .daily-sheet-header p,
+#app .rewards-sheet-header p,#app .coupon-picker-intro {color:var(--q-muted)}
+#app .detail-copy p,#app .shop-product-copy>span,#app .cart-product-copy>span,
+#app .checkout-address small,#app .checkout-line small,#app .checkout-line span,
+#app .basket-summary small,#app .cart-settle-total>small,#app .checkout-pay-summary small {color:#8a8584}
+#app .cart-store,#app .commerce-card,#app .shop-product-row,#app .more-product {background:var(--q-card);border-color:var(--q-line)}
+#app .cart-store-heading,#app .cart-product+.cart-product,#app .checkout-store-heading,
+#app .checkout-line+.checkout-line,#app .checkout-services>*+*,#app .checkout-quantity-row {border-color:#eee6dc}
+#app .detail-hero {background:#fff5ec;border-color:#ffeadb}
+#app .detail-coupon,#app .coupon-unavailable {background:#f5f5f7;border-color:var(--q-line)}
+#app .detail-coupon.is-usable,#app .coupon-strip,#app .cart-coupon-banner,
+#app .cart-coupon-progress,#app .checkout-pricing>.checkout-shortfall,
+#app .benefit-note {background:var(--q-orange-soft);border-color:#ffdfd4}
+#app .coupon-strip strong,#app .cart-coupon-banner {color:#49342b}
+#app .cart-coupon-banner>.lucide,#app .cart-coupon-banner>strong>span,
+#app .cart-coupon-progress strong,#app .cart-coupon-progress button,
+#app .detail-coupon.is-usable .lucide,#app .coupon-strip>.lucide {color:var(--q-orange-ink)}
+#app .cart-coupon-progress progress {background:#ffdbcd;color:#ff562c}
+#app .cart-coupon-progress progress::-webkit-progress-bar {background:#ffdbcd}
+#app .cart-coupon-progress progress::-webkit-progress-value {background:#ff562c}
+#app .cart-coupon-progress progress::-moz-progress-bar {background:#ff562c}
+#app .cart-check {border-color:#d7d8dc}
+#app .cart-check[aria-checked=true],#app .cart-check[aria-checked=mixed] {background:var(--q-orange);border-color:var(--q-orange)}
+#app .basket-quantity>button,#app .quantity button {background:#fff7ef;border-color:#ffd6bc;color:#f26a2b}
+#app .basket-symbol {background:#fff0e6;color:#f86728}
+#app .basket-symbol>b {background:var(--q-orange)}
+#app .local-cart-note>button,#app .checkout-shortfall>button,
+#app .checkout-pricing .coupon-change {color:var(--q-orange-ink)}
+#app .checkout-line>b {color:var(--q-orange)}
+#app .cart-select-all,#app .topup-store>h3,
+#app .checkout-pay-summary>div>span,#app .checkout-pricing>div,
+#app .checkout-pricing>button {color:var(--q-ink)}
+#app .cart-store-heading>button:last-child,#app .cart-store-heading>.lucide,
+#app .cart-product-heading>.basket-remove,#app .checkout-services strong,
+#app .checkout-services .lucide,#app .checkout-address>.lucide,
+#app .checkout-return,#app .local-cart-note {color:var(--q-muted)}
+#app .row-product-copy>span,#app .more-products-title span,
+#app .coupon-strip small,#app .detail-coupon span,
+#app .detail-coupon:not(.is-usable) strong {color:#89858a}
+#app .detail-coupon.is-usable strong {color:var(--q-orange-ink)}
+#app .daily-sheet-header p b {color:var(--q-orange-ink)}
+#app button:focus-visible,#app a:focus-visible {outline-color:#ff623d}
+
+/* Coupon state contrast remains clear without orange borders across every card. */
+#app .coupon-shape stop:first-child {stop-color:#fff5eb}
+#app .coupon-shape stop:last-child {stop-color:#ffe8dc}
+#app .coupon-shape path {stroke:var(--q-orange-line)}
+#app .coupon-copy {border-color:#ffc5af}
+#app .coupon-copy strong {color:var(--q-ink)}
+#app .coupon-copy .coupon-label,#app .coupon-copy .coupon-validity {color:#9c7463}
+#app .coupon-status {background:#ffe0cf;color:#ed5a26}
+#app .coupon-ticket.is-unavailable .coupon-shape stop:first-child {stop-color:#f7f4ed}
+#app .coupon-ticket.is-unavailable .coupon-shape stop:last-child {stop-color:#f0ebe2}
+#app .coupon-ticket.is-unavailable .coupon-shape path {stroke:#ded5c8}
+#app .coupon-ticket.is-unavailable .coupon-amount {color:#b5a593}
+#app .coupon-ticket.is-unavailable .coupon-copy strong {color:#988774}
+#app .coupon-ticket.is-unavailable .coupon-status {background:#e9e1d5;color:#9b8b78}
+#app .wallet-tabs {border-color:var(--q-line)}
+#app .wallet-tabs>button[aria-selected=true] {color:var(--q-orange-ink)}
+#app .wallet-tabs>button[aria-selected=true]:after {background:var(--q-orange)}
+#app .wallet-filters>button[aria-pressed=true] {background:#fff0eb;border-color:#ffd6c9;color:#de5542}
+#app .wallet-benefit,#app .wallet-pending,#app .benefit-ticket {background:#fff5eb;border-color:#ffdec4}
+#app .wallet-benefit-icon,#app .reward-day-icon {background:#ffeadb;color:#ff6931}
+#app .wallet-pending>button,#app .wallet-benefit-copy+button,
+#app .wallet-benefit>button {background:var(--q-action);color:#fff;border-color:#ff683c}
+#app .wallet-pending>.lucide,#app .wallet-pending-icon {color:#ff6832}
+#app .wallet-pending strong,#app .wallet-benefit-copy>strong {color:var(--q-ink)}
+#app .wallet-pending small,#app .wallet-benefit-copy>span,
+#app .wallet-benefit-copy>p,#app .wallet-benefit-copy>small,
+#app .wallet-empty p {color:var(--q-muted)}
+#app .wallet-empty>.lucide {color:#e7a47e}
+#app .wallet-tabs>button:not([aria-selected=true]) {color:#8f8f97}
+#app .wallet-benefit.is-unavailable {background:#f7f4ed;border-color:#ded5c8}
+#app .coupon-use-action:disabled,#app .wallet-benefit>.coupon-use-action:disabled {
+  background:#e9e1d5;border-color:#e9e1d5;color:#9b8b78;box-shadow:none;opacity:1;
+}
+#app .reward-day-card.is-today {background:#fff3e8;border-color:#ffbd93}
+#app .reward-day-status.is-current {background:#ffe2ce;color:#f05d25}
+#app .reward-success-badge {background:radial-gradient(circle at 35% 22%,#9aee82,#34cd61 58%,#13b84c);border-color:#b6f49a;box-shadow:0 5px 8px #31b84d29,inset 0 -3px 4px #179b4b33}
+#app .reward-success-badge .lucide {filter:drop-shadow(0 2px 1px #5d8d6133)}
+#app .lottery-wheel {background:linear-gradient(140deg,#ffd18a,#ff9e43 66%,#ff702c);box-shadow:inset 0 2px 2px #fff4d8,0 5px 0 #f1792a33,0 10px 16px #f1792a26}
+#app .wheel-rotor {background:conic-gradient(from -45deg,#fff8ec 0 89.5deg,#ffd2ad 89.5deg 90deg,#ffe6c1 90deg 179.5deg,#ffd2ad 179.5deg 180deg,#fff8ec 180deg 269.5deg,#ffd2ad 269.5deg 270deg,#ffe6c1 270deg 359.5deg,#ffd2ad 359.5deg)}
+#app .wheel-pointer {background:linear-gradient(100deg,#ffb444,#ff5d2b)}
+#app .wheel-prize,#app .wheel-prize>span {color:#a74825}
+
+/* Preview controls remain understated and separate from product actions. */
+.day-preview-bar {background:#f8f8faf5;border-color:#ececef}
+.day-preview-heading,.day-preview-heading strong {color:#62646d}
+.day-preview-bar a {background:#fff;border-color:#e9e9ec;color:#7d7d86}
+.day-preview-bar a[aria-current=page] {background:#fff0e9;border-color:#ffd6c1;color:#e75a2c}
+.preview-note,.preview-note h1 {color:#393b44}
+.preview-note p,.preview-steps,.motion-setting {color:#82848e}
+.preview-tools button {color:#72747e;border-color:#e5e5eb}
+.phone-shell {box-shadow:0 18px 65px #35374716}
+
+@media(max-width:800px) {body {background:var(--q-surface)}}

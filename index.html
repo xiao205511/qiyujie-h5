@@ -3,17 +3,28 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-  <meta name="description" content="逛喜欢的小店，领每日好礼。奇遇街 H5 互动演示。">
-  <meta http-equiv="refresh" content="0;url=street-3d.html?from=mall">
+  <meta name="description" content="逛喜欢的小店，领每日好礼。可切换七天与不同店铺偏好。">
+  <meta http-equiv="refresh" content="0;url=street-3d.html?from=mall&amp;demo=first&amp;demoDay=2026-11-10">
   <title>奇遇街 · 今天逛点喜欢的</title>
   <link rel="icon" href="data:,">
   <script>
     const destination = new URL('street-3d.html', location.href);
     destination.search = location.search;
     destination.searchParams.set('from', 'mall');
+    const days = ['first','second','third','fourth','fifth','sixth','seventh'];
+    let day = destination.searchParams.get('demo');
+    if (!days.includes(day) && !['wallet','freeorder'].includes(day)) {
+      day = 'first';
+      destination.searchParams.set('demo', day);
+    }
+    if (!destination.searchParams.has('demoDay')) {
+      const offset = day === 'wallet' ? 5 : day === 'freeorder' ? 6 : days.indexOf(day);
+      destination.searchParams.set('demoDay', '2026-11-' + String(10 + offset).padStart(2, '0'));
+    }
+    destination.searchParams.set('v', 'share-seven-days-1');
     destination.hash = location.hash;
     location.replace(destination);
   </script>
 </head>
-<body><a href="street-3d.html?from=mall">打开奇遇街</a></body>
+<body><a href="street-3d.html?from=mall&amp;demo=first&amp;demoDay=2026-11-10">打开奇遇街七天预览</a></body>
 </html>

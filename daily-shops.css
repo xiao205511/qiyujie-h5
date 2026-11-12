@@ -1,0 +1,46 @@
+/* Three fixed street positions share a coordinated eight-store palette across angles. */
+.has-daily-shops .shop-hotspot{padding:0;border:0;background:none;border-radius:24px;overflow:visible;pointer-events:none}
+/* Only the visible shop silhouette handles clicks; transparent corners pass through. */
+.has-daily-shops .shop-hotspot:after{content:"";position:absolute;inset:0;clip-path:var(--shop-hit);pointer-events:auto}
+.has-daily-shops .shop-hotspot.paper{left:-54px;top:202px;width:330px;height:330px;z-index:4}
+/* Enlarge from the same left doorstep and ground line on the grassy terrace. */
+.has-daily-shops .shop-hotspot.snack{left:262px;top:196px;width:214px;height:214px;z-index:5}
+/* Bring the distant storefront closer while keeping its base above the road. */
+.has-daily-shops .shop-hotspot.kitchen{left:179px;top:140px;width:144px;height:144px;z-index:3}
+#app.has-daily-shops .shop-hotspot .storefront-sprite,.storefront-front{background-image:var(--shop-art,url('assets/shops-hue-right-v1.png'));background-size:var(--shop-size,400% 200%);background-position:var(--shop-x) var(--shop-y);background-repeat:no-repeat;clip-path:inset(var(--shop-crop,0))}
+#app.has-daily-shops .shop-hotspot[data-facing=left] .storefront-sprite,.storefront-front[data-facing=left]{background-image:var(--shop-art,url('assets/shops-hue-left-v1.png'))}
+#app.has-daily-shops .shop-hotspot[data-facing=front] .storefront-front[data-facing=front]{background-image:var(--shop-art,url('assets/shops-hue-front-v1.png'))}
+.has-daily-shops .shop-hotspot .storefront-sprite{position:absolute;inset:0;display:block;border:0;border-radius:0;background-color:transparent;box-shadow:none;opacity:1;transform:none;pointer-events:none;color:transparent}
+.has-daily-shops .new-tag{display:none!important}
+.storefront-front{position:absolute;left:-32px;top:174px;width:310px;height:310px;z-index:2;pointer-events:none}
+.storefront-front[hidden]{display:none}
+.has-daily-shops[data-scene-asset=shop-front] #world .shop-hotspot{visibility:hidden;pointer-events:none}
+.has-daily-shops[data-scene-asset=shop-front] #world .shop-hotspot:after{pointer-events:none}
+#app.has-daily-shops #storeDoorHit{position:absolute;left:-32px;top:174px;width:310px;height:310px;background:transparent;z-index:3}
+#storeDoorHit[hidden]{display:none}
+.scene-curtain{position:absolute;inset:0;z-index:6;pointer-events:auto;background:#edf8f5;opacity:0}
+.has-daily-shops .street-depth-mask{display:none!important}
+.preview-product{display:grid;grid-template-columns:112px minmax(0,1fr);gap:18px;align-items:center;padding:20px 0;border-bottom:1px solid #eddfd2}
+.preview-product:last-child{border-bottom:0}
+.preview-product .product-art{width:112px;height:112px;background-color:#fff;border-radius:14px}
+.preview-product strong{display:block;font-size:17px;line-height:1.5;color:#503626}
+.preview-product span{display:block;margin-top:8px;color:#ff6413;font-size:20px;font-weight:750}
+.preview-product small{display:block;margin-top:7px;font-size:12px;color:#a08c79}
+.preview-date-control{display:grid;gap:8px;margin:18px 0;color:#78847b;font-size:12px}
+.preview-date-control select{width:175px;padding:9px 12px;border:1px solid #dbe3dc;border-radius:9px;background:#fff;color:#526259;font:inherit;font-size:13px}
+#streetDate{display:block;margin-top:6px;font-size:11px;color:#9ba59e}
+/* Preview-only controls sit outside the product screen at every viewport size. */
+.day-preview-bar{position:fixed;top:0;left:0;right:0;z-index:90;height:82px;background:#f1f6f2f5;border-bottom:1px solid #dce5dc;backdrop-filter:blur(16px);padding:10px 14px}
+.day-preview-bar>div,.day-preview-bar>nav{max-width:526px;margin:0 auto}
+.day-preview-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;color:#5b7164;font-size:12px;line-height:20px}
+.day-preview-heading strong{font-weight:650;color:#385343}
+.day-preview-heading span{color:#8c9b90;font-size:11px}
+.day-preview-profile select{max-width:112px;padding:2px 5px;border:1px solid #dce5dc;border-radius:6px;background:#fff;color:#5b7164;font:inherit;font-size:11px;line-height:17px}
+.day-preview-bar nav{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:5px;padding-top:7px}
+.day-preview-bar a{display:block;padding:7px 2px;border:1px solid #dce5dc;border-radius:9px;background:#fff;color:#718274;font-size:12px;line-height:17px;text-align:center;text-decoration:none;white-space:nowrap}
+.day-preview-bar a[aria-current=page]{border-color:#ecd2ae;background:#fff4e3;color:#ad753e;font-weight:650}
+.day-preview-bar a:hover{border-color:#c8d5c9;background:#fafdf9}
+body.has-day-preview .preview-layout{padding-top:calc(var(--preview-bar-height,82px) + 24px)}
+body.has-day-preview .preview-date-control{display:none}
+@media(max-width:800px){body.has-day-preview .preview-layout{padding-top:var(--preview-bar-height,82px)}}
+@media(max-width:360px){.day-preview-bar{padding-left:9px;padding-right:9px}.day-preview-bar nav{gap:4px}.day-preview-bar a{font-size:11px}}

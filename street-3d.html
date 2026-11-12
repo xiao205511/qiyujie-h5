@@ -3,21 +3,31 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-  <meta name="theme-color" content="#70d5f3">
+  <meta name="theme-color" content="#a3d5e5">
   <title>奇遇街 · 今天逛点喜欢的</title>
   <link rel="icon" href="data:,">
-  <link rel="preload" as="image" href="assets/street.png">
+  <link rel="preload" as="image" href="assets/street-soft-palette-v1.png">
+  <link rel="preload" as="image" href="assets/ip-popup-peek-v1.png">
   <link rel="preload" as="image" href="assets/kitchen-front.png">
   <link rel="stylesheet" href="styles.css?v=ground-walk-5">
   <script defer src="assets/icons.js"></script>
   <script defer src="walking.js?v=depth-navigation-1"></script>
   <script defer src="rig-street-motion.js?v=4"></script>
-  <script defer src="street-navigation.js?v=rig-ui-6"></script>
-  <script defer src="shop-views.js?v=4"></script>
-  <link rel="stylesheet" href="popup-ui.css?v=9">
-  <link rel="stylesheet" href="home-scroll.css?v=3">
-  <script defer src="rewards-flow.js?v=2"></script>
-  <script defer src="app.js?v=detail-header-2"></script>
+  <script defer src="street-navigation.js?v=second-doorstep-1"></script>
+  <script defer src="shop-hit-areas.js?v=1"></script>
+  <script defer src="shop-views.js?v=atlas-crop-1"></script>
+  <link rel="stylesheet" href="popup-ui.css?v=sheet-close-align-1">
+  <link rel="stylesheet" href="home-scroll.css?v=recent-square-1">
+  <link rel="stylesheet" href="commerce-ui.css?v=checkout-dock-row-1">
+  <link rel="stylesheet" href="daily-shops.css?v=atlas-crop-1">
+  <link rel="stylesheet" href="palette.css?v=street-labels-1">
+  <script defer src="rewards-flow.js?v=8"></script>
+  <script defer src="shopping-basket.js?v=3"></script>
+  <script defer src="reward-groups.js?v=1"></script>
+  <script defer src="lottery-wheel.js?v=1"></script>
+  <script defer src="catalog.js?v=prd-v1-baseline-1"></script>
+  <script defer src="daily-street.js?v=prd-v1-baseline-1"></script>
+  <script defer src="app.js?v=prd-v1-baseline-1"></script>
   <script type="module" src="ip-rig-stage2/street-character.js?v=4"></script>
   <style>
   .street{overflow:clip}
@@ -60,16 +70,18 @@
   </style>
 </head>
 <body>
+  <section class="day-preview-bar" id="dayPreviewBar" aria-label="七天预览工具" hidden><div class="day-preview-heading"><strong>七天预览</strong><label class="day-preview-profile"><select id="previewProfile" aria-label="选择店铺偏好"><option value="family">新用户</option><option value="laundry">衣物回购</option><option value="beauty">美妆心动</option><option value="skin">护肤心动</option><option value="baby">母婴兴趣</option><option value="accessories">饰品兴趣</option></select></label><span id="previewDayCaption"></span></div><nav aria-label="选择预览天数"><a data-preview-day="first" href="?from=mall&amp;demo=first&amp;v=shop-front-1">第1天</a><a data-preview-day="second" href="?from=mall&amp;demo=second&amp;v=shop-front-1">第2天</a><a data-preview-day="third" href="?from=mall&amp;demo=third&amp;v=shop-front-1">第3天</a><a data-preview-day="fourth" href="?from=mall&amp;demo=fourth&amp;v=shop-front-1">第4天</a><a data-preview-day="fifth" href="?from=mall&amp;demo=fifth&amp;v=shop-front-1">第5天</a><a data-preview-day="sixth" href="?from=mall&amp;demo=sixth&amp;v=shop-front-1">第6天</a><a data-preview-day="seventh" href="?from=mall&amp;demo=seventh&amp;v=shop-front-1">第7天</a></nav></section>
   <main class="preview-layout">
     <aside class="preview-note" aria-label="体验说明">
       <span class="preview-kicker">Q I Y U  S T R E E T</span>
       <h1>今天，<br>逛点喜欢的。</h1>
       <p>一家眼前的小店，<br>一条值得走走的街。</p>
-      <div class="preview-steps"><span>01</span> 小伙伴招手，陪你逛街<br><span>02</span> 点击零食铺，沿路走到店前<br><span>03</span> 进店挑选，或一键返回街道</div>
+      <div class="preview-steps"><span>01</span> 小伙伴招手，陪你逛街<br><span>02</span> 点击远处小店，沿路走到店前<br><span>03</span> 进店挑选，或一键返回街道</div>
       <div class="preview-tools"><button id="replay">重播逛街</button><button id="reset">重置体验</button></div>
       <div class="preview-scenarios"><a href="street-3d.html?from=mall&demo=first&v=popup-ui-1">首日领券</a><a href="street-3d.html?from=mall&demo=seventh&v=popup-ui-1">第7天抽奖</a><a href="street-3d.html?from=mall&demo=wallet&v=coupon-cards-1">多张券</a></div>
+      <label class="preview-date-control">按天查看小街<select id="previewDay" aria-label="选择到访天数"><option value="first">第 1 天 · 新人见面券</option><option value="second">第 2 天 · 回访加码券</option><option value="third">第 3 天 · 明日店铺预览</option><option value="fourth">第 4 天 · 心动店好物</option><option value="fifth">第 5 天 · 兴趣专享价</option><option value="sixth">第 6 天 · 冲刺好物</option><option value="seventh">第 7 天 · 转盘抽奖</option></select><span id="streetDate"></span></label>
       <label class="motion-setting"><input id="motionToggle" type="checkbox"> 减少动效</label>
-      <small>街道总览 / 店前近景<br>商品、价格与交易均为模拟</small>
+      <small>街道总览 / 店前近景</small>
     </aside>
     <div class="phone-shell" id="phoneShell">
       <div class="app" id="app" data-testid="app-screen" data-character="rigged">
@@ -77,12 +89,12 @@
         <div class="home-scroll" id="homeScroll" role="region" aria-label="奇遇街首页，可上下滚动" tabindex="0">
         <section class="street" aria-label="奇遇街街景">
           <div class="world" id="world">
-            <img class="street-art" src="assets/street.png" alt="圆角薄荷色纸巾铺、橙色零食铺和蓝色厨房铺沿着小路排列" draggable="false">
-            <button class="shop-hotspot paper" data-shop="paper" aria-label="进入纸巾补货铺"><span>进入纸巾铺</span></button>
-            <button class="shop-hotspot snack" data-shop="snack" aria-label="查看零食小铺"><span>去零食小铺</span></button>
-            <button class="shop-hotspot kitchen" data-shop="kitchen" aria-label="查看厨房帮手铺"><span>去厨房帮手铺</span></button>
-            <span class="new-tag">NEW</span>
+            <img class="street-art" src="assets/street-soft-palette-v1.png" alt="圆角薄荷色纸巾铺、橙色零食铺和蓝色厨房铺沿着小路排列" draggable="false">
+            <button class="shop-hotspot paper" data-slot="paper" data-shop="paper" aria-label="进入纸巾补货铺"><span>进入纸巾铺</span></button>
+            <button class="shop-hotspot snack" data-slot="snack" data-shop="snack" aria-label="查看零食小铺"><span>去零食小铺</span></button>
+            <button class="shop-hotspot kitchen" data-slot="kitchen" data-shop="kitchen" aria-label="查看厨房帮手铺"><span>去厨房帮手铺</span></button>
           </div>
+          <div class="storefront-front" id="storefrontFront" role="img" hidden></div>
           <button id="storeDoorHit" hidden aria-label="进入当前店铺"></button>
           <div id="walkerPosition" hidden aria-hidden="true"></div>
           <div class="walk-trail" id="walkTrail" aria-hidden="true"></div>
@@ -93,8 +105,9 @@
           <p class="coupon-condition" id="couponCondition">满9.9减3 · 限指定商品 · 今日有效</p>
           <span class="walk-status sr-only" id="walkStatus" role="status" aria-live="polite"></span>
         </section>
-        <section class="recent" aria-labelledby="recentTitle"><div class="recent-heading"><h2 id="recentTitle">最近看过</h2><span>上下滑动看更多</span></div><div class="recent-scroll" id="recentScroll"><div class="recent-grid" id="recentGrid"></div><p class="simulation-note">价格为模拟</p></div></section>
+        <section class="recent" aria-labelledby="recentTitle"><div class="recent-heading"><h2 id="recentTitle">最近看过</h2></div><div class="recent-scroll" id="recentScroll"><div class="recent-grid" id="recentGrid"></div></div></section>
         </div>
+        <button class="home-cart-entry" id="homeCart" data-open-basket="paper" aria-label="打开购物车"><i data-lucide="shopping-cart"></i><b id="homeCartCount" hidden></b></button>
         <div class="overlay" id="overlay" hidden><section class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle" tabindex="-1"></section></div>
         <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
       </div>
