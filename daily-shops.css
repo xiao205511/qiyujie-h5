@@ -12,7 +12,8 @@
 .storefront-front[data-facing=front]{background-image:var(--shop-art,url('assets/shops-hue-front-v1.png'))}
 .has-daily-shops .shop-hotspot .storefront-sprite{position:absolute;inset:0;display:block;border:0;border-radius:0;background-color:transparent;box-shadow:none;opacity:1;transform:none;pointer-events:none;color:transparent}
 .has-daily-shops .new-tag{display:none!important}
-.storefront-scene{position:absolute;inset:0;z-index:2}
+/* Move the entire doorway view closer, keeping scenery and the door target aligned. */
+.storefront-scene{position:absolute;inset:0;z-index:2;transform:scale(1.24);transform-origin:50% 26%}
 #storefrontBackdrop{transform:translate(-264px,-102.5px) scale(1.875);transform-origin:0 0}
 .storefront-front{position:absolute;left:72px;top:160px;width:270px;height:270px;z-index:2;pointer-events:none}
 .storefront-neighbor{position:absolute;z-index:3;pointer-events:none}
