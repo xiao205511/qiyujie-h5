@@ -10,7 +10,7 @@
   const modeFor=key=>positionFor(key)==='paper'?'street':'store';
   function restFor(key,walking){
     const position=positionFor(key);
-    if(position==='paper'||position==='snack')return walking.rest(position);
+    if(position==='paper'||position==='snack'&&!configured)return walking.rest(position);
     const base=walking.rest('paper'),dx=302-base.point[0],dy=548-base.point[1];
     const feet=Object.fromEntries(Object.entries(base.feet).map(([side,foot])=>[side,{...foot,x:foot.x+dx,y:foot.y+dy}]));
     return {...base,point:[302,548],screen:{x:302,y:548},camera:{x:0,y:0,scale:1},size:1,scene:configured?'shop-front':'kitchen-front',feet,arrivalHeading:[0,1]};
@@ -42,14 +42,23 @@
     doc.querySelector('#app').classList.add('has-daily-shops');
   }
   function setView(key){
-    const position=positionFor(key),front=position==='kitchen'||position==='front';
+    const position=positionFor(key),front=position==='kitchen'||position==='front'||configured&&position==='snack';
     art.alt=configured?slots.map(s=>shops[s.shop]?.name).join('、')+'沿街排列':'纸巾铺、零食铺和厨房铺沿街排列';
     const backdrop=doc.querySelector('#storefrontBackdrop'),source=configured?originalArt:'assets/kitchen-front.png';
     if(backdrop.getAttribute('src')!==source)backdrop.src=source;
     backdrop.alt=(shops[key]?.name||'小店')+'门前街景';
     const app=doc.querySelector('#app');app.dataset.sceneMode=modeFor(key);app.dataset.sceneAsset=front?(configured?'shop-front':'kitchen-front'):'street';
     const storefront=doc.querySelector('#storefrontFront');
-    if(storefront){storefront.hidden=!front;storefront.style.cssText=spriteStyle(key);storefront.dataset.facing=facingFor(position);storefront.setAttribute('aria-label',shops[key]?.name||'当前店铺');storefront.innerHTML=sprite(key);}
+    if(storefront){storefront.hidden=!front;storefront.style.cssText=spriteStyle(key);storefront.dataset.facing='front';storefront.setAttribute('aria-label',shops[key]?.name||'当前店铺');storefront.innerHTML=sprite(key);}
+    // Keep the neighboring stores as context, without duplicating the current shop.
+    if(front){
+      const neighbors=slots.filter(slot=>slot.shop!==key);
+      ['paper','snack'].forEach((side,i)=>{
+        const node=doc.querySelector(`[data-front-neighbor="${side}"]`),neighbor=neighbors[i];
+        if(!node)return;node.hidden=!neighbor;
+        if(neighbor){node.style.cssText=spriteStyle(neighbor.shop,side);node.dataset.facing=facingFor(side);node.innerHTML=sprite(neighbor.shop,side);}
+      });
+    }
     // Shared street views keep their image-aligned shop targets clickable.
     // A screen-wide door target would swallow clicks on the distant kitchen.
     const door=doc.querySelector('#storeDoorHit');door.hidden=!front;door.setAttribute('aria-label','进入'+(shops[key]?.name||'厨房帮手铺'));

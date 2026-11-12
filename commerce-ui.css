@@ -159,3 +159,45 @@
 #app .product-art{position:relative;background-image:none}
 #app .sprite-image{display:block;width:100%;height:100%;overflow:hidden;pointer-events:none}
 #app .product-art>.sprite-image{position:absolute;inset:0}
+
+/* Walkthrough polish: legible supporting copy and compact, content-sized sheets. */
+#app{--tap-size:max(44px,calc(44px / var(--s,1)))}
+#app .coupon-strip{gap:10px;padding:12px;align-items:center}
+#app .coupon-strip>div{flex:1;min-width:0}
+#app .coupon-strip strong{font-size:13px;line-height:21px}
+#app .coupon-strip small,#app .detail-coupon span{font-size:12px;line-height:19px;color:#6f6870}
+#app .coupon-strip button{min-width:52px;min-height:40px;font-size:13px;border-radius:20px;padding:8px 10px}
+#app .detail-copy p,#app .row-product-copy>span,#app .cart-product-copy>span,#app .checkout-line small,#app .checkout-line span{font-size:12px;line-height:20px;color:#706b70}
+#app .cart-settle-total>small,#app .checkout-pay-summary small,#app .basket-summary small,#app .shop-cart-footer .basket-summary small{font-size:12px;line-height:19px;color:#706b70}
+#app .coupon-copy .coupon-label{font-size:12px;line-height:19px}
+#app .coupon-copy .coupon-validity{font-size:11px;line-height:18px}
+#app .coupon-details-link{display:flex;align-items:center;gap:2px;background:none;color:#a5442a;font-size:12px;line-height:20px;padding:5px 0 0;min-height:28px;position:relative}
+#app .coupon-details-link>.lucide{width:13px;height:13px}
+#app .coupon-main:has(.coupon-details-link){padding-top:16px;padding-bottom:16px;min-height:132px}
+#app .coupon-terms,#app .coupon-eligible{padding:18px;margin-top:16px}
+#app .coupon-terms h3,#app .coupon-eligible h3{font-size:17px;margin:0 0 14px;color:var(--q-ink)}
+#app .coupon-terms dl{margin:0;font-size:13px;line-height:22px}
+#app .coupon-terms dl>div{display:grid;grid-template-columns:65px minmax(0,1fr);gap:12px;margin:10px 0}
+#app .coupon-terms dt{color:#706b70}
+#app .coupon-terms dd{margin:0;color:#35343a}
+#app .coupon-eligible>p{font-size:12px;line-height:20px;color:#706b70;margin:0 0 12px}
+#app .coupon-scope-store{border-top:1px solid var(--q-line);padding:8px 0}
+#app .coupon-scope-store summary{font-size:14px;line-height:24px;padding:10px 0;cursor:pointer;color:#37343a}
+#app .coupon-scope-store summary>span{float:right;font-size:12px;color:#706b70}
+#app .coupon-scope-store ul{margin:4px 0 8px;padding-left:20px;font-size:13px;line-height:27px;color:#514a48}
+#app .modal.coupon-picker-sheet,#app .modal.checkout-edit-sheet{height:auto;min-height:0;max-height:82%}
+#app .modal.coupon-picker-sheet>.bottom-sheet-scroll,#app .modal.checkout-edit-sheet>.bottom-sheet-scroll{flex:0 1 auto}
+#app .checkout-edit-sheet .checkout-form label:last-of-type{margin-bottom:10px}
+#app .checkout-form .field-error{display:block;min-height:0;font-size:12px;line-height:20px;color:#bb272b;margin-top:5px}
+#app .checkout-form .field-error:empty,#app #checkoutFormError:empty{display:none}
+#app .checkout-form [aria-invalid=true]{border-color:#cc3034;background:#fff8f6}
+#app #checkoutFormError{color:#bb272b;margin:12px 0 0}
+/* Expanded hit areas retain the established visual size without crowding prices. */
+#app :is(.quick-add,.basket-quantity>button,.coupon-strip button,.coupon-details-link,.detail-close,.modal-close,.sheet-actions>button){position:relative}
+#app :is(.quick-add,.basket-quantity>button,.coupon-strip button,.coupon-details-link,.detail-close,.modal-close,.sheet-actions>button):after{content:"";position:absolute;left:50%;top:50%;width:max(100%,var(--tap-size));height:max(100%,var(--tap-size));transform:translate(-50%,-50%);border-radius:inherit}
+#app .more-product-footer .basket-quantity{gap:8px}
+#app .more-product-footer{padding:8px 4px 4px;min-height:42px}
+#app .shop-product-row .product-buy.quick-add,#app .more-product-footer .quick-add{width:34px;height:34px;min-height:34px}
+#app .modal.sheet>.bottom-sheet-header .sheet-actions{padding-right:54px;min-height:34px}
+#app .coupon-choice>div:last-child>button{min-height:40px;padding:8px 12px}
+@media(max-width:800px){.preview-layout{min-height:100dvh}}

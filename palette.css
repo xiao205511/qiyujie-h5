@@ -12,7 +12,7 @@
   --q-orange-soft:#fff1ec;
   --q-orange-line:#ffcbbb;
   --q-sage:#51ab86;
-  --q-action:linear-gradient(105deg,#ff7618 0%,#ff4b28 48%,#ff303e 100%);
+  --q-action:linear-gradient(105deg,#d64205 0%,#df2d23 48%,#e51d37 100%);
   --orange:var(--q-orange);
   --muted:var(--q-muted);
   color:var(--q-ink);
@@ -60,7 +60,7 @@
   box-shadow:inset 0 1px 1px #ffffff55,0 3px 8px #ff4c2826;
 }
 #app .primary-action {border:1px solid #ff683c}
-#app .coupon-strip button {background:#ff4937;color:#fff}
+#app .coupon-strip button {background:#df2d23;color:#fff}
 #app .secondary-cta,#app .detail-purchase-actions .secondary-cta {
   background:#fff3e8;color:#ef541e;border-color:#ffd1b8;
 }
@@ -91,7 +91,7 @@
 #app .rewards-sheet-header p,#app .coupon-picker-intro {color:var(--q-muted)}
 #app .detail-copy p,#app .shop-product-copy>span,#app .cart-product-copy>span,
 #app .checkout-address small,#app .checkout-line small,#app .checkout-line span,
-#app .basket-summary small,#app .cart-settle-total>small,#app .checkout-pay-summary small {color:#8a8584}
+#app .basket-summary small,#app .cart-settle-total>small,#app .checkout-pay-summary small {color:#706b70}
 #app .cart-store,#app .commerce-card,#app .shop-product-row,#app .more-product {background:var(--q-card);border-color:var(--q-line)}
 #app .cart-store-heading,#app .cart-product+.cart-product,#app .checkout-store-heading,
 #app .checkout-line+.checkout-line,#app .checkout-services>*+*,#app .checkout-quantity-row {border-color:#eee6dc}
@@ -125,7 +125,7 @@
 #app .checkout-return,#app .local-cart-note {color:var(--q-muted)}
 #app .row-product-copy>span,#app .more-products-title span,
 #app .coupon-strip small,#app .detail-coupon span,
-#app .detail-coupon:not(.is-usable) strong {color:#89858a}
+#app .detail-coupon:not(.is-usable) strong {color:#6f6870}
 #app .detail-coupon.is-usable strong {color:var(--q-orange-ink)}
 #app .daily-sheet-header p b {color:var(--q-orange-ink)}
 #app button:focus-visible,#app a:focus-visible {outline-color:#ff623d}

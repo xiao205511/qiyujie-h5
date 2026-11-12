@@ -35,14 +35,16 @@ let currentModal=null, lastFocus=null, motionFinish=null, walkingFrame=0, toastT
 let orderProduct=null, orderQuantity=1, checkoutOrigin=null, browsingShop='paper', detailProductId=null, activeBenefitId=null;
 let renderedActivityDay=todayKey(), checkoutMode='single', basketReturnShop='paper', rewardsTab='available', rewardsHistoryFilter='all';
 let cartScope=null,topupContext=null,discountChoice='auto',couponReturn='basket',editingCheckoutField=null;
-let modalView=null,modalHistory=[],restoringModal=false;
+let modalView=null,modalHistory=[],restoringModal=false,activeCouponId=null;
 const shops=Catalog.shops,allProducts=Catalog.allProducts,dailyRewards=Flow.rewards;
 const paperProducts=shops.paper.products,snackProducts=shops.snack.products,kitchenProducts=shops.kitchen.products;
 let streetSlots=[],streetSignature='';
 const primaryShop=()=>streetSlots[0]?.shop||'paper';
 const secondaryShop=()=>streetSlots[1]?.shop||'face';
-function syncStreet(){
- const result=DailyStreet.resolve(state,todayKey());state=result.state;streetSlots=result.slots;
+function syncStreet({preserveStreet=false}={}){
+ const result=DailyStreet.resolve(state,todayKey());state=result.state;
+ if(preserveStreet&&streetSignature)return;
+ streetSlots=result.slots;
  const signature=streetSlots.map(s=>s.shop).join(':');
  if(signature===streetSignature)return;
  const firstLayout=!streetSignature;streetSignature=signature;motionFinish?.();ShopViews?.configure(streetSlots,shops);
@@ -69,7 +71,7 @@ function resize(){
  document.documentElement.style.setProperty('--preview-bar-height',previewHeight+'px');
  document.documentElement.style.setProperty('--s',String(scale));
  document.documentElement.style.setProperty('--preview-scale',String(Math.min(1,Math.max(320,innerHeight-previewHeight-48)/896)));
- document.documentElement.style.setProperty('--app-height',(innerWidth<=800?Math.min(896,(innerHeight-previewHeight)/scale):896)+'px');
+ document.documentElement.style.setProperty('--app-height',(innerWidth<=800?Math.max(320,(innerHeight-previewHeight)/scale):896)+'px');
 }
 function updateCartEntry(){
  const button=$('#homeCart');if(!button)return;
@@ -79,8 +81,8 @@ function updateCartEntry(){
  $('#homeCartCount').textContent=count;$('#homeCartCount').hidden=!count;
 
 }
-function renderHome(){
- syncStreet();
+function renderHome({preserveStreet=!!currentModal}={}){
+ syncStreet({preserveStreet});
  const reward=currentReward(),claimed=Flow.todayClaimed(state,todayKey()),tomorrow=nextReward();
  const nextLabel=tomorrow.value?`明日<b>${tomorrow.value}</b>元券`:tomorrow.name;
  $('#daily').querySelector(':scope>span').innerHTML=`已来<b>${state.visits}</b>天 · ${state.visits===7?(state.drawn?'奖励已领取':'抽奖已解锁'):nextLabel}`;
@@ -98,16 +100,19 @@ function renderHome(){
  document.querySelectorAll('[data-shop]').forEach(el=>{const key=el.dataset.shop;el.setAttribute('aria-label',(key===focusShop?'进入':characterEnabled?'走到':'查看')+shops[key].name);});
  const dateLabel=$('#streetDate');if(dateLabel)dateLabel.textContent=todayKey().slice(5).replace('-','月')+'日 · 今日小街';
  const previewDay=$('#previewDay');if(previewDay)previewDay.value=['first','second','third','fourth','fifth','sixth','seventh'][state.visits-1]||'first';
- document.querySelectorAll('[data-preview-day]').forEach((link,i)=>{const url=new URL(location.href);url.searchParams.set('demo',link.dataset.previewDay);url.searchParams.set('demoDay',Flow.addDays(state.streetStartedOn||todayKey(),i));url.searchParams.set('v','prd-v1-baseline-1');link.href=url.href;if(i===state.visits-1)link.setAttribute('aria-current','page');else link.removeAttribute('aria-current');});
+ document.querySelectorAll('[data-preview-day]').forEach((link,i)=>{const url=new URL(location.href);url.searchParams.set('demo',link.dataset.previewDay);url.searchParams.set('demoDay',Flow.addDays(state.streetStartedOn||todayKey(),i));url.searchParams.set('v','design-polish-3');link.href=url.href;if(i===state.visits-1)link.setAttribute('aria-current','page');else link.removeAttribute('aria-current');});
  const previewCaption=$('#previewDayCaption');if(previewCaption)previewCaption.textContent=`第${state.visits}天 · ${todayKey().slice(5).replace('-','月')}日`;
  const profileSelect=$('#previewProfile');if(profileSelect)profileSelect.value=shopProfile;
  $('#app').dataset.focusShop=focusShop;updateCartEntry();icons();save();
 }
-function closeModal(){modalHistory=[];modalView=null;if(!currentModal)return;$('#overlay').hidden=true;$('#modal').innerHTML='';currentModal=null;$('#homeScroll').inert=false;$('.topbar').inert=false;$('#app').classList.remove('has-modal');if(lastFocus?.isConnected)lastFocus.focus({preventScroll:true});}
+function closeModal(){modalHistory=[];modalView=null;if(!currentModal)return;$('#overlay').hidden=true;$('#modal').innerHTML='';currentModal=null;$('#homeScroll').inert=false;$('.topbar').inert=false;$('#app').classList.remove('has-modal');renderHome();if(lastFocus?.isConnected)lastFocus.focus({preventScroll:true});}
 function describeModal(kind){
- const context={browsingShop,detailProductId,activeBenefitId,orderProduct,orderQuantity,checkoutOrigin,checkoutMode,basketReturnShop,cartScope,topupContext,discountChoice,couponReturn,editingCheckoutField,rewardsTab,rewardsHistoryFilter};
- const identity=({shop:browsingShop,detail:detailProductId,benefit:activeBenefitId,basket:cartScope||'all','checkout-edit':editingCheckoutField})[kind]||'';
+ const context={activeCouponId,browsingShop,detailProductId,activeBenefitId,orderProduct,orderQuantity,checkoutOrigin,checkoutMode,basketReturnShop,cartScope,topupContext,discountChoice,couponReturn,editingCheckoutField,rewardsTab,rewardsHistoryFilter};
+ const identity=({shop:browsingShop,detail:detailProductId,benefit:activeBenefitId,basket:cartScope||'all','checkout-edit':editingCheckoutField,'coupon-detail':activeCouponId})[kind]||'';
  return {kind,key:kind+':'+identity,context};
+}
+function modalFocusables(){
+ return [...$('#modal').querySelectorAll('button:not(:disabled),input:not(:disabled),textarea:not(:disabled),select:not(:disabled),a[href],summary,[tabindex]:not([tabindex="-1"])')].filter(node=>node.getClientRects().length&&!node.closest('[inert]'));
 }
 function captureModalUI(){
  const modal=$('#modal'),controls=[...modal.querySelectorAll('button,input,textarea,select,a[href]')];
@@ -119,7 +124,7 @@ function restoreModalView(target=null,overrides={}){
  const index=target===null?modalHistory.length-1:modalHistory.findLastIndex(v=>v.kind===target||v.key===target);
  if(index<0)return false;
  const view=modalHistory[index];modalHistory.length=index;
- ({browsingShop,detailProductId,activeBenefitId,orderProduct,orderQuantity,checkoutOrigin,checkoutMode,basketReturnShop,cartScope,topupContext,discountChoice,couponReturn,editingCheckoutField,rewardsTab,rewardsHistoryFilter}={...view.context,...overrides});
+ ({activeCouponId,browsingShop,detailProductId,activeBenefitId,orderProduct,orderQuantity,checkoutOrigin,checkoutMode,basketReturnShop,cartScope,topupContext,discountChoice,couponReturn,editingCheckoutField,rewardsTab,rewardsHistoryFilter}={...view.context,...overrides});
  restoringModal=true;
  try{
   switch(view.kind){
@@ -129,6 +134,7 @@ function restoreModalView(target=null,overrides={}){
    case 'checkout':renderCheckout();break;
    case 'topup':showTopup();break;
    case 'coupon-picker':showCouponPicker(couponReturn);break;
+   case 'coupon-detail':showCouponDetails(activeCouponId);break;
    case 'checkout-edit':editCheckout(editingCheckoutField);break;
    case 'rewards':showRewards(rewardsTab,rewardsHistoryFilter);break;
    case 'benefit':showBenefit(activeBenefitId);break;
@@ -205,14 +211,14 @@ function formatExpiry(c){
  const get=t=>parts.find(p=>p.type===t)?.value;
  return `${get('year')}.${get('month')}.${get('day')} ${get('hour')}:${get('minute')}`;
 }
-function ticket(c,{offered=false,usable=false,claimable=false,statusText,count=1,showStatus=true}={}){
+function ticket(c,{offered=false,usable=false,claimable=false,statusText,count=1,showStatus=true,showDetails=false}={}){
  const normalized={...c,date:c.date||todayKey()},status=statusText||(offered?'待领取':({used:'已使用',expired:'已过期',future:'未生效',available:'待使用'})[Flow.couponStatus(normalized,todayKey())]);
  const inactive=!offered&&status!=='待使用',gradientId=`coupon-fill-${++ticketSequence}`,free=c.type==='free-order';
  const threshold=free?`最高抵${c.value}元`:`满${c.min}减${c.value}`;
  const label=free?'免单券 · 全街商品可用':c.source==='lottery'?'抽奖券包 · 全街商品可用':c.value===3?'新人见面礼 · 限指定商品':'逛街专属券 · 限指定商品';
  const action=claimable?'<button class="coupon-use-action" data-claim-in-rewards>去领取</button>':usable&&!offered&&!inactive?`<button class="coupon-use-action" data-browse-coupon="${c.id}" aria-label="去使用${c.value}元${free?'免单券':'券'}，${threshold}">去使用</button>`:showStatus?(['已使用','已过期'].includes(status)?`<button class="coupon-use-action" disabled>${status}</button>`:`<b class="coupon-status">${status}</b>`):'';
  const digits=c.value>=100?'is-three-digit':c.value>=10?'is-two-digit':'';
- return `<article class="coupon-ticket ${inactive?'is-unavailable':''} ${digits}" aria-label="${c.value}元${free?'免单券':'券'}，${threshold}，${status}${count>1?`，共${count}张`:``}"><svg class="coupon-shape" viewBox="0 0 320 104" preserveAspectRatio="none" aria-hidden="true" focusable="false"><defs><linearGradient id="${gradientId}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${inactive?'#fcf8f1':'#fff3e5'}"/><stop offset="1" stop-color="${inactive?'#f3ece1':'#ffe7cb'}"/></linearGradient></defs><path d="M18 .5H302A17.5 17.5 0 0 1 319.5 18V44A8 8 0 0 0 319.5 60V86A17.5 17.5 0 0 1 302 103.5H18A17.5 17.5 0 0 1 .5 86V60A8 8 0 0 0 .5 44V18A17.5 17.5 0 0 1 18 .5Z" fill="url(#${gradientId})" stroke="${inactive?'#e4d8c8':'#ffc68f'}" stroke-width="1" vector-effect="non-scaling-stroke"/></svg><div class="coupon-main"><div class="coupon-amount"><small>¥</small>${c.value}</div>${count>1?`<span class="coupon-stack-count">×${count}张</span>`:``}<div class="coupon-copy"><strong>${threshold}</strong><span class="coupon-label">${label}</span><span class="coupon-validity">有效期至 ${formatExpiry(normalized)}</span></div>${action}</div></article>`;
+ return `<article class="coupon-ticket ${inactive?'is-unavailable':''} ${digits}" aria-label="${c.value}元${free?'免单券':'券'}，${threshold}，${status}${count>1?`，共${count}张`:``}"><svg class="coupon-shape" viewBox="0 0 320 104" preserveAspectRatio="none" aria-hidden="true" focusable="false"><defs><linearGradient id="${gradientId}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${inactive?'#fcf8f1':'#fff3e5'}"/><stop offset="1" stop-color="${inactive?'#f3ece1':'#ffe7cb'}"/></linearGradient></defs><path d="M18 .5H302A17.5 17.5 0 0 1 319.5 18V44A8 8 0 0 0 319.5 60V86A17.5 17.5 0 0 1 302 103.5H18A17.5 17.5 0 0 1 .5 86V60A8 8 0 0 0 .5 44V18A17.5 17.5 0 0 1 18 .5Z" fill="url(#${gradientId})" stroke="${inactive?'#e4d8c8':'#ffc68f'}" stroke-width="1" vector-effect="non-scaling-stroke"/></svg><div class="coupon-main"><div class="coupon-amount"><small>¥</small>${c.value}</div>${count>1?`<span class="coupon-stack-count">×${count}张</span>`:``}<div class="coupon-copy"><strong>${threshold}</strong><span class="coupon-label">${label}</span><span class="coupon-validity">有效期至 ${formatExpiry(normalized)}</span>${showDetails&&c.id?`<button class="coupon-details-link" data-coupon-detail="${c.id}">使用说明 ${icon('chevron-right')}</button>`:''}</div>${action}</div></article>`;
 }
 function benefitTicket(r){
  return `<div class="benefit-ticket">${icon(r.icon)}<div><strong>${r.name}</strong><span>${r.condition}</span><small>当活动日有效 · 每日10点更新</small></div></div>`;
@@ -345,7 +351,7 @@ function bindShopSheet(){
 }
 function showShop(key=focusShop){
  if(!shops[key])return;
- if(currentModal!=='shop'||browsingShop!==key){state=DailyStreet.record(state,key,'view',todayKey());renderHome();}
+ if(currentModal!=='shop'||browsingShop!==key){state=DailyStreet.record(state,key,'view',todayKey());renderHome({preserveStreet:true});}
  browsingShop=key;const shop=shops[key],r=currentReward(),claimed=Flow.todayClaimed(state,todayKey()),canClaim=!claimed&&DailyStreet.couponShopIds(state).includes(key);
  const shopCoupons=Flow.availableCoupons(state,todayKey()).filter(c=>shop.products.some(p=>Basket.applies(c,p))),hasShopCoupon=shopCoupons.length>0;
  const copy=hasShopCoupon?`有 ${shopCoupons.length} 张券可用 · 自动选最优优惠`:validCoupon()?'现有优惠券暂不适用于本店':state.coupon?.date===todayKey()&&state.coupon.used?'今日券已使用 · 明天再来领好礼':canClaim&&r.value?`今日可领 ${r.value}元券 · 满${r.min}减${r.value}`:!claimed&&r.value?'今日优惠券暂不适用于本店':'今日好物，慢慢挑';
@@ -355,7 +361,7 @@ function showShop(key=focusShop){
 }
 function showDetail(id){
  const p=allProducts.find(p=>p.id===id);if(!p)return;browsingShop=p.shop;detailProductId=id;const q=Flow.quote(state,p,1,todayKey());
- state={...DailyStreet.record(state,p.shop,'view',todayKey()),recentProductIds:[p.id,...(state.recentProductIds||[]).filter(id=>id!==p.id)].slice(0,12)};renderHome();
+ state={...DailyStreet.record(state,p.shop,'view',todayKey()),recentProductIds:[p.id,...(state.recentProductIds||[]).filter(id=>id!==p.id)].slice(0,12)};renderHome({preserveStreet:true});
  openModal('detail',`<header class="sheet-head"><h2 id="modalTitle">商品详情</h2><div class="sheet-actions"><button class="detail-close" data-dismiss aria-label="关闭商品详情">${icon('x')}</button></div></header><div class="shop-products-scroll detail-scroll"><div class="detail-hero">${art(p)}</div><div class="detail-copy">${priceHtml(p)}${q.discount?`<del class="detail-original">原价 ¥${money(p.price)}</del>`:''}<h3>${p.name}</h3><p>标准装 · 来自${shops[p.shop].name}</p></div><div class="detail-coupon ${q.discount?'is-usable':''}">${icon('ticket-percent')}<div><strong>${q.discount?`${q.discountKind==='benefit'?'专享价已生效':'优惠券可用'}，到手 ¥${money(q.total)}`:couponReason(q,p)}</strong><span>${q.discountKind==='benefit'?'本活动日内有效 · 不与券叠加':q.coupon?`有效期至 ${formatExpiry(q.coupon)} · 每单限一张`:'适用范围、门槛与有效期以券面为准'}</span></div></div></div><footer class="detail-footer">${detailCartButton(p.shop)}<div class="detail-purchase-actions"><button class="wide-cta" data-add-basket="${p.id}">加入购物车</button><button class="secondary-cta" data-buy="${p.id}">立即购买</button></div></footer>`,'sheet detail-sheet');
 }
 function couponReason(q,p){return ({unclaimed:'未领取优惠，本单按原价结算',expired:'优惠已过期，本单按原价结算',used:'可用券已用完，本单按原价结算',ineligible:'该商品暂不适用现有优惠券',minimum:`还差 ¥${exact(q.minimumShortfall||0)} 达到用券门槛`,applied:`已自动选择${q.discount}元优惠券`,benefit:`已享专享价，每件立减1元`})[q.reason];}
@@ -414,23 +420,42 @@ function showCouponPicker(origin){
  const options=Flow.availableCoupons(state,todayKey());
  const rows=options.map(c=>{
   const q=Flow.quoteItems(state,lines,todayKey(),{couponId:c.id}),usable=q.coupon?.id===c.id;
-  return `<div class="coupon-choice">${ticket(c,{showStatus:false})}<div><span>${usable?'本单可抵¥'+exact(q.discount):q.reason==='minimum'?'还差¥'+exact(q.minimumShortfall)+'可用':'当前商品暂不适用'}</span>${usable?`<button data-coupon-choose="${c.id}">使用这张券</button>`:q.reason==='minimum'?`<button data-topup-coupon="${c.id}">去凑单</button>`:''}</div></div>`;
+  return `<div class="coupon-choice">${ticket(c,{showStatus:false,showDetails:true})}<div><span>${usable?'本单可抵¥'+exact(q.discount):q.reason==='minimum'?'还差¥'+exact(q.minimumShortfall)+'可用':'当前商品暂不适用'}</span>${usable?`<button data-coupon-choose="${c.id}">使用这张券</button>`:q.reason==='minimum'?`<button data-topup-coupon="${c.id}">去凑单</button>`:''}</div></div>`;
  }).join('');
  openModal('coupon-picker',`<header class="sheet-head commerce-header"><h2 id="modalTitle">优惠券</h2><button class="detail-close" data-coupon-back aria-label="返回${origin==='checkout'?'确认订单':'购物车'}">${icon('x')}</button></header><div class="shop-products-scroll commerce-scroll coupon-picker-scroll"><p class="coupon-picker-intro">每单限用一张，按适用商品金额计算门槛。</p><button class="discount-option" data-coupon-choose="auto">自动选择最优优惠${icon(discountChoice==='auto'?'circle-check':'circle')}</button>${rows||'<div class="basket-empty"><p>暂时没有可用优惠券</p></div>'}<button class="discount-option" data-coupon-choose="none">本单不使用优惠${icon(discountChoice==='none'?'circle-check':'circle')}</button></div>`,'sheet commerce-sheet coupon-picker-sheet');
 }
+function showCouponDetails(id){
+ const c=Flow.couponList(state).find(c=>c.id===id);if(!c)return;activeCouponId=id;
+ const products=recommendationProducts(c).filter(p=>Basket.applies(c,p));
+ const storeIds=c.shopIds||[...new Set(products.map(p=>p.shop))];
+ const groups=storeIds.filter(key=>shops[key]).map(key=>{
+  const names=[...new Set(products.filter(p=>p.shop===key).map(p=>p.name))];
+  return `<details class="coupon-scope-store"><summary>${shops[key].name}<span>${names.length}款适用商品</span></summary><ul>${names.map(name=>`<li>${esc(name)}</li>`).join('')||'<li>暂无在售商品</li>'}</ul></details>`;
+ }).join('');
+ openModal('coupon-detail',`<header class="sheet-head commerce-header"><h2 id="modalTitle">优惠券详情</h2><button class="detail-close" data-dismiss aria-label="返回上一个弹窗">${icon('x')}</button></header><div class="shop-products-scroll commerce-scroll coupon-detail-scroll">${ticket(c,{showStatus:false})}<section class="commerce-card coupon-terms"><h3>使用说明</h3><dl><div><dt>使用门槛</dt><dd>${c.type==='free-order'?`最高抵扣¥${exact(c.value)}`:`适用商品满¥${exact(c.min)}减¥${exact(c.value)}`}</dd></div><div><dt>有效期至</dt><dd>${formatExpiry(c)}</dd></div><div><dt>适用范围</dt><dd>${c.scope==='street'?'全街适用商品':storeIds.filter(key=>shops[key]).map(key=>shops[key].name).join('、')}</dd></div><div><dt>使用规则</dt><dd>每单限用一张，仅适用商品计入门槛，不与专享价叠加。</dd></div></dl></section><section class="commerce-card coupon-eligible"><h3>适用店铺与商品</h3><p>展开店铺可查看商品。券的范围以领取时为准。</p>${groups}</section></div>`,'sheet commerce-sheet coupon-detail-sheet');
+}
 function chooseCoupon(id){
- if(couponReturn==='basket'){restoreModalView('basket',{discountChoice:id});discountChoice=id;const q=cartQuote();if(!q.valid)return showBasket(basketReturnShop,cartScope,true);return showBasketCheckout(basketReturnShop,cartScope,true);}
+ if(couponReturn==='basket'){if(!restoreModalView('basket',{discountChoice:id})){discountChoice=id;showBasket(basketReturnShop,cartScope,true);}return;}
  if(!restoreModalView('checkout',{discountChoice:id})){discountChoice=id;renderCheckout();}
 }
 function editCheckout(field){
  editingCheckoutField=field;const prefs=checkoutPreferences();
- const fields=field==='address'?`<label>收货人<input name="name" value="${esc(prefs.name)}" maxlength="20" autocomplete="name" required></label><label>手机号码<input name="phone" value="${esc(prefs.phone)}" inputmode="tel" maxlength="11" autocomplete="tel" required></label><label>详细地址<textarea name="address" maxlength="120" autocomplete="street-address" required>${esc(prefs.address)}</textarea></label>`:field==='invoice'?`<label>发票类型<select name="invoice"><option${prefs.invoice==='不开票'?' selected':''}>不开票</option><option${prefs.invoice==='个人电子发票'?' selected':''}>个人电子发票</option></select></label>`:`<label>订单备注<textarea name="note" maxlength="100" placeholder="有需要交代的事，可以写在这里">${esc(prefs.note)}</textarea></label>`;
- openModal('checkout-edit',`<header class="sheet-head commerce-header"><h2 id="modalTitle">${{address:'收货地址',invoice:'发票信息',note:'订单备注'}[field]}</h2><button class="detail-close" data-edit-back aria-label="返回确认订单">${icon('x')}</button></header><div class="shop-products-scroll commerce-scroll"><form id="checkoutForm" class="checkout-form">${fields}<p id="checkoutFormError" role="alert"></p></form></div><footer class="commerce-dock edit-dock"><button class="wide-cta" data-save-checkout>保存</button></footer>`,'sheet commerce-sheet checkout-edit-sheet');
+ const fields=field==='address'?`<label>收货人<input name="name" value="${esc(prefs.name)}" maxlength="20" autocomplete="name" aria-describedby="checkout-name-error" required><span class="field-error" id="checkout-name-error"></span></label><label>手机号码<input name="phone" value="${esc(prefs.phone)}" inputmode="tel" maxlength="11" autocomplete="tel" aria-describedby="checkout-phone-error" required><span class="field-error" id="checkout-phone-error"></span></label><label>详细地址<textarea name="address" maxlength="120" autocomplete="street-address" aria-describedby="checkout-address-error" required>${esc(prefs.address)}</textarea><span class="field-error" id="checkout-address-error"></span></label>`:field==='invoice'?`<label>发票类型<select name="invoice"><option${prefs.invoice==='不开票'?' selected':''}>不开票</option><option${prefs.invoice==='个人电子发票'?' selected':''}>个人电子发票</option></select></label>`:`<label>订单备注<textarea name="note" maxlength="100" placeholder="有需要交代的事，可以写在这里">${esc(prefs.note)}</textarea></label>`;
+ openModal('checkout-edit',`<header class="sheet-head commerce-header"><h2 id="modalTitle">${{address:'收货地址',invoice:'发票信息',note:'订单备注'}[field]}</h2><button class="detail-close" data-edit-back aria-label="返回确认订单">${icon('x')}</button></header><div class="shop-products-scroll commerce-scroll"><form id="checkoutForm" class="checkout-form">${fields}<p id="checkoutFormError" class="sr-only" role="alert"></p></form></div><footer class="commerce-dock edit-dock"><button class="wide-cta" data-save-checkout>保存</button></footer>`,'sheet commerce-sheet checkout-edit-sheet edit-'+field);
 }
 function saveCheckoutDetails(){
  const form=$('#checkoutForm'),values=Object.fromEntries(new FormData(form)),prefs={...checkoutPreferences()};
  for(const [key,value] of Object.entries(values))prefs[key]=value.trim();
- if(editingCheckoutField==='address'&&(!prefs.name||!prefs.address||!/^1\d{10}$/.test(prefs.phone))){$('#checkoutFormError').textContent='请填写收货人、详细地址和11位手机号码';return;}
+ if(editingCheckoutField==='address'){
+  const errors={name:prefs.name?'':'请填写收货人姓名',phone:/^1\d{10}$/.test(prefs.phone)?'':'请填写11位手机号码',address:prefs.address?'':'请填写详细收货地址'};
+  for(const [name,error] of Object.entries(errors)){
+   const input=form.querySelector(`[name="${name}"]`);input.setAttribute('aria-invalid',String(!!error));
+   $('#checkout-'+name+'-error').textContent=error;
+  }
+  const first=Object.keys(errors).find(name=>errors[name]);
+  $('#checkoutFormError').textContent=first?errors[first]:'';
+  if(first){form.querySelector(`[name="${first}"]`).focus();return;}
+ }
  state={...state,checkoutPreferences:prefs};save();if(!restoreModalView('checkout'))renderCheckout();
 }
 function dismissModal(){
@@ -464,7 +489,7 @@ function showDaily(){
 }
 function walletRewardCard(entry){
  const status={available:'待使用',pending:'待领取',expired:'已过期',used:'已使用',future:'未生效',unavailable:'已领取'}[entry.status];
- if(entry.coupon)return ticket(entry.coupon,{usable:entry.status==='available',count:entry.count||1});
+ if(entry.coupon)return ticket(entry.coupon,{usable:entry.status==='available',count:entry.count||1,showDetails:true});
  const r=entry.benefit||entry.unlock.reward;
  if(r.value)return ticket({...r,date:entry.date,expiresOn:entry.date},{offered:entry.status==='pending',claimable:entry.status==='pending',statusText:status});
  const available=entry.status==='available',pending=entry.status==='pending',inactive=!available&&!pending;
@@ -674,6 +699,7 @@ document.addEventListener('click',event=>{
  if(button.hasAttribute('data-cart-coupons'))return showCouponPicker('basket');
  if(button.hasAttribute('data-checkout-coupons'))return showCouponPicker('checkout');
  if(button.hasAttribute('data-coupon-back'))return dismissModal();
+ if(button.dataset.couponDetail)return showCouponDetails(button.dataset.couponDetail);
  if(button.dataset.couponChoose)return chooseCoupon(button.dataset.couponChoose);
  if(button.dataset.topupCoupon)return goTopup(button.dataset.topupCoupon);
  if(button.dataset.checkoutEdit)return editCheckout(button.dataset.checkoutEdit);
@@ -712,13 +738,13 @@ document.addEventListener('keydown',event=>{
  if(event.target.closest?.('.wallet-tabs')&&['ArrowLeft','ArrowRight','Home','End'].includes(event.key)){event.preventDefault();const tab=event.key==='Home'?'available':event.key==='End'?'history':rewardsTab==='available'?'history':'available';showRewards(tab);$(`[data-rewards-tab="${tab}"]`).focus({preventScroll:true});return;}
  if(event.key==='Escape'){if(currentModal)dismissModal();else motionFinish?.();}
  if(event.key===' '&&event.target.matches?.('[role=checkbox]')){event.preventDefault();event.target.click();return;}
- if(event.key==='Tab'&&currentModal){const nodes=[...$('#modal').querySelectorAll('button:not(:disabled),input,textarea,select,a[href]')];const first=nodes[0],last=nodes.at(-1);if(event.shiftKey&&(document.activeElement===first||document.activeElement===$('#modal'))){event.preventDefault();last?.focus();}else if(!event.shiftKey&&document.activeElement===last){event.preventDefault();first?.focus();}}
+ if(event.key==='Tab'&&currentModal){const nodes=modalFocusables();const first=nodes[0],last=nodes.at(-1);if(event.shiftKey&&(document.activeElement===first||document.activeElement===$('#modal'))){event.preventDefault();last?.focus();}else if(!event.shiftKey&&document.activeElement===last){event.preventDefault();first?.focus();}}
 });
 $('#motionToggle').checked=reduced;$('#motionToggle').addEventListener('change',event=>{reduced=event.target.checked;$('#app').classList.toggle('reduce-motion',reduced);if(reduced)motionFinish?.();});
 $('#replay').addEventListener('click',()=>{if(moving)return;closeModal();goTo(focusShop===primaryShop()?secondaryShop():primaryShop());});
 $('#reset').addEventListener('click',()=>{motionFinish?.();closeModal();state=fresh();streetSignature='';renderHome();window.QiyuIP3D?.greet();$('#guide').hidden=false;if(demo==='wallet')showRewards();else maybeOfferReward();});
-$('#previewDay')?.addEventListener('change',event=>{const scenarios=['first','second','third','fourth','fifth','sixth','seventh'],url=new URL(location.href);url.searchParams.set('demo',event.target.value);url.searchParams.set('demoDay',Flow.addDays(state.streetStartedOn||todayKey(),scenarios.indexOf(event.target.value)));url.searchParams.set('v','prd-v1-baseline-1');location.href=url.href;});
-$('#previewProfile')?.addEventListener('change',event=>{const url=new URL(location.href);url.searchParams.set('shopProfile',event.target.value);url.searchParams.set('v','prd-v1-baseline-1');location.href=url.href;});
+$('#previewDay')?.addEventListener('change',event=>{const scenarios=['first','second','third','fourth','fifth','sixth','seventh'],url=new URL(location.href);url.searchParams.set('demo',event.target.value);url.searchParams.set('demoDay',Flow.addDays(state.streetStartedOn||todayKey(),scenarios.indexOf(event.target.value)));url.searchParams.set('v','design-polish-3');location.href=url.href;});
+$('#previewProfile')?.addEventListener('change',event=>{const url=new URL(location.href);url.searchParams.set('shopProfile',event.target.value);url.searchParams.set('v','design-polish-3');location.href=url.href;});
 window.addEventListener('resize',resize);resize();$('#app').classList.toggle('reduce-motion',reduced);renderHome();
 setTimeout(demo==='wallet'?showRewards:maybeOfferReward,450);
 
