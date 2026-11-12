@@ -58,7 +58,7 @@
  };
  shops.paper.products=select(paper,[0,1,2,3,4,5,6,7,8],{1:{price:13.9},2:{price:15.9},3:{price:16.9}});
  shops.snack.products=[...select(snack,[3,0,4,7,8,9,10],{3:{price:9.9},0:{price:12.9},4:{price:14.9}}),product('snack',12,'酸辣粉整箱6桶',35.9,13,'daily-c'),...select(snack,[11])];
- shops.kitchen.products=[product('kitchen',11,'加厚垃圾袋100只',9.9,5,'other'),product('kitchen',12,'柠檬去油洗洁精1kg',10.9,19,'daily-c'),...select(kitchen,[4,0,6,5,7,8,9],{5:{price:16.9}})];
+ shops.kitchen.products=[product('kitchen',11,'加厚垃圾袋100只',9.9,5,'other'),product('kitchen',12,'柠檬去油洗洁精1kg',10.9,0,'dishsoap-kg'),...select(kitchen,[4,0,6,5,7,8,9],{5:{price:16.9}})];
  shops.face.products=select(face,[0,1,2,3,4,5,6,7,8]);
  shops.makeup.products=[...select(makeup,[0,2,5,6,7],{0:{price:19.9},2:{price:26.9}}),extra('makeup',10,'唯资四色修容盘',36.9,16),...select(makeup,[8]),extra('makeup',11,'珂拉琪水雾唇露',39.9,17),...select(makeup,[9])];
  shops.skin.products=[...select(skin,[0,3,4,5,6,7,8,9]),extra('skin',10,'欧莱雅复颜水乳套装',89.9,18)];
@@ -69,6 +69,7 @@
  const activeProducts=Object.values(shops).flatMap(s=>s.products),activeIds=new Set(activeProducts.map(p=>p.id));
  const allProducts=[...activeProducts,...originalProducts.filter(p=>!activeIds.has(p.id)).map(p=>({...p,legacy:true})),...legacy];
  const sheets={paper:{url:'assets/products.png',columns:3,rows:3},other:{url:'assets/other-products.png',columns:3,rows:2},'daily-a':{url:'assets/products-care-trend-v1.png',columns:5,rows:4},'daily-b':{url:'assets/products-beauty-skin-v2.png',columns:5,rows:4},'daily-c':{url:'assets/products-winter-home-snack-v1.png',columns:6,rows:5}};
+ sheets['dishsoap-kg']={url:'assets/product-dishsoap-1kg-v2.png',columns:1,rows:1};
  sheets['prd-v1']={url:'assets/products-prd-v1-2.png',columns:5,rows:4};
  const shelfProducts=[...coreShopIds,...candidateShopIds].flatMap(key=>shops[key].products);
  return {shops,coreShopIds,candidateShopIds,shelfProducts,allProducts,sheets};
