@@ -15,10 +15,9 @@
     const feet=Object.fromEntries(Object.entries(base.feet).map(([side,foot])=>[side,{...foot,x:foot.x+dx,y:foot.y+dy}]));
     return {...base,point:[302,548],screen:{x:302,y:548},camera:{x:0,y:0,scale:1},size:1,scene:configured?'shop-front':'kitchen-front',feet,arrivalHeading:[0,1]};
   }
-  let doc,art,curtain,originalArt,endCurrent=null;
+  let doc,art,originalArt;
   function init(document){
     doc=document;art=doc.querySelector('#world .street-art');originalArt=art.getAttribute('src');
-    curtain=doc.createElement('div');curtain.className='scene-curtain';curtain.hidden=true;curtain.setAttribute('aria-hidden','true');doc.querySelector('.street').append(curtain);
   }
   function hitAreaFor(shop,position){return shops[shop]?.artSheet?.hitAreas?.[facingFor(position)]||hitAreas[facingFor(position)][shops[shop]?.art||0];}
   function spriteStyle(shop,position='front'){
@@ -46,28 +45,26 @@
   }
   function setView(key){
     const position=positionFor(key),front=position==='kitchen'||position==='front';
-    art.src=configured?originalArt:front?'assets/kitchen-front.png':originalArt;
-    art.alt=configured?(front?`${shops[key]?.name||'小店'}门前街景`:slots.map(s=>shops[s.shop]?.name).join('、')+'沿街排列'):front?'厨房帮手铺独立门口近景，台阶前是开阔空地':'纸巾铺、零食铺和厨房铺沿街排列';
+    art.alt=configured?slots.map(s=>shops[s.shop]?.name).join('、')+'沿街排列':'纸巾铺、零食铺和厨房铺沿街排列';
+    const backdrop=doc.querySelector('#storefrontBackdrop'),source=configured?originalArt:'assets/kitchen-front.png';
+    if(backdrop.getAttribute('src')!==source)backdrop.src=source;
+    backdrop.alt=(shops[key]?.name||'小店')+'门前街景';
     const app=doc.querySelector('#app');app.dataset.sceneMode=modeFor(key);app.dataset.sceneAsset=front?(configured?'shop-front':'kitchen-front'):'street';
     const storefront=doc.querySelector('#storefrontFront');
     if(storefront){storefront.hidden=!front;storefront.style.cssText=spriteStyle(key);storefront.dataset.facing=facingFor(position);storefront.setAttribute('aria-label',shops[key]?.name||'当前店铺');}
     // Shared street views keep their image-aligned shop targets clickable.
     // A screen-wide door target would swallow clicks on the distant kitchen.
     const door=doc.querySelector('#storeDoorHit');door.hidden=!front;door.setAttribute('aria-label','进入'+(shops[key]?.name||'厨房帮手铺'));
+    // Switch complete scene groups in this paint: the overview background and all
+    // its shops leave together, without an outgoing layer lingering over the door.
+    doc.querySelector('#world').hidden=front;
+    doc.querySelector('#storefrontScene').hidden=!front;
     doc.querySelector('#guide').hidden=false;
   }
-  function transition(commit,reduced){
-    endCurrent?.();let applied=false,coverTimer,revealTimer;
-    const apply=()=>{if(applied)return;applied=true;commit();};
-    const finish=()=>{
-      clearTimeout(coverTimer);clearTimeout(revealTimer);apply();curtain.hidden=true;curtain.style.opacity='0';endCurrent=null;
-    };
-    if(reduced){finish();return finish;}
-    endCurrent=finish;curtain.hidden=false;curtain.style.transition='none';curtain.style.opacity='0';
-    // Force the initial transparent state before the short scene cut.
-    void curtain.offsetWidth;curtain.style.transition='opacity 140ms ease';curtain.style.opacity='1';
-    coverTimer=setTimeout(()=>{apply();curtain.style.opacity='0';revealTimer=setTimeout(()=>{curtain.hidden=true;endCurrent=null;},150);},150);
-    return finish;
+  function transition(commit){
+    // Background, storefront and character pose commit before the next browser paint.
+    commit();
+    return ()=>{};
   }
   return {travelKind,modeFor,positionFor,restFor,init,configure,setView,transition,hitAreaFor};
 });

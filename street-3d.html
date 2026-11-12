@@ -15,11 +15,11 @@
   <script defer src="rig-street-motion.js?v=4"></script>
   <script defer src="street-navigation.js?v=second-doorstep-1"></script>
   <script defer src="shop-hit-areas.js?v=1"></script>
-  <script defer src="shop-views.js?v=atlas-crop-1"></script>
+  <script defer src="shop-views.js?v=scene-group-1"></script>
   <link rel="stylesheet" href="popup-ui.css?v=sheet-close-align-1">
   <link rel="stylesheet" href="home-scroll.css?v=recent-square-1">
   <link rel="stylesheet" href="commerce-ui.css?v=checkout-dock-row-1">
-  <link rel="stylesheet" href="daily-shops.css?v=atlas-crop-1">
+  <link rel="stylesheet" href="daily-shops.css?v=scene-group-1">
   <link rel="stylesheet" href="palette.css?v=street-labels-1">
   <script defer src="rewards-flow.js?v=8"></script>
   <script defer src="shopping-basket.js?v=3"></script>
@@ -32,10 +32,9 @@
   <style>
   .street{overflow:clip}
   .app[data-character="off"] #walkerPosition,.app[data-character="off"] #guide,.app[data-character="off"] #walkTrail,.app[data-character="off"] #skipWalk{display:none!important}
-  .app[data-scene-asset="kitchen-front"] #world .shop-hotspot,.app[data-scene-mode="store"] .new-tag,.app[data-scene-mode="store"] .street-depth-mask{display:none!important}
+  .app[data-scene-mode="store"] .new-tag,.app[data-scene-mode="store"] .street-depth-mask{display:none!important}
   #storeDoorHit{position:absolute;left:0;top:150px;width:414px;height:405px;background:transparent;z-index:3}
   #storeDoorHit:focus-visible{outline-offset:-8px;border-radius:16px}
-  .scene-curtain{position:absolute;inset:0;z-index:6;pointer-events:auto;background:#edf8f5;opacity:0}
   .app[data-navigation="cut"] .topbar,.app[data-navigation="cut"] .daily-progress,.app[data-navigation="cut"] .street-actions{pointer-events:none}
   #walkerPosition{position:absolute;left:0;top:0;width:0;height:0;z-index:5;transform-origin:0 0;pointer-events:none;will-change:transform}
   .rig-street-canvas{position:absolute;left:-96px;top:-144px;width:192px;height:192px;pointer-events:none}
@@ -94,8 +93,11 @@
             <button class="shop-hotspot snack" data-slot="snack" data-shop="snack" aria-label="查看零食小铺"><span>去零食小铺</span></button>
             <button class="shop-hotspot kitchen" data-slot="kitchen" data-shop="kitchen" aria-label="查看厨房帮手铺"><span>去厨房帮手铺</span></button>
           </div>
-          <div class="storefront-front" id="storefrontFront" role="img" hidden></div>
-          <button id="storeDoorHit" hidden aria-label="进入当前店铺"></button>
+          <div class="storefront-scene" id="storefrontScene" hidden>
+            <img class="street-art" id="storefrontBackdrop" src="assets/street-soft-palette-v1.png" alt="当前店铺门前街景" draggable="false">
+            <div class="storefront-front" id="storefrontFront" role="img" hidden></div>
+            <button id="storeDoorHit" hidden aria-label="进入当前店铺"></button>
+          </div>
           <div id="walkerPosition" hidden aria-hidden="true"></div>
           <div class="walk-trail" id="walkTrail" aria-hidden="true"></div>
           <button class="guide" id="guide" hidden><span class="guide-copy">点家小店，逛逛去～</span></button>

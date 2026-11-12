@@ -12,13 +12,11 @@
 #app.has-daily-shops .shop-hotspot[data-facing=front] .storefront-front[data-facing=front]{background-image:var(--shop-art,url('assets/shops-hue-front-v1.png'))}
 .has-daily-shops .shop-hotspot .storefront-sprite{position:absolute;inset:0;display:block;border:0;border-radius:0;background-color:transparent;box-shadow:none;opacity:1;transform:none;pointer-events:none;color:transparent}
 .has-daily-shops .new-tag{display:none!important}
+.storefront-scene{position:absolute;inset:0;z-index:2}
 .storefront-front{position:absolute;left:-32px;top:174px;width:310px;height:310px;z-index:2;pointer-events:none}
 .storefront-front[hidden]{display:none}
-.has-daily-shops[data-scene-asset=shop-front] #world .shop-hotspot{visibility:hidden;pointer-events:none}
-.has-daily-shops[data-scene-asset=shop-front] #world .shop-hotspot:after{pointer-events:none}
 #app.has-daily-shops #storeDoorHit{position:absolute;left:-32px;top:174px;width:310px;height:310px;background:transparent;z-index:3}
 #storeDoorHit[hidden]{display:none}
-.scene-curtain{position:absolute;inset:0;z-index:6;pointer-events:auto;background:#edf8f5;opacity:0}
 .has-daily-shops .street-depth-mask{display:none!important}
 .preview-product{display:grid;grid-template-columns:112px minmax(0,1fr);gap:18px;align-items:center;padding:20px 0;border-bottom:1px solid #eddfd2}
 .preview-product:last-child{border-bottom:0}
