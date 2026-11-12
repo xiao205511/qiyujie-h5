@@ -1,11 +1,11 @@
-.image-loading-message{position:absolute;inset:0;display:grid;place-content:center;min-height:40px;background:linear-gradient(110deg,#f5f2ed,#fffaf4,#f5f2ed);color:#746e65;font:12px/1.6 -apple-system,BlinkMacSystemFont,"PingFang SC",sans-serif;text-align:center;pointer-events:none;border-radius:inherit;z-index:1}
+.image-loading-message{position:absolute;inset:0;display:grid;place-content:center;min-height:40px;background:linear-gradient(110deg,var(--q-canvas,#f8f6f3),var(--q-surface,#fffdfa),var(--q-canvas,#f8f6f3));color:var(--q-muted,#747078);font:12px/1.6 -apple-system,BlinkMacSystemFont,"PingFang SC",sans-serif;text-align:center;pointer-events:none;border-radius:inherit;z-index:1}
 .image-loading-message[hidden]{display:none}
 .app[data-character=rigged]:not([data-ip-renderer=skinned-glb]) #guide{visibility:hidden}
-.shop-hotspot .storefront-sprite>.image-loading-message{display:grid;position:absolute;inset:0;width:auto;height:auto;transform:none;opacity:1;white-space:normal;padding:12px;border:0;border-radius:18px;box-shadow:none;color:#746e65;font-size:12px;line-height:1.6;background:linear-gradient(110deg,#f5f2ed,#fffaf4,#f5f2ed)}
+.shop-hotspot .storefront-sprite>.image-loading-message{display:grid;position:absolute;inset:0;width:auto;height:auto;transform:none;opacity:1;white-space:normal;padding:12px;border:0;border-radius:18px;box-shadow:none;color:var(--q-muted,#747078);font-size:12px;line-height:1.6;background:linear-gradient(110deg,var(--q-canvas,#f8f6f3),var(--q-surface,#fffdfa),var(--q-canvas,#f8f6f3))}
 .shop-hotspot .storefront-sprite>.image-loading-message[hidden]{display:none}
 .image-loading-surface[data-art-state=loading]>.sprite-image,.image-loading-surface[data-art-state=error]>.sprite-image{visibility:hidden}
-.image-retry-notice{position:absolute;left:16px;right:16px;bottom:100px;z-index:80;display:flex;justify-content:space-between;align-items:center;gap:12px;padding:8px 12px;border:1px solid #ffd5c6;border-radius:14px;background:#fff9f3;box-shadow:0 4px 20px #5933181a;color:#584338;font:12px/1.5 -apple-system,BlinkMacSystemFont,"PingFang SC",sans-serif}
+.image-retry-notice{position:absolute;left:16px;right:16px;bottom:100px;z-index:80;display:flex;justify-content:space-between;align-items:center;gap:12px;padding:8px 12px;border:1px solid var(--q-orange-line,#ffd1c1);border-radius:14px;background:var(--q-surface,#fffdfa);box-shadow:0 4px 20px var(--q-shadow,#493a3514);color:var(--q-ink,#27282d);font:12px/1.5 -apple-system,BlinkMacSystemFont,"PingFang SC",sans-serif}
 .image-retry-notice[hidden]{display:none}
-.image-retry-notice button{min-height:44px;padding:8px 12px;border:0;border-radius:12px;background:#ff4937;color:white;font:inherit;font-size:13px;font-weight:600;cursor:pointer}
+.image-retry-notice button{min-height:44px;padding:8px 12px;border:0;border-radius:12px;background:var(--q-action,linear-gradient(105deg,#ff7618,#ff4b28 48%,#ff303e));color:white;font:inherit;font-size:13px;font-weight:600;cursor:pointer}
 .mall-screen{min-height:100dvh}
 .mall-screen>.image-loading-message{top:0;bottom:auto;height:100dvh;background:#f7f8fa}
