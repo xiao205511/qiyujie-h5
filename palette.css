@@ -75,7 +75,12 @@
   box-shadow:inset 0 1px 1px #ffffff55,0 3px 8px #ff4c2826;
 }
 #app .primary-action {border:1px solid var(--q-action-border)}
-#app .coupon-strip button {background:var(--q-action);color:#fff}
+#app .coupon-strip button {
+  background:var(--q-coupon-top);
+  border:1px solid var(--q-orange-line);
+  color:var(--q-orange-ink);
+  box-shadow:none;
+}
 #app .secondary-cta,#app .detail-purchase-actions .secondary-cta {
   background:var(--q-orange-soft);color:var(--q-orange-ink);border-color:var(--q-orange-line);
 }
@@ -225,8 +230,7 @@
 #app .coupon-choice>div:last-child>button,#app .coupon-unavailable>button,
 #app .daily-row.today,#app .used-coupon-chip {background:var(--q-orange-soft);border-color:var(--q-orange-line);color:var(--q-orange-ink)}
 #app .product-buy:not(.quick-add),#app .daily-row .product-buy {background:var(--q-orange-soft);color:var(--q-orange-ink)}
-#app .shop-product-row .product-buy,#app .more-product-footer .quick-add,
-#app .coupon-strip button {background:var(--q-action);border-color:var(--q-action-border);color:#fff}
+#app .shop-product-row .product-buy,#app .more-product-footer .quick-add {background:var(--q-action);border-color:var(--q-action-border);color:#fff}
 #app .coupon-details-link {background:transparent}
 #app .basket-quantity>button,#app .quantity button {background:var(--q-orange-soft);border-color:var(--q-orange-line);color:var(--q-orange-ink)}
 #app .checkout-address>.lucide:first-child {color:var(--q-muted)}
