@@ -7,10 +7,7 @@
 .has-daily-shops .shop-hotspot.snack{left:262px;top:196px;width:214px;height:214px;z-index:5}
 /* Bring the distant storefront closer while keeping its base above the road. */
 .has-daily-shops .shop-hotspot.kitchen{left:179px;top:140px;width:144px;height:144px;z-index:3}
-#app.has-daily-shops .shop-hotspot .storefront-sprite,.storefront-front,.storefront-neighbor{background-image:var(--shop-art,url('assets/shops-hue-right-v1.png'));background-size:var(--shop-size,400% 200%);background-position:var(--shop-x) var(--shop-y);background-repeat:no-repeat;clip-path:inset(var(--shop-crop,0))}
-#app.has-daily-shops .shop-hotspot[data-facing=left] .storefront-sprite,.storefront-front[data-facing=left],.storefront-neighbor[data-facing=left]{background-image:var(--shop-art,url('assets/shops-hue-left-v1.png'))}
-.storefront-front[data-facing=front]{background-image:var(--shop-art,url('assets/shops-hue-front-v1.png'))}
-.has-daily-shops .shop-hotspot .storefront-sprite{position:absolute;inset:0;display:block;border:0;border-radius:0;background-color:transparent;box-shadow:none;opacity:1;transform:none;pointer-events:none;color:transparent}
+.has-daily-shops .shop-hotspot .storefront-sprite{position:absolute;inset:0;display:block;padding:0;border:0;border-radius:0;background:transparent;box-shadow:none;opacity:1;transform:none;pointer-events:none;color:transparent}
 .has-daily-shops .new-tag{display:none!important}
 /* Move the entire doorway view closer, keeping scenery and the door target aligned. */
 .storefront-scene{position:absolute;inset:0;z-index:2;transform:scale(1.24);transform-origin:50% 26%}

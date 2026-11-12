@@ -1,8 +1,8 @@
 (function(root,factory){
-  const api=factory(typeof module!=='undefined'&&module.exports?require('./shop-hit-areas.js'):root.QiyuShopHitAreas);
+  const api=factory(typeof module!=='undefined'&&module.exports?require('./shop-hit-areas.js'):root.QiyuShopHitAreas,typeof module!=='undefined'&&module.exports?require('./sprite-art.js'):root.QiyuSpriteArt);
   if(typeof module!=='undefined'&&module.exports)module.exports=api;
   else {root.QiyuShopViews=api;api.init(document);}
-})(typeof window!=='undefined'?window:this,function(hitAreas){
+})(typeof window!=='undefined'?window:this,function(hitAreas,Art){
   let slots=[{position:'paper',shop:'paper'},{position:'snack',shop:'snack'},{position:'kitchen',shop:'kitchen'}],shops={},configured=false;
   const positionFor=key=>slots.find(slot=>slot.shop===key)?.position||'front';
   const facingFor=position=>position==='paper'?'right':position==='snack'?'left':'front';
@@ -21,15 +21,11 @@
   }
   function hitAreaFor(shop,position){return shops[shop]?.artSheet?.hitAreas?.[facingFor(position)]||hitAreas[facingFor(position)][shops[shop]?.art||0];}
   function spriteStyle(shop,position='front'){
-    const art=shops[shop]?.art||0;
-    const sheet=shops[shop]?.artSheet;
-    if(sheet){
-      const column={right:0,left:1,front:2}[facingFor(position)];
-      return `--shop-art:url('${sheet.url}');--shop-size:${sheet.columns*100}% ${sheet.rows*100}%;--shop-x:${column/(sheet.columns-1)*100}%;--shop-y:${sheet.row/(sheet.rows-1)*100}%;--shop-hit:${hitAreaFor(shop,position)}`;
-    }
-    // The top atlas row contains a few pixels from the next row's roof props.
-    // Its complete shop bases end above 97%; clip only that trailing gutter.
-    return `--shop-x:${art%4/3*100}%;--shop-y:${Math.floor(art/4)*100}%;--shop-crop:${art<4?'0 0 3% 0':'0'};--shop-hit:${hitAreaFor(shop,position)}`;
+    return `--shop-hit:${hitAreaFor(shop,position)}`;
+  }
+  function sprite(shop,position='front'){
+    const sheet=shops[shop]?.artSheet,facing=facingFor(position);
+    return sheet?Art.render(sheet.url,sheet.row*sheet.columns+{right:0,left:1,front:2}[facing]):Art.render('assets/shops-hue-'+facing+'-v1.png',shops[shop]?.art||0);
   }
   function configure(nextSlots,nextShops){
     slots=nextSlots;shops=nextShops;configured=true;
@@ -39,9 +35,9 @@
       target.dataset.shop=slot.shop;target.dataset.role=slot.role||'';
       target.dataset.facing=facingFor(slot.position);
       target.style.cssText=spriteStyle(slot.shop,slot.position);
-      target.innerHTML='<span class="storefront-sprite" aria-hidden="true"></span>';
+      target.innerHTML='<span class="storefront-sprite" aria-hidden="true">'+sprite(slot.shop,slot.position)+'</span>';
       const neighbor=doc.querySelector(`[data-front-neighbor="${slot.position}"]`);
-      if(neighbor){neighbor.style.cssText=spriteStyle(slot.shop,slot.position);neighbor.dataset.facing=facingFor(slot.position);}
+      if(neighbor){neighbor.style.cssText=spriteStyle(slot.shop,slot.position);neighbor.dataset.facing=facingFor(slot.position);neighbor.innerHTML=sprite(slot.shop,slot.position);}
     }
     doc.querySelector('#app').classList.add('has-daily-shops');
   }
@@ -53,7 +49,7 @@
     backdrop.alt=(shops[key]?.name||'小店')+'门前街景';
     const app=doc.querySelector('#app');app.dataset.sceneMode=modeFor(key);app.dataset.sceneAsset=front?(configured?'shop-front':'kitchen-front'):'street';
     const storefront=doc.querySelector('#storefrontFront');
-    if(storefront){storefront.hidden=!front;storefront.style.cssText=spriteStyle(key);storefront.dataset.facing=facingFor(position);storefront.setAttribute('aria-label',shops[key]?.name||'当前店铺');}
+    if(storefront){storefront.hidden=!front;storefront.style.cssText=spriteStyle(key);storefront.dataset.facing=facingFor(position);storefront.setAttribute('aria-label',shops[key]?.name||'当前店铺');storefront.innerHTML=sprite(key);}
     // Shared street views keep their image-aligned shop targets clickable.
     // A screen-wide door target would swallow clicks on the distant kitchen.
     const door=doc.querySelector('#storeDoorHit');door.hidden=!front;door.setAttribute('aria-label','进入'+(shops[key]?.name||'厨房帮手铺'));

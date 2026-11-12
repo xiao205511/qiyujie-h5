@@ -68,7 +68,7 @@
  const legacy=[product('snack',1,'每日坚果350g',12.9,1,'other'),product('snack',2,'山楂小零食',14.9,2,'other'),product('kitchen',1,'洗碗海绵套装',12.9,4,'other')].map(p=>({...p,legacy:true}));
  const activeProducts=Object.values(shops).flatMap(s=>s.products),activeIds=new Set(activeProducts.map(p=>p.id));
  const allProducts=[...activeProducts,...originalProducts.filter(p=>!activeIds.has(p.id)).map(p=>({...p,legacy:true})),...legacy];
- const sheets={paper:{url:'assets/products.png',columns:3,rows:3},other:{url:'assets/other-products.png',columns:3,rows:2},'daily-a':{url:'assets/products-care-trend-v1.png',columns:5,rows:4},'daily-b':{url:'assets/products-beauty-skin-v1.png',columns:5,rows:4},'daily-c':{url:'assets/products-winter-home-snack-v1.png',columns:6,rows:5}};
+ const sheets={paper:{url:'assets/products.png',columns:3,rows:3},other:{url:'assets/other-products.png',columns:3,rows:2},'daily-a':{url:'assets/products-care-trend-v1.png',columns:5,rows:4},'daily-b':{url:'assets/products-beauty-skin-v2.png',columns:5,rows:4},'daily-c':{url:'assets/products-winter-home-snack-v1.png',columns:6,rows:5}};
  sheets['prd-v1']={url:'assets/products-prd-v1-2.png',columns:5,rows:4};
  const shelfProducts=[...coreShopIds,...candidateShopIds].flatMap(key=>shops[key].products);
  return {shops,coreShopIds,candidateShopIds,shelfProducts,allProducts,sheets};

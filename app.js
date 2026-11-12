@@ -52,7 +52,7 @@ function syncStreet(){
 const money=value=>Number(value).toFixed(1), exact=value=>Number(value).toFixed(2);
 function save(){try{storage.setItem(KEY,JSON.stringify(state));}catch{}}
 function icons(){lucide.createIcons({attrs:{'aria-hidden':'true'}});}
-function art(p,extra=''){const sheet=Catalog.sheets[p.sheet||'paper'],x=p.art%sheet.columns/(sheet.columns-1)*100,y=Math.floor(p.art/sheet.columns)/(sheet.rows-1)*100;return `<div class="product-art ${extra}" role="img" aria-label="${p.name}商品图" style="background-image:url('${sheet.url}');background-size:${sheet.columns*100}% ${sheet.rows*100}%;background-position:${x}% ${y}%"></div>`;}
+function art(p,extra=''){const sheet=Catalog.sheets[p.sheet||'paper'];return `<div class="product-art ${extra}" role="img" aria-label="${p.name}商品图">${window.QiyuSpriteArt.render(sheet.url,p.art,{padding:.025})}</div>`;}
 function validCoupon(){return Flow.availableCoupons(state,todayKey()).length>0;}
 function couponFor(p,quantity=1){return Flow.quote(state,p,quantity,todayKey()).coupon;}
 function recommendationProducts(c){

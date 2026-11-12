@@ -156,3 +156,6 @@
 @media(max-width:800px){.phone-shell{height:calc(var(--app-height,896px) * var(--s))}}
 #app .modal.sheet.checkout-popup.commerce-sheet>.commerce-header{padding:25px 22px 17px}
 #app .modal.sheet.checkout-popup.commerce-sheet>.checkout-scroll{padding:4px 16px 28px}
+#app .product-art{position:relative;background-image:none}
+#app .sprite-image{display:block;width:100%;height:100%;overflow:hidden;pointer-events:none}
+#app .product-art>.sprite-image{position:absolute;inset:0}
