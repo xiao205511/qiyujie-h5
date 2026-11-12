@@ -77,6 +77,7 @@
    refreshNotice();
   }
   scan();new win.MutationObserver(scan).observe(root,{childList:true,subtree:true});
+  const boot=doc.querySelector('#streetLoading');if(boot)boot.hidden=true;
  }
  return {createCache,init};
 });

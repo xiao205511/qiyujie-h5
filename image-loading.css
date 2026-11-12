@@ -1,5 +1,8 @@
 .image-loading-message{position:absolute;inset:0;display:grid;place-content:center;min-height:40px;background:linear-gradient(110deg,#f5f2ed,#fffaf4,#f5f2ed);color:#746e65;font:12px/1.6 -apple-system,BlinkMacSystemFont,"PingFang SC",sans-serif;text-align:center;pointer-events:none;border-radius:inherit;z-index:1}
 .image-loading-message[hidden]{display:none}
+.app[data-character=rigged]:not([data-ip-renderer=skinned-glb]) #guide{visibility:hidden}
+.shop-hotspot .storefront-sprite>.image-loading-message{display:grid;position:absolute;inset:0;width:auto;height:auto;transform:none;opacity:1;white-space:normal;padding:12px;border:0;border-radius:18px;box-shadow:none;color:#746e65;font-size:12px;line-height:1.6;background:linear-gradient(110deg,#f5f2ed,#fffaf4,#f5f2ed)}
+.shop-hotspot .storefront-sprite>.image-loading-message[hidden]{display:none}
 .image-loading-surface[data-art-state=loading]>.sprite-image,.image-loading-surface[data-art-state=error]>.sprite-image{visibility:hidden}
 .image-retry-notice{position:absolute;left:16px;right:16px;bottom:100px;z-index:80;display:flex;justify-content:space-between;align-items:center;gap:12px;padding:8px 12px;border:1px solid #ffd5c6;border-radius:14px;background:#fff9f3;box-shadow:0 4px 20px #5933181a;color:#584338;font:12px/1.5 -apple-system,BlinkMacSystemFont,"PingFang SC",sans-serif}
 .image-retry-notice[hidden]{display:none}

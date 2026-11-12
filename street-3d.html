@@ -14,24 +14,24 @@
   <script defer src="assets/icons.js"></script>
   <script defer src="walking.js?v=depth-navigation-1"></script>
   <script defer src="rig-street-motion.js?v=4"></script>
-  <script defer src="street-navigation.js?v=design-polish-3"></script>
+  <script defer src="street-navigation.js?v=design-polish-4"></script>
   <script defer src="shop-hit-areas.js?v=1"></script>
   <script defer src="sprite-art.js?v=design-review-fixes-1"></script>
-  <script defer src="shop-views.js?v=design-polish-3"></script>
+  <script defer src="shop-views.js?v=design-polish-4"></script>
   <link rel="stylesheet" href="popup-ui.css?v=sheet-close-align-1">
   <link rel="stylesheet" href="home-scroll.css?v=recent-square-1">
-  <link rel="stylesheet" href="image-loading.css?v=design-polish-3">
-  <link rel="stylesheet" href="commerce-ui.css?v=design-polish-3">
-  <link rel="stylesheet" href="daily-shops.css?v=design-polish-3">
-  <link rel="stylesheet" href="palette.css?v=design-polish-3">
+  <link rel="stylesheet" href="image-loading.css?v=design-polish-4">
+  <link rel="stylesheet" href="commerce-ui.css?v=design-polish-4">
+  <link rel="stylesheet" href="daily-shops.css?v=design-polish-4">
+  <link rel="stylesheet" href="palette.css?v=design-polish-4">
   <script defer src="rewards-flow.js?v=8"></script>
   <script defer src="shopping-basket.js?v=3"></script>
   <script defer src="reward-groups.js?v=1"></script>
   <script defer src="lottery-wheel.js?v=1"></script>
   <script defer src="catalog.js?v=design-review-fixes-1"></script>
   <script defer src="daily-street.js?v=prd-v1-baseline-1"></script>
-  <script defer src="app.js?v=design-polish-3"></script>
-  <script defer src="image-loading.js?v=design-polish-3"></script>
+  <script defer src="app.js?v=design-polish-4"></script>
+  <script defer src="image-loading.js?v=design-polish-4"></script>
   <script type="module" src="ip-rig-stage2/street-character.js?v=4"></script>
   <style>
   .street{overflow:clip}
@@ -91,6 +91,7 @@
         <header class="topbar"><button class="icon-button back" id="back" aria-label="返回主推店"><i data-lucide="chevron-left"></i></button><strong>奇遇街</strong><nav aria-label="活动入口"><button id="rules">规则</button><button id="rewards">我的奖励</button><button id="favorites">收藏</button></nav></header>
         <div class="home-scroll" id="homeScroll" role="region" aria-label="奇遇街首页，可上下滚动" tabindex="0">
         <section class="street" aria-label="奇遇街街景">
+          <div id="streetLoading" role="status" style="position:absolute;left:24px;right:24px;top:260px;padding:16px;border-radius:16px;background:#fffbf2ee;color:#665344;font-size:14px;text-align:center;z-index:8;pointer-events:none">正在准备小街…</div>
           <div class="world" id="world">
             <img class="street-art" src="assets/street-soft-palette-v1.png" alt="圆角薄荷色纸巾铺、橙色零食铺和蓝色厨房铺沿着小路排列" draggable="false">
             <button class="shop-hotspot paper" data-slot="paper" data-shop="paper" aria-label="进入纸巾补货铺"><span>进入纸巾铺</span></button>
