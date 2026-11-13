@@ -2,12 +2,14 @@
 const $ = selector => document.querySelector(selector);
 const icon = name => `<i data-lucide="${name}"></i>`;
 const Flow = window.QiyuRewards, Basket = window.QiyuBasket, RewardGroups = window.QiyuRewardGroups, Catalog=window.QiyuCatalog, DailyStreet=window.QiyuDailyStreet;
-const params = new URLSearchParams(location.search), demo = ['first','second','third','fourth','fifth','sixth','seventh','wallet','freeorder'].includes(params.get('demo')) ? params.get('demo') : null;
+const previewDays=['first','second','third','fourth','fifth','sixth','seventh'];
+const params = new URLSearchParams(location.search), demo = [...previewDays,'wallet','freeorder'].includes(params.get('demo')) ? params.get('demo') : null;
+const hasDailyPreview=previewDays.includes(demo);
 const previewProfiles=['simulated','family','laundry','beauty','skin','baby','accessories'];
 const requestedProfile=params.get('shopProfile');
 const shopProfile=demo&&previewProfiles.includes(requestedProfile)?requestedProfile:
- demo&&demo!=='wallet'&&demo!=='freeorder'?'simulated':'family';
-const KEY = 'qiyu-street-interactive-v1' + (demo ? '-demo-' + demo+(shopProfile==='family'?'':'-'+shopProfile) : '');
+ hasDailyPreview?'simulated':'family';
+const KEY = 'qiyu-street-interactive-v1' + (demo ? '-demo-' + demo+(shopProfile==='family'?'':'-'+shopProfile) : '')+(hasDailyPreview?'-daily-preferences-1':'');
 const storage = demo ? sessionStorage : localStorage;
 const Walking = window.QiyuWalking, ShopViews = window.QiyuShopViews;
 const characterEnabled = $('#app')?.dataset.character !== 'off';
@@ -21,12 +23,7 @@ function fresh(){
  const count={first:1,second:2,third:3,fourth:4,fifth:5,sixth:6,seventh:7,wallet:6,freeorder:7}[demo]||1;
  let base=Flow.enter(null,Flow.addDays(todayKey(),1-count));
  for(let n=1;n<count;n++)base=Flow.enter(base,Flow.addDays(todayKey(),n-count+1));
- if(shopProfile==='simulated')base={...base,simulateShopActivity:true};
- else if(shopProfile!=='family'){
-  const firstDay=Flow.addDays(todayKey(),1-count),bought=shopProfile==='laundry'?'laundry':'paper';
-  const interest={beauty:'makeup',skin:'skin',baby:'baby',accessories:'accessories'}[shopProfile];
-  base={...base,orders:[{id:'profile-1',date:Flow.addDays(firstDay,-2),shop:bought},{id:'profile-2',date:Flow.addDays(firstDay,-1),shop:bought}],favorites:interest?[interest]:[],shopSignals:interest?[{shop:interest,type:'favorite',date:firstDay}]:[]};
- }
+ if(hasDailyPreview)base={...base,previewProfile:shopProfile};
  if(demo==='freeorder')return Flow.draw(base,.999,todayKey());
  if(demo!=='wallet')return base;
  const coupons=[{date:todayKey(),value:8,min:59,used:false},{date:Flow.addDays(todayKey(),-2),value:6,min:39,used:false},{date:Flow.addDays(todayKey(),-4),value:5,min:29,used:true},{date:Flow.addDays(todayKey(),-5),value:3,min:9.9,used:false}];
@@ -132,10 +129,16 @@ function renderHome({preserveStreet=!!currentModal}={}){
  homeScroll.scrollTop=homeOffset;
  document.querySelectorAll('[data-shop]').forEach(el=>{const key=el.dataset.shop;el.setAttribute('aria-label',(key===focusShop?'进入':characterEnabled?'走到':'查看')+shops[key].name);el.classList.toggle('is-current',key===focusShop);});
  const dateLabel=$('#streetDate');if(dateLabel)dateLabel.textContent=todayKey().slice(5).replace('-','月')+'日 · 今日小街';
- const previewDay=$('#previewDay');if(previewDay)previewDay.value=['first','second','third','fourth','fifth','sixth','seventh'][state.visits-1]||'first';
- document.querySelectorAll('[data-preview-day]').forEach((link,i)=>{const url=new URL(location.href);url.searchParams.set('demo',link.dataset.previewDay);url.searchParams.set('demoDay',Flow.addDays(state.streetStartedOn||todayKey(),i));url.searchParams.set('v','shop-motion-on-tap-1');link.href=url.href;if(i===state.visits-1)link.setAttribute('aria-current','page');else link.removeAttribute('aria-current');});
+ const previewDay=$('#previewDay');if(previewDay)previewDay.value=previewDays[state.visits-1]||'first';
+ document.querySelectorAll('[data-preview-day]').forEach((link,i)=>{const url=new URL(location.href);url.searchParams.set('demo',link.dataset.previewDay);url.searchParams.set('demoDay',Flow.addDays(state.streetStartedOn||todayKey(),i));url.searchParams.set('v','daily-preferences-1');link.href=url.href;if(i===state.visits-1)link.setAttribute('aria-current','page');else link.removeAttribute('aria-current');});
  const previewCaption=$('#previewDayCaption');if(previewCaption)previewCaption.textContent=`第${state.visits}天 · ${todayKey().slice(5).replace('-','月')}日`;
  const profileSelect=$('#previewProfile');if(profileSelect)profileSelect.value=shopProfile;
+ const previewStores=$('#previewStores');
+ if(previewStores){
+  previewStores.hidden=!hasDailyPreview;
+  const names={repurchase:'回购',interest:'心动',discovery:'发现'};
+  previewStores.innerHTML=hasDailyPreview?streetSlots.map(({shop,role})=>`<div><dt>${names[role]}</dt><dd>${shops[shop].name}</dd></div>`).join(''):'';
+ }
  $('#app').dataset.focusShop=focusShop;updateCartEntry();icons();save();syncAtmosphere();
 }
 function closeModal(){modalHistory=[];modalView=null;if(!currentModal)return;$('#overlay').hidden=true;$('#modal').innerHTML='';currentModal=null;$('#homeScroll').inert=false;$('.topbar').inert=false;$('#app').classList.remove('has-modal');renderHome();if(lastFocus?.isConnected)lastFocus.focus({preventScroll:true});}
@@ -836,10 +839,10 @@ document.addEventListener('keydown',event=>{
 $('#motionToggle').checked=reduced;$('#motionToggle').addEventListener('change',event=>{reduced=event.target.checked;$('#app').classList.toggle('reduce-motion',reduced);if(reduced)motionFinish?.();});
 $('#replay').addEventListener('click',()=>{if(moving)return;closeModal();goTo(focusShop===primaryShop()?secondaryShop():primaryShop());});
 $('#reset').addEventListener('click',()=>{pendingWalk=null;motionFinish?.();closeModal();state=restoreDailyCouponScopes(fresh());streetSignature='';renderHome();window.QiyuIP3D?.greet();$('#guide').hidden=false;if(demo==='wallet')showRewards();else maybeOfferReward();});
-$('#previewDay')?.addEventListener('change',event=>{const scenarios=['first','second','third','fourth','fifth','sixth','seventh'],url=new URL(location.href);url.searchParams.set('demo',event.target.value);url.searchParams.set('demoDay',Flow.addDays(state.streetStartedOn||todayKey(),scenarios.indexOf(event.target.value)));url.searchParams.set('v','shop-motion-on-tap-1');location.href=url.href;});
-$('#previewProfile')?.addEventListener('change',event=>{const url=new URL(location.href);url.searchParams.set('shopProfile',event.target.value);url.searchParams.set('v','shop-motion-on-tap-1');location.href=url.href;});
+$('#previewDay')?.addEventListener('change',event=>{const url=new URL(location.href);url.searchParams.set('demo',event.target.value);url.searchParams.set('demoDay',Flow.addDays(state.streetStartedOn||todayKey(),previewDays.indexOf(event.target.value)));url.searchParams.set('v','daily-preferences-1');location.href=url.href;});
+$('#previewProfile')?.addEventListener('change',event=>{const url=new URL(location.href);url.searchParams.set('shopProfile',event.target.value);url.searchParams.set('v','daily-preferences-1');location.href=url.href;});
 atmosphere=window.QiyuStreetAtmosphere?.mount({document,greet:()=>window.QiyuIP3D?.greet(),reduced:()=>reduced});
-window.addEventListener('resize',resize);resize();$('#app').classList.toggle('reduce-motion',reduced);renderHome();
+window.addEventListener('resize',resize);resize();$('#app').classList.toggle('reduce-motion',reduced);renderHome();if(hasDailyPreview)resize();
 setTimeout(demo==='wallet'?showRewards:maybeOfferReward,450);
 
 window.addEventListener('pageshow',syncActivity);

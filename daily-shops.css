@@ -30,8 +30,11 @@
 .preview-date-control select{width:175px;padding:9px 12px;border:1px solid #dbe3dc;border-radius:9px;background:#fff;color:#526259;font:inherit;font-size:13px}
 #streetDate{display:block;margin-top:6px;font-size:11px;color:#9ba59e}
 /* Preview-only controls sit outside the product screen at every viewport size. */
-.day-preview-bar{position:fixed;top:0;left:0;right:0;z-index:90;height:82px;background:#f1f6f2f5;border-bottom:1px solid #dce5dc;backdrop-filter:blur(16px);padding:10px 14px}
-.day-preview-bar>div,.day-preview-bar>nav{max-width:526px;margin:0 auto}
+.day-preview-bar{position:fixed;top:0;left:0;right:0;z-index:90;background:#f1f6f2f5;border-bottom:1px solid #dce5dc;backdrop-filter:blur(16px);padding:10px 14px 8px}
+.day-preview-bar>div,.day-preview-bar>nav,.day-preview-stores{max-width:526px;margin:0 auto}
+.day-preview-stores{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px;padding-top:7px;text-align:center;color:var(--q-muted)}
+.day-preview-stores dt{font-size:10px;line-height:14px}
+.day-preview-stores dd{margin:0;color:var(--q-ink);font-size:12px;line-height:17px;font-weight:600}
 .day-preview-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;color:#5b7164;font-size:12px;line-height:20px}
 .day-preview-heading strong{font-weight:650;color:#385343}
 .day-preview-heading span{color:#8c9b90;font-size:11px}
