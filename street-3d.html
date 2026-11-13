@@ -11,7 +11,7 @@
   <script defer src="assets/icons.js"></script>
   <script defer src="walking.js?v=depth-navigation-1"></script>
   <script defer src="rig-street-motion.js?v=4"></script>
-  <script defer src="street-navigation.js?v=design-polish-4"></script>
+  <script defer src="street-navigation.js?v=street-walk-music-1"></script>
   <script defer src="shop-hit-areas.js?v=1"></script>
   <script defer src="sprite-art.js?v=load-fast-1"></script>
   <script defer src="shop-views.js?v=load-fast-1"></script>
@@ -27,9 +27,9 @@
   <script defer src="lottery-wheel.js?v=1"></script>
   <script defer src="catalog.js?v=design-review-fixes-1"></script>
   <script defer src="daily-street.js?v=prd-v1-baseline-1"></script>
-  <link rel="stylesheet" href="street-atmosphere.css?v=second-shop-street-1">
-  <script defer src="street-atmosphere.js?v=guide-three-lines-1"></script>
-  <script defer src="app.js?v=guide-three-lines-1"></script>
+  <link rel="stylesheet" href="street-atmosphere.css?v=street-walk-music-1">
+  <script defer src="street-atmosphere.js?v=street-walk-music-1"></script>
+  <script defer src="app.js?v=street-walk-music-1"></script>
   <script defer src="image-loading.js?v=load-fast-1"></script>
   <script defer src="model-loader.js?v=load-fast-1"></script>
   <script type="module" src="ip-rig-stage2/street-character.js?v=load-fast-1"></script>
@@ -114,7 +114,6 @@
           <div class="walk-trail" id="walkTrail" aria-hidden="true"></div>
           <button class="guide" id="guide" hidden><span class="guide-copy">点家小店，逛逛去～</span></button>
           <button class="skip-walk" id="skipWalk" hidden>跳过动效</button>
-          <button class="music-toggle" id="musicToggle" aria-label="开启背景音乐" aria-pressed="false" title="开启背景音乐"><i class="music-off" data-lucide="volume-x"></i><i class="music-on" data-lucide="music-2"></i></button>
           <button class="daily-progress" id="daily" aria-label="查看七天每日奖励"><span>已来<b id="visitCount">1</b>天 · 明日<b id="nextValue">5</b>元券</span><div class="daily-track"><span id="progressFill"></span></div><i class="gift-icon" data-lucide="gift"></i></button>
           <div class="street-actions"><button class="side-action claim-action" id="claim"><i data-lucide="ticket-percent"></i><span id="claimText">领3元券</span></button><button class="primary-action" id="enter">逛纸巾铺</button><button class="side-action" id="switch"><i data-lucide="refresh-cw"></i><span>换家店</span></button></div>
           <p class="coupon-condition" id="couponCondition">满9.9减3 · 限指定商品 · 今日有效</p>

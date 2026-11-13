@@ -6,11 +6,6 @@
 .street-cloud:nth-child(3){left:302px;top:89px;width:136px;height:63px;animation-duration:44s;animation-delay:-8s}
 #storefrontScene>.street-clouds{transform:translate(-264px,-102.5px) scale(1.875);transform-origin:0 0;z-index:1}
 @keyframes cloud-drift{from{transform:translate3d(-8px,0,0)}to{transform:translate3d(10px,1px,0)}}
-#app .music-toggle{position:absolute;right:18px;top:77px;width:36px;height:36px;border-radius:50%;background:var(--q-surface,#fffdfa);border:1px solid #fff9;box-shadow:0 2px 9px #72532210;color:var(--q-orange-ink,#f6532a);display:grid;place-items:center;z-index:8;padding:0}
-.music-toggle .lucide{width:18px;height:18px;stroke-width:1.8}
-.music-toggle .music-off{display:block}.music-toggle .music-on{display:none}
-.music-toggle[data-playing=true] .music-off{display:none}.music-toggle[data-playing=true] .music-on{display:block}
-#app.has-modal .music-toggle{visibility:hidden}
 #app.shop-welcoming .storefront-front,#app.shop-welcoming[data-scene-mode=street] .shop-hotspot.is-current .storefront-sprite{animation:shop-welcome 1.4s ease-out both}
 @keyframes shop-welcome{0%,100%{filter:brightness(1)}32%{filter:brightness(1.07) drop-shadow(0 0 8px #fff3c970)}}
 #app .guide-copy{display:block;max-width:148px;white-space:normal;line-height:18px;font-size:14px}
