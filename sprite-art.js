@@ -20,15 +20,18 @@
   }
   return source?{url,width:atlas.width,height:atlas.height,...source}:null;
  }
- function render(url,index,{padding=0,isolated=false}={}){
+ function render(url,index,{padding=0,isolated=false,decorate}={}){
   const source=frame(url,index);
   if(!source)return '<svg class="sprite-image" viewBox="0 0 100 100" aria-hidden="true" focusable="false"><rect x="8" y="8" width="84" height="84" rx="8" fill="#f7f7f8"/></svg>';
   const [x,y,w,h]=source.crop,[vx,vy,vw,vh]=source.viewport||source.crop;
-  const side=Math.max(vw,vh)*(1+Math.max(0,padding)*2),view=[vx+(vw-side)/2,vy+(vh-side)/2,side,side].map(number).join(' ');
+  const side=Math.max(vw,vh)*(1+Math.max(0,padding)*2),viewX=vx+(vw-side)/2,viewY=vy+(vh-side)/2,view=[viewX,viewY,side,side].map(number).join(' ');
   const id='sprite-clip-'+(++sequence);
   const shape=source.outline?'<polygon points="'+source.outline.map(point=>point.join(',')).join(' ')+'"/>':`<rect x="${x}" y="${y}" width="${w}" height="${h}"/>`;
   const image=isolated?{url:shopSource(url,index).url,x,y,width:w,height:h}:{url:source.url,x:0,y:0,width:source.width,height:source.height};
-  return `<svg class="sprite-image" viewBox="${view}" preserveAspectRatio="xMidYMid meet" aria-hidden="true" focusable="false"><defs><clipPath id="${id}" clipPathUnits="userSpaceOnUse">${shape}</clipPath></defs><image href="${escape(image.url)}" x="${image.x}" y="${image.y}" width="${image.width}" height="${image.height}" clip-path="url(#${id})"/></svg>`;
+  const extra=decorate?.({id,x:vx,y:vy,viewX,viewY,side});
+  const bitmap=`<image${extra?.cut?` id="${id}-art"`:''} href="${escape(image.url)}" x="${image.x}" y="${image.y}" width="${image.width}" height="${image.height}" clip-path="url(#${id})"/>`;
+  const base=extra?.cut?`<g class="shop-roof-base" style="--roof-mask:url(#${id}-roof-mask)">${bitmap}</g>`:bitmap;
+  return `<svg class="sprite-image" viewBox="${view}" preserveAspectRatio="xMidYMid meet" aria-hidden="true" focusable="false"><defs><clipPath id="${id}" clipPathUnits="userSpaceOnUse">${shape}</clipPath>${extra?.defs||''}</defs>${base}${extra?.content||''}</svg>`;
  }
  function shopSource(url,index){
   const source=frame(url,index);if(!source)return null;
@@ -36,6 +39,7 @@
  }
  function renderShop(url,index,options={}){return render(url,index,{...options,isolated:true});}
  function productSource(url,index){
+  if(url==='assets/products.png'&&index===1)return {url:'assets/mobile-products/manhua-hanging-tissue-v2.jpg',width:640,height:640,replacement:true};
   const source=frame(url,index);if(!source)return null;
   const [x,y,width,height]=source.crop;
   return {url:source.url.replace(/^assets\//,'assets/mobile-products/').replace(/\.png$/,`-${x}-${y}-${width}-${height}.jpg`),width,height};

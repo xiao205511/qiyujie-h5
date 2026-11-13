@@ -12,3 +12,36 @@
 .atmosphere-paused .street-cloud{animation-play-state:paused}
 #app.reduce-motion .street-cloud,#app.reduce-motion .storefront-front,#app.reduce-motion .storefront-sprite{animation:none!important}
 @media(prefers-reduced-motion:reduce){.street-cloud,.storefront-front,.storefront-sprite{animation:none!important}}
+
+#app .street .sprite-image{overflow:visible}
+.shop-roof-effect{display:none}
+.roof-playing .shop-roof-effect{display:inline}
+.roof-playing .shop-roof-base{mask:var(--roof-mask)}
+.shop-roof-piece{transform-box:view-box;transform-origin:var(--roof-origin)}
+.roof-playing [data-roof-effect=tissue] .shop-roof-piece{animation:roof-tissue .82s ease-in-out both}
+.roof-playing [data-roof-effect=spatula] .shop-roof-piece{animation:roof-spatula .82s ease-in-out both}
+.roof-playing .shop-foam-bubble{opacity:0;animation:roof-foam .64s var(--bubble-delay) ease-out both}
+@keyframes roof-tissue{
+ 0%,100%{transform:none}
+ 26%{transform:skewX(-8deg) scaleY(1.06)}
+ 58%{transform:skewX(5deg) scaleY(.97)}
+ 80%{transform:skewX(-2deg)}
+}
+@keyframes roof-spatula{
+ 0%,100%{transform:none}
+ 25%{transform:rotate(-9deg)}
+ 60%{transform:rotate(5deg)}
+ 80%{transform:rotate(-2deg)}
+}
+@keyframes roof-foam{
+ 0%{opacity:0;transform:scale(.25)}
+ 22%{opacity:1}
+ 70%{opacity:.9}
+ 100%{opacity:0;transform:translate(var(--bubble-x),var(--bubble-y)) scale(1.13)}
+}
+#app.reduce-motion .shop-roof-effect{display:none}
+#app.reduce-motion .shop-roof-base{mask:none}
+@media(prefers-reduced-motion:reduce){
+ .roof-playing .shop-roof-effect{display:none}
+ .roof-playing .shop-roof-base{mask:none}
+}

@@ -69,7 +69,7 @@
   }
   function scan(){
    for(const [element] of bindings)if(!element.isConnected)bindings.delete(element);
-   root.querySelectorAll('img.product-image,.sprite-image>image,img.street-art,.popup-mascot>img,img.mall-reference').forEach(element=>{
+   root.querySelectorAll('img.product-image,.sprite-image>image,.shop-roof-base>image,img.street-art,.popup-mascot>img,img.mall-reference').forEach(element=>{
     if(bindings.has(element))return;
     const svg=element.closest('.sprite-image'),host=svg?svg.parentElement:element.parentElement;
     const url=element.getAttribute(svg?'href':'src');if(!url)return;
