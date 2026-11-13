@@ -34,7 +34,7 @@
  function accentMarkup(shop,angle,viewX,viewY,side){
   const {points,color,kind}=accents[shop],[px,py]=points[angle];
   const x=viewX+px*side/100,y=viewY+py*side/100;
-  return `<g class="shop-roof-effect" data-roof-effect="${kind}" style="color:${color}" transform="translate(${x} ${y}) scale(${side/360})">${[[-11,-4,0],[9,-13,-.6],[22,1,-1.15]].map(([dx,dy,delay])=>`<g transform="translate(${dx} ${dy})"><g class="shop-roof-accent" style="--accent-delay:${delay}s">${accentShapes[kind]}</g></g>`).join('')}</g>`;
+  return `<g class="shop-roof-effect" data-roof-effect="${kind}" style="color:${color}" transform="translate(${x} ${y}) scale(${side/280})">${[[-12,-4,0],[8,-13,-.8],[24,0,-1.6]].map(([dx,dy,delay])=>`<g transform="translate(${dx} ${dy})"><g class="shop-roof-accent" style="--accent-delay:${delay}s">${accentShapes[kind]}</g></g>`).join('')}</g>`;
  }
  function decorate(shop,facing){
   if(!Object.hasOwn(kinds,shop)&&!Object.hasOwn(accents,shop))return undefined;
@@ -43,7 +43,7 @@
    if(!kind)return {content:accentMarkup(shop,angle,viewX,viewY,side)};
    if(kind==='foam'){
     const [nx,ny]=nozzles[angle];
-    const bubbles=[[-25,-21,7,0],[-37,-35,10,105],[-54,-20,7,200],[-45,-53,5,270]];
+    const bubbles=[[-34,-31,9,0],[-47,-45,13,320],[-62,-31,9,640],[-49,-62,7,960]];
     return {
      defs:`<radialGradient id="${id}-foam" cx="34%" cy="27%" r="72%"><stop stop-color="white"/><stop offset=".67" stop-color="#fffdf4"/><stop offset="1" stop-color="#caedf1"/></radialGradient>`,
      content:`<g class="shop-roof-effect" data-roof-effect="foam" transform="translate(${x+nx} ${y+ny})">${bubbles.map(([dx,dy,r,delay])=>`<circle class="shop-foam-bubble" r="${r}" fill="url(#${id}-foam)" style="--bubble-x:${dx}px;--bubble-y:${dy}px;--bubble-delay:${delay}ms"/>`).join('')}</g>`

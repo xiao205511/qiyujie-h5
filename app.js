@@ -29,7 +29,14 @@ function fresh(){
  return Flow.enter({...base,coupon:coupons[0],coupons,rewardClaims:{[todayKey()]:true},promptedDate:todayKey()},todayKey());
 }
 let saved;try {saved=JSON.parse(storage.getItem(KEY));} catch {}
-let state = saved ? Flow.enter(saved,todayKey()) : fresh();
+function restoreDailyCouponScopes(s){
+ const coupons=Flow.couponList(s).map(c=>{
+  if(c.source!=='daily'||c.dailyStreetScope)return c;
+  return {...c,shopIds:DailyStreet.couponShopIds(s,c.date),dailyStreetScope:true};
+ });
+ return {...s,coupons,coupon:coupons.find(c=>c.id===s.coupon?.id)||null};
+}
+let state = restoreDailyCouponScopes(saved ? Flow.enter(saved,todayKey()) : fresh());
 let focusShop='paper', moving=false, reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
 let currentModal=null, lastFocus=null, motionFinish=null, walkingFrame=0, toastTimer, orderSubmitting=false;
 let orderProduct=null, orderQuantity=1, checkoutOrigin=null, browsingShop='paper', detailProductId=null, activeBenefitId=null;
@@ -38,7 +45,7 @@ let cartScope=null,topupContext=null,discountChoice='auto',couponReturn='basket'
 let modalView=null,modalHistory=[],restoringModal=false,activeCouponId=null;
 const shops=Catalog.shops,allProducts=Catalog.allProducts,dailyRewards=Flow.rewards;
 const paperProducts=shops.paper.products,snackProducts=shops.snack.products,kitchenProducts=shops.kitchen.products;
-let streetSlots=[],streetSignature='',atmosphere=null;
+let streetSlots=[],streetSignature='',displayedStreet=null,atmosphere=null;
 let pendingWalk=null;
 const primaryShop=()=>streetSlots[0]?.shop||'paper';
 const secondaryShop=()=>streetSlots[1]?.shop||'face';
@@ -48,7 +55,8 @@ function syncAtmosphere(arrival=false){
 }
 function syncStreet({preserveStreet=false}={}){
  const result=DailyStreet.resolve(state,todayKey());state=result.state;
- if(preserveStreet&&streetSignature)return;
+ if(preserveStreet&&displayedStreet?.date===todayKey()&&streetSignature)return;
+ displayedStreet=state.streetSnapshot;
  streetSlots=result.slots;
  const signature=streetSlots.map(s=>s.shop).join(':');
  if(signature===streetSignature)return;
@@ -104,7 +112,7 @@ function renderHome({preserveStreet=!!currentModal}={}){
  document.querySelectorAll('[data-shop]').forEach(el=>{const key=el.dataset.shop;el.setAttribute('aria-label',(key===focusShop?'进入':characterEnabled?'走到':'查看')+shops[key].name);el.classList.toggle('is-current',key===focusShop);});
  const dateLabel=$('#streetDate');if(dateLabel)dateLabel.textContent=todayKey().slice(5).replace('-','月')+'日 · 今日小街';
  const previewDay=$('#previewDay');if(previewDay)previewDay.value=['first','second','third','fourth','fifth','sixth','seventh'][state.visits-1]||'first';
- document.querySelectorAll('[data-preview-day]').forEach((link,i)=>{const url=new URL(location.href);url.searchParams.set('demo',link.dataset.previewDay);url.searchParams.set('demoDay',Flow.addDays(state.streetStartedOn||todayKey(),i));url.searchParams.set('v','street-polish-2');link.href=url.href;if(i===state.visits-1)link.setAttribute('aria-current','page');else link.removeAttribute('aria-current');});
+ document.querySelectorAll('[data-preview-day]').forEach((link,i)=>{const url=new URL(location.href);url.searchParams.set('demo',link.dataset.previewDay);url.searchParams.set('demoDay',Flow.addDays(state.streetStartedOn||todayKey(),i));url.searchParams.set('v','daily-coupon-shops-1');link.href=url.href;if(i===state.visits-1)link.setAttribute('aria-current','page');else link.removeAttribute('aria-current');});
  const previewCaption=$('#previewDayCaption');if(previewCaption)previewCaption.textContent=`第${state.visits}天 · ${todayKey().slice(5).replace('-','月')}日`;
  const profileSelect=$('#previewProfile');if(profileSelect)profileSelect.value=shopProfile;
  $('#app').dataset.focusShop=focusShop;updateCartEntry();icons();save();syncAtmosphere();
@@ -239,8 +247,14 @@ function maybeOfferReward(){if(Flow.shouldPrompt(state,todayKey())&&!currentModa
 function claim({inShop=false,inRewards=false}={}){
  if(Flow.todayClaimed(state,todayKey()))return inShop||inRewards?toast('今日好礼已领取'):showRewards();
  if(state.visits===7)return showLottery();
- state=Flow.claim(state,todayKey());
- if(currentReward().value){const ids=DailyStreet.couponShopIds(state),coupon={...state.coupon,shopIds:ids};state={...state,coupon,coupons:Flow.couponList(state).map(c=>c.id===coupon.id?coupon:c)};}
+ const day=todayKey();
+ if(displayedStreet?.date===day&&currentReward().value)state={...state,streetSnapshot:displayedStreet};
+ state=Flow.claim(state,day);
+ if(currentReward().value&&state.coupon?.date===day){
+  const street=DailyStreet.resolve(state,day);
+  const coupon={...state.coupon,shopIds:street.slots.map(slot=>slot.shop),dailyStreetScope:true};
+  state={...street.state,coupon,coupons:Flow.couponList(state).map(c=>c.id===coupon.id?coupon:c)};
+ }
  else {const benefit=state.benefits.at(-1);if(benefit){const productIds=DailyStreet.benefitProducts(state,todayKey(),benefit.type);state={...state,benefits:state.benefits.map(b=>b.id===benefit.id?{...b,productIds,streetVersion:1}:b)};}}
  save();renderHome();
  if(inShop||inRewards){preserveCommerceScroll(()=>inRewards?showRewards(rewardsTab,rewardsHistoryFilter):showShop(browsingShop));toast('领取成功');return;}
@@ -357,7 +371,9 @@ function bindShopSheet(){
 function showShop(key=focusShop){
  if(!shops[key])return;
  if(currentModal!=='shop'||browsingShop!==key){state=DailyStreet.record(state,key,'view',todayKey());renderHome({preserveStreet:true});}
- browsingShop=key;const shop=shops[key],r=currentReward(),claimed=Flow.todayClaimed(state,todayKey()),canClaim=!claimed&&DailyStreet.couponShopIds(state).includes(key);
+ browsingShop=key;const shop=shops[key],r=currentReward(),claimed=Flow.todayClaimed(state,todayKey());
+ const day=todayKey(),todayShops=displayedStreet?.date===day?streetSlots.map(slot=>slot.shop):DailyStreet.couponShopIds(state,day);
+ const canClaim=!claimed&&todayShops.includes(key);
  const shopCoupons=Flow.availableCoupons(state,todayKey()).filter(c=>shop.products.some(p=>Basket.applies(c,p))),hasShopCoupon=shopCoupons.length>0;
  const copy=hasShopCoupon?`有 ${shopCoupons.length} 张券可用 · 自动选最优优惠`:validCoupon()?'现有优惠券暂不适用于本店':state.coupon?.date===todayKey()&&state.coupon.used?'今日券已使用 · 明天再来领好礼':canClaim&&r.value?`今日可领 ${r.value}元券 · 满${r.min}减${r.value}`:!claimed&&r.value?'今日优惠券暂不适用于本店':'今日好物，慢慢挑';
  openModal('shop',`<header class="sheet-head"><div><h2 id="modalTitle">${shop.name}</h2><p>${shop.desc}</p></div><div class="sheet-actions"><button data-toggle-favorite="${key}" aria-label="${state.favorites.includes(key)?'取消收藏':'收藏'}${shop.name}">${icon('heart')}</button><button data-dismiss aria-label="关闭店铺">${icon('x')}</button></div></header><div class="shop-products-scroll" role="region" aria-label="${shop.name}商品，可上下滚动" tabindex="0"><div class="coupon-strip">${icon(hasShopCoupon?'circle-check':'ticket-percent')}<div><strong>${copy}</strong><small>适用范围、门槛与有效期以券面为准</small></div>${(hasShopCoupon||validCoupon())?'<button data-shop-coupons>去查看</button>':canClaim&&r.value?'<button data-claim-in-shop>领取</button>':''}</div><div class="shop-product-list">${shop.products.slice(0,3).map(productRow).join('')}</div>${shop.products.length>3?`<h3 class="more-products-title">更多日常好物 <span>点商品查看当前优惠</span></h3><div class="more-products-grid">${shop.products.slice(3).map(moreProductCard).join('')}</div>`:''}</div>${basketFooter(key)}`,'sheet shop-sheet');
@@ -437,7 +453,7 @@ function showCouponDetails(id){
   const names=[...new Set(products.filter(p=>p.shop===key).map(p=>p.name))];
   return `<details class="coupon-scope-store"><summary>${shops[key].name}<span>${names.length}款适用商品</span></summary><ul>${names.map(name=>`<li>${esc(name)}</li>`).join('')||'<li>暂无在售商品</li>'}</ul></details>`;
  }).join('');
- openModal('coupon-detail',`<header class="sheet-head commerce-header"><h2 id="modalTitle">优惠券详情</h2><button class="detail-close" data-dismiss aria-label="返回上一个弹窗">${icon('x')}</button></header><div class="shop-products-scroll commerce-scroll coupon-detail-scroll">${ticket(c,{showStatus:false})}<section class="commerce-card coupon-terms"><h3>使用说明</h3><dl><div><dt>使用门槛</dt><dd>${c.type==='free-order'?`最高抵扣¥${exact(c.value)}`:`适用商品满¥${exact(c.min)}减¥${exact(c.value)}`}</dd></div><div><dt>有效期至</dt><dd>${formatExpiry(c)}</dd></div><div><dt>适用范围</dt><dd>${c.scope==='street'?'全街适用商品':storeIds.filter(key=>shops[key]).map(key=>shops[key].name).join('、')}</dd></div><div><dt>使用规则</dt><dd>每单限用一张，仅适用商品计入门槛，不与专享价叠加。</dd></div></dl></section><section class="commerce-card coupon-eligible"><h3>适用店铺与商品</h3><p>展开店铺可查看商品。券的范围以领取时为准。</p>${groups}</section></div>`,'sheet commerce-sheet coupon-detail-sheet');
+ openModal('coupon-detail',`<header class="sheet-head commerce-header"><h2 id="modalTitle">优惠券详情</h2><button class="detail-close" data-dismiss aria-label="返回上一个弹窗">${icon('x')}</button></header><div class="shop-products-scroll commerce-scroll coupon-detail-scroll">${ticket(c,{showStatus:false})}<section class="commerce-card coupon-terms"><h3>使用说明</h3><dl><div><dt>使用门槛</dt><dd>${c.type==='free-order'?`最高抵扣¥${exact(c.value)}`:`适用商品满¥${exact(c.min)}减¥${exact(c.value)}`}</dd></div><div><dt>有效期至</dt><dd>${formatExpiry(c)}</dd></div><div><dt>适用范围</dt><dd>${c.scope==='street'?'全街适用商品':storeIds.filter(key=>shops[key]).map(key=>shops[key].name).join('、')}</dd></div><div><dt>使用规则</dt><dd>每单限用一张，仅适用商品计入门槛，不与专享价叠加。</dd></div></dl></section><section class="commerce-card coupon-eligible"><h3>适用店铺与商品</h3><p>${c.dailyStreetScope?'适用于领取当天街上的三家店。展开店铺可查看商品。':'展开店铺可查看商品。'}</p>${groups}</section></div>`,'sheet commerce-sheet coupon-detail-sheet');
 }
 function chooseCoupon(id){
  if(couponReturn==='basket'){if(!restoreModalView('basket',{discountChoice:id})){discountChoice=id;showBasket(basketReturnShop,cartScope,true);}return;}
@@ -526,12 +542,12 @@ function showBenefit(id){
 function browseCoupon(id){
  const c=Flow.couponList(state).find(c=>c.id===id);
  if(!c||Flow.couponStatus(c,todayKey())!=='available'){showRewards();toast('这张券当前不可使用');return;}
- const candidates=recommendationProducts(c).filter(p=>(!c.shopIds||c.shopIds.includes(p.shop))&&(!c.productIds||c.productIds.includes(p.id))&&(c.scope==='street'||p.eligible));
+ const candidates=recommendationProducts(c).filter(p=>Basket.applies(c,p));
  const p=candidates.find(p=>p.price>=c.min)||candidates.find(p=>p.price*9>=c.min);
  if(!p){toast('暂无适用商品，稍后再来看看');return;}
  showShop(p.shop);toast(c.min?`满${c.min}减${c.value}，可增加件数凑单`:`最高抵${c.value}元，结算自动用券`);
 }
-function showRules(){openModal('rules',`${closeButton()}<h2 id="modalTitle">奇遇街怎么玩</h2><p class="intro">逛喜欢的小店，领每日好礼。</p><div class="rule-block"><h3>每天上午10点，开启新一天</h3><p>以北京时间10:00到次日09:59:59为一个活动日。首次进街自动签到，同一活动日只记一次，奖励手动领取。</p></div><div class="rule-block"><h3>断签不清累计进度</h3><p>回来继续累计，普通券从3元基础档重新开始；第3、5天特权及第7天抽奖按累计到访天数解锁。</p></div><div class="rule-block"><h3>选好商品，结算时用优惠</h3><p>日常券限指定商品，当活动日有效；抽奖券全街可用，有效7个活动日。每单限一张券，专享价不与券叠加，系统自动选更优惠的方案，订单成功后核销。</p></div><div class="rule-block"><h3>7天抽奖，每轮一次</h3><p>10元券包85%（2张满39减5）；20元券包12%（2张满59减10）；50元免单券2.5%；100元免单券0.5%。免单券按实付前金额抵扣，最高不超过券面额。抽奖后下个活动日开启新一轮，未过期的旧券和历史记录保留。</p></div>`);}
+function showRules(){openModal('rules',`${closeButton()}<h2 id="modalTitle">奇遇街怎么玩</h2><p class="intro">逛喜欢的小店，领每日好礼。</p><div class="rule-block"><h3>每天上午10点，开启新一天</h3><p>以北京时间10:00到次日09:59:59为一个活动日。首次进街自动签到，同一活动日只记一次，奖励手动领取。</p></div><div class="rule-block"><h3>断签不清累计进度</h3><p>回来继续累计，普通券从3元基础档重新开始；第3、5天特权及第7天抽奖按累计到访天数解锁。</p></div><div class="rule-block"><h3>选好商品，结算时用优惠</h3><p>日常券适用于领取当天街上的三家店的指定商品，当活动日有效；抽奖券全街可用，有效7个活动日。每单限一张券，专享价不与券叠加，系统自动选更优惠的方案，订单成功后核销。</p></div><div class="rule-block"><h3>7天抽奖，每轮一次</h3><p>10元券包85%（2张满39减5）；20元券包12%（2张满59减10）；50元免单券2.5%；100元免单券0.5%。免单券按实付前金额抵扣，最高不超过券面额。抽奖后下个活动日开启新一轮，未过期的旧券和历史记录保留。</p></div>`);}
 function syncActivity(){
  const day=todayKey();if(day===renderedActivityDay)return false;
  renderedActivityDay=day;modalHistory=[];modalView=null;state=Flow.enter(state,day);save();renderHome();
@@ -772,9 +788,9 @@ document.addEventListener('keydown',event=>{
 });
 $('#motionToggle').checked=reduced;$('#motionToggle').addEventListener('change',event=>{reduced=event.target.checked;$('#app').classList.toggle('reduce-motion',reduced);if(reduced)motionFinish?.();});
 $('#replay').addEventListener('click',()=>{if(moving)return;closeModal();goTo(focusShop===primaryShop()?secondaryShop():primaryShop());});
-$('#reset').addEventListener('click',()=>{pendingWalk=null;motionFinish?.();closeModal();state=fresh();streetSignature='';renderHome();window.QiyuIP3D?.greet();$('#guide').hidden=false;if(demo==='wallet')showRewards();else maybeOfferReward();});
-$('#previewDay')?.addEventListener('change',event=>{const scenarios=['first','second','third','fourth','fifth','sixth','seventh'],url=new URL(location.href);url.searchParams.set('demo',event.target.value);url.searchParams.set('demoDay',Flow.addDays(state.streetStartedOn||todayKey(),scenarios.indexOf(event.target.value)));url.searchParams.set('v','street-polish-2');location.href=url.href;});
-$('#previewProfile')?.addEventListener('change',event=>{const url=new URL(location.href);url.searchParams.set('shopProfile',event.target.value);url.searchParams.set('v','street-polish-2');location.href=url.href;});
+$('#reset').addEventListener('click',()=>{pendingWalk=null;motionFinish?.();closeModal();state=restoreDailyCouponScopes(fresh());streetSignature='';renderHome();window.QiyuIP3D?.greet();$('#guide').hidden=false;if(demo==='wallet')showRewards();else maybeOfferReward();});
+$('#previewDay')?.addEventListener('change',event=>{const scenarios=['first','second','third','fourth','fifth','sixth','seventh'],url=new URL(location.href);url.searchParams.set('demo',event.target.value);url.searchParams.set('demoDay',Flow.addDays(state.streetStartedOn||todayKey(),scenarios.indexOf(event.target.value)));url.searchParams.set('v','daily-coupon-shops-1');location.href=url.href;});
+$('#previewProfile')?.addEventListener('change',event=>{const url=new URL(location.href);url.searchParams.set('shopProfile',event.target.value);url.searchParams.set('v','daily-coupon-shops-1');location.href=url.href;});
 atmosphere=window.QiyuStreetAtmosphere?.mount({document,greet:()=>window.QiyuIP3D?.greet(),reduced:()=>reduced});
 window.addEventListener('resize',resize);resize();$('#app').classList.toggle('reduce-motion',reduced);renderHome();
 setTimeout(demo==='wallet'?showRewards:maybeOfferReward,450);

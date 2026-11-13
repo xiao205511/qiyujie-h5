@@ -64,7 +64,8 @@
   const signals=[...(state.shopSignals||[])];
   if(!signals.some(s=>s.shop===shop&&s.type===type&&s.date===day))signals.push({shop,type,date:day});
   const next={...state,shopSignals:signals.filter(e=>validDay(e.date)&&e.date>=addDays(day,-90)).slice(-300)};
-  if(startDay(state,day)===day)delete next.streetSnapshot;
+  const locked=(state.coupons||[]).some(c=>c.date===day&&c.dailyStreetScope);
+  if(startDay(state,day)===day&&!locked)delete next.streetSnapshot;
   return next;
  }
  const preview=(state,day)=>derive(state,day);
@@ -72,9 +73,8 @@
   const slots=type==='preview'?preview(state,addDays(day,1)):resolve(state,day).slots,shop=slots[type==='preview'?2:1].shop;
   return Catalog.shops[shop].products.slice(0,3).map(p=>p.id);
  }
- function couponShopIds(state){
-  const tier=Math.max(1,Math.min(4,state.cashTier||1));
-  return [[...core,...candidates],['paper','laundry','makeup'],['skin','makeup'],['winter','skin']][tier-1];
+ function couponShopIds(state,day=state.lastVisit){
+  return resolve(state,day).slots.map(slot=>slot.shop);
  }
  return {resolve,record,preview,benefitProducts,couponShopIds,positions};
 });
