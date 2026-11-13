@@ -78,10 +78,18 @@ function recommendationProducts(c){
  const currentIds=new Set(Catalog.shelfProducts.map(p=>p.id));
  return allProducts.filter(p=>currentIds.has(p.id)||c.productIds?.includes(p.id)||(shops[p.shop]?.archived&&c.shopIds?.includes(p.shop)));
 }
-function priceHtml(p,{quote=Flow.quote(state,p,1,todayKey()),format=money}={}){
- const label=quote.discountKind==='benefit'?'专享':'券后';
+function priceHtml(p,{quote=Flow.quote(state,p,1,todayKey()),format=money,original=p.price,subtotal=false}={}){
+ const label=(quote.discountKind==='benefit'?'专享':'券后')+(subtotal?'小计':'');
  const price=`<span class="price">${quote.discount?`<small>${label} </small>`:''}<sup>¥</sup>${format(quote.total)}</span>`;
- return quote.discount?`<span class="product-prices">${price}<del class="product-original-price" aria-label="原价${format(p.price)}元">¥${format(p.price)}</del></span>`:price;
+ return quote.discount?`<span class="product-prices">${price}<del class="product-original-price" aria-label="${subtotal?'原小计':'原价'}${format(original)}元">¥${format(original)}</del></span>`:price;
+}
+function linePriceHtml(line,order){
+ return priceHtml(line.product,{quote:{...line,discountKind:order.discountKind},original:line.subtotal,subtotal:line.quantity>1,format:exact});
+}
+function listedPriceHtml(p,order,format,topup=false){
+ const line=order?.items.find(i=>i.product.id===p.id);
+ if(line?.discount)return linePriceHtml(line,order);
+ return priceHtml(p,{format,quote:line||topup?{total:p.price}:undefined});
 }
 function toast(message){$('#toast').textContent=message;$('#toast').hidden=false;clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('#toast').hidden=true,2300);}
 function resize(){
@@ -295,16 +303,20 @@ function selectionControl(p,topup=false){
  if(topup&&topupContext?.selectedOnly&&n&&state.basketSelection?.[p.id]===false)return `<button class="product-buy" data-topup-select="${p.id}">加入本单</button>`;
  return n?quantityPicker(p,n):`<button class="product-buy quick-add" data-add-basket="${p.id}" aria-label="将${p.name}加入购物车">${icon('plus')}</button>`;
 }
-function productRow(p,{topup=false,exclusive=false}={}){return `<article class="shop-product-row"><button class="row-art" data-detail="${p.id}" aria-label="查看${p.name}详情">${art(p)}</button><div class="row-product-copy"><button class="product-name" data-detail="${p.id}">${p.name}</button><span class="original-price product-price-hint">${topup&&topupContext?.selectedOnly&&state.basketSelection?.[p.id]===false?'已加购 · 未计入本单':'标准装'}</span><div class="row-price-action">${topup?`<span class="price"><sup>¥</sup>${exact(p.price)}</span>`:priceHtml(p,{format:exclusive?money:exact})}${selectionControl(p,topup)}</div></div></article>`;}
-function moreProductCard(p){return `<article class="more-product"><button class="more-product-detail" data-detail="${p.id}" aria-label="查看${p.name}详情">${art(p)}<strong>${p.name}</strong></button><div class="more-product-footer">${priceHtml(p)}${selectionControl(p)}</div></article>`;}
+function productRow(p,{topup=false,exclusive=false,order}={}){return `<article class="shop-product-row"><button class="row-art" data-detail="${p.id}" aria-label="查看${p.name}详情">${art(p)}</button><div class="row-product-copy"><button class="product-name" data-detail="${p.id}">${p.name}</button><span class="original-price product-price-hint">${topup&&topupContext?.selectedOnly&&state.basketSelection?.[p.id]===false?'已加购 · 未计入本单':'标准装'}</span><div class="row-price-action">${listedPriceHtml(p,order,exclusive?money:exact,topup)}${selectionControl(p,topup)}</div></div></article>`;}
+function moreProductCard(p,order){return `<article class="more-product"><button class="more-product-detail" data-detail="${p.id}" aria-label="查看${p.name}详情">${art(p)}<strong>${p.name}</strong></button><div class="more-product-footer">${listedPriceHtml(p,order,money)}${selectionControl(p)}</div></article>`;}
 function basketHint(q){
  if(!q.valid)return '选几件喜欢的好物';
  if(q.discount)return `已优惠 ¥${exact(q.discount)} · 已选${q.quantity}件`;
  return q.reason==='minimum'?`还差 ¥${exact(q.minimumShortfall)} 可用券`:`已选${q.quantity}件 · 仅本店商品`;
 }
-function basketFooter(key){
- const q=Basket.quote(state,allProducts,todayKey(),{shop:key,selectedOnly:false});
- return `<footer class="basket-footer shop-cart-footer"><button class="basket-summary" data-open-local-basket="${key}" aria-label="查看本店已选商品，共${q.quantity}件"><span class="basket-symbol">${icon('shopping-cart')}${q.quantity?`<b>${q.quantity}</b>`:''}</span><span><strong>${q.valid?`本店${q.discount?'优惠后':'合计'} <em>¥${exact(q.total)}</em>`:'还没有选好物'}</strong><small>${basketHint(q)}</small></span>${icon('chevron-up')}</button><button class="basket-checkout-cta" data-shop-checkout="${key}" ${!q.valid?'disabled':''}>去结算</button></footer>`;
+function shopQuote(key){return Basket.quote(state,allProducts,todayKey(),{shop:key,selectedOnly:false});}
+function basketFooter(key,q=shopQuote(key)){
+ const totalLabel=q.coupon?'券后':q.discount?'专享价':'本店合计';
+ const total=exact(q.total),original=exact(q.subtotal);
+ const price=q.valid?`<span>${totalLabel} <em>¥${total}</em></span>${q.discount?`<del class="product-original-price">¥${original}</del>`:''}`:'还没有选好物';
+ const summaryLabel=`查看本店已选商品，共${q.quantity}件${q.valid?`，${totalLabel}${total}元`:''}${q.discount?`，原合计${original}元`:''}`;
+ return `<footer class="basket-footer shop-cart-footer"><button class="basket-summary" data-open-local-basket="${key}" aria-label="${summaryLabel}"><span class="basket-symbol">${icon('shopping-cart')}${q.quantity?`<b>${q.quantity}</b>`:''}</span><span><strong class="shop-cart-prices">${price}</strong><small>${basketHint(q)}</small></span>${icon('chevron-up')}</button><button class="basket-checkout-cta" data-shop-checkout="${key}" ${!q.valid?'disabled':''}>去结算</button></footer>`;
 }
 function detailCartButton(key){return `<button class="detail-cart-entry" data-open-basket="${key}" aria-label="查看购物车">${icon('shopping-cart')}<span>购物车</span></button>`;}
 function preserveCommerceScroll(render){
@@ -362,9 +374,10 @@ function cartDock(q,lines){
 function showBasket(key=browsingShop,scope=null,preserveChoice=false){
  if(!shops[key])key='paper';basketReturnShop=key;cartScope=scope&&shops[scope]?scope:null;if(!preserveChoice)discountChoice='auto';
  const lines=Basket.items(state,allProducts,cartScope||undefined),q=cartQuote(),count=lines.reduce((n,i)=>n+i.quantity,0);
+ const quotedItems=new Map(q.items.map(item=>[item.product.id,item]));
  const groups=Object.entries(shops).map(([shopId,shop])=>{
   const storeLines=lines.filter(i=>i.product.shop===shopId);if(!storeLines.length)return '';
-  const rows=storeLines.map(({product:p,quantity:n})=>`<article class="cart-product">${!cartScope?cartCheck([p.id],`选择${p.name}`,p.id):''}<button class="cart-product-image" data-detail="${p.id}" aria-label="查看${p.name}详情">${art(p)}</button><div class="cart-product-copy"><div class="cart-product-heading"><button data-detail="${p.id}">${p.name}</button><button class="basket-remove" data-remove-basket="${p.id}" aria-label="移除${p.name}">移除</button></div><span>标准装</span><div class="cart-product-price"><strong>¥${exact(p.price)}</strong>${quantityPicker(p,n)}</div></div></article>`).join('');
+  const rows=storeLines.map(({product:p,quantity:n})=>{const line=quotedItems.get(p.id);return `<article class="cart-product">${!cartScope?cartCheck([p.id],`选择${p.name}`,p.id):''}<button class="cart-product-image" data-detail="${p.id}" aria-label="查看${p.name}详情">${art(p)}</button><div class="cart-product-copy"><div class="cart-product-heading"><button data-detail="${p.id}">${p.name}</button><button class="basket-remove" data-remove-basket="${p.id}" aria-label="移除${p.name}">移除</button></div><span>标准装</span><div class="cart-product-price">${line?.discount?linePriceHtml(line,q):`<strong>¥${exact(p.price)}</strong>`}${quantityPicker(p,n)}</div></div></article>`;}).join('');
   return `<section class="cart-store"><div class="cart-store-heading">${!cartScope?cartCheck(storeLines.map(i=>i.product.id),`选择${shop.name}全部商品`,shopId):icon('store')}<h3>${shop.name}</h3><button data-return-shop="${shopId}">进店${icon('chevron-right')}</button></div>${rows}</section>`;
  }).join('');
  openModal('basket',`<header class="sheet-head commerce-header"><h2 id="modalTitle">购物车 <span>(${count})</span></h2><button class="detail-close" data-dismiss aria-label="关闭购物车">${icon('x')}</button></header><div class="shop-products-scroll commerce-scroll cart-scroll">${cartScope?`<div class="local-cart-note">仅查看${shops[cartScope].name}<button data-open-basket="${key}">查看全部购物车</button></div>`:''}${cartCouponBanner()}${groups||`<div class="basket-empty">${icon('shopping-cart')}<strong>购物车还是空的</strong><p>选几件喜欢的商品，一起结算更方便。</p><button class="secondary-cta" data-return-shop="${key}">去店铺选购</button></div>`}</div>${cartDock(q,lines)}`,'sheet basket-sheet commerce-sheet');
@@ -392,10 +405,10 @@ function showShop(key=focusShop){
  if(currentModal!=='shop'||browsingShop!==key){state=DailyStreet.record(state,key,'view',todayKey());renderHome({preserveStreet:true});}
  browsingShop=key;const shop=shops[key],r=currentReward(),claimed=Flow.todayClaimed(state,todayKey());
  const day=todayKey(),todayShops=displayedStreet?.date===day?streetSlots.map(slot=>slot.shop):DailyStreet.couponShopIds(state,day);
- const canClaim=!claimed&&todayShops.includes(key);
+ const order=shopQuote(key),canClaim=!claimed&&todayShops.includes(key);
  const shopCoupons=Flow.availableCoupons(state,todayKey()).filter(c=>shop.products.some(p=>Basket.applies(c,p))),hasShopCoupon=shopCoupons.length>0;
  const copy=hasShopCoupon?`有 ${shopCoupons.length} 张券可用 · 自动选最优优惠`:validCoupon()?'现有优惠券暂不适用于本店':state.coupon?.date===todayKey()&&state.coupon.used?'今日券已使用 · 明天再来领好礼':canClaim&&r.value?`今日可领 ${r.value}元券 · 满${r.min}减${r.value}`:!claimed&&r.value?'今日优惠券暂不适用于本店':'今日好物，慢慢挑';
- openModal('shop',`<header class="sheet-head"><div><h2 id="modalTitle">${shop.name}</h2><p>${shop.desc}</p></div><div class="sheet-actions"><button data-toggle-favorite="${key}" aria-label="${state.favorites.includes(key)?'取消收藏':'收藏'}${shop.name}">${icon('heart')}</button><button data-dismiss aria-label="关闭店铺">${icon('x')}</button></div></header><div class="shop-products-scroll" role="region" aria-label="${shop.name}商品，可上下滚动" tabindex="0"><div class="coupon-strip">${icon(hasShopCoupon?'circle-check':'ticket-percent')}<div><strong>${copy}</strong><small>适用范围、门槛与有效期以券面为准</small></div>${(hasShopCoupon||validCoupon())?'<button data-shop-coupons>去查看</button>':canClaim&&r.value?'<button data-claim-in-shop>领取</button>':''}</div><div class="shop-product-list">${shop.products.slice(0,3).map(productRow).join('')}</div>${shop.products.length>3?`<h3 class="more-products-title">更多日常好物 <span>点商品查看当前优惠</span></h3><div class="more-products-grid">${shop.products.slice(3).map(moreProductCard).join('')}</div>`:''}</div>${basketFooter(key)}`,'sheet shop-sheet');
+ openModal('shop',`<header class="sheet-head"><div><h2 id="modalTitle">${shop.name}</h2><p>${shop.desc}</p></div><div class="sheet-actions"><button data-toggle-favorite="${key}" aria-label="${state.favorites.includes(key)?'取消收藏':'收藏'}${shop.name}">${icon('heart')}</button><button data-dismiss aria-label="关闭店铺">${icon('x')}</button></div></header><div class="shop-products-scroll" role="region" aria-label="${shop.name}商品，可上下滚动" tabindex="0"><div class="coupon-strip">${icon(hasShopCoupon?'circle-check':'ticket-percent')}<div><strong>${copy}</strong><small>适用范围、门槛与有效期以券面为准</small></div>${(hasShopCoupon||validCoupon())?'<button data-shop-coupons>去查看</button>':canClaim&&r.value?'<button data-claim-in-shop>领取</button>':''}</div><div class="shop-product-list">${shop.products.slice(0,3).map(p=>productRow(p,{order})).join('')}</div>${shop.products.length>3?`<h3 class="more-products-title">更多日常好物 <span>点商品查看当前优惠</span></h3><div class="more-products-grid">${shop.products.slice(3).map(p=>moreProductCard(p,order)).join('')}</div>`:''}</div>${basketFooter(key,order)}`,'sheet shop-sheet');
  bindShopSheet();
  if(state.favorites.includes(key))$('[data-toggle-favorite] .lucide').classList.add('is-favorite');
 }
@@ -422,7 +435,7 @@ function renderCheckout(){
  const q=currentOrderQuote();if(!q.valid)return showBasket(basketReturnShop,cartScope);
  const prefs=checkoutPreferences(),phone=prefs.phone.replace(/(\d{3})\d{4}(\d{4})/,'$1****$2');
  const address=`<button class="checkout-address commerce-card" data-checkout-edit="address">${icon('map-pin')}<span><strong>${esc(prefs.address)}</strong><small>${esc(prefs.name)} ${esc(phone)}</small></span>${icon('chevron-right')}</button>`;
- const groups=q.shopIds.map(shopId=>`<section class="commerce-card checkout-store"><div class="checkout-store-heading"><h3>${shops[shopId].name}</h3><span>共${q.items.filter(i=>i.product.shop===shopId).reduce((n,i)=>n+i.quantity,0)}件</span></div>${q.items.filter(i=>i.product.shop===shopId).map(({product:p,quantity:n,subtotal})=>`<article class="checkout-line">${art(p)}<div><strong>${p.name}</strong><small>标准装</small><span>¥${exact(p.price)} × ${n}</span></div><b>¥${exact(subtotal)}</b></article>`).join('')}${checkoutMode==='single'?`<div class="checkout-quantity-row"><span>购买数量</span><div class="quantity"><button data-quantity="-1" aria-label="减少购买数量" ${orderQuantity===1?'disabled':''}>${icon('minus')}</button><strong>${orderQuantity}</strong><button data-quantity="1" aria-label="增加购买数量" ${orderQuantity===9?'disabled':''}>${icon('plus')}</button></div></div>`:''}</section>`).join('');
+ const groups=q.shopIds.map(shopId=>`<section class="commerce-card checkout-store"><div class="checkout-store-heading"><h3>${shops[shopId].name}</h3><span>共${q.items.filter(i=>i.product.shop===shopId).reduce((n,i)=>n+i.quantity,0)}件</span></div>${q.items.filter(i=>i.product.shop===shopId).map(line=>{const {product:p,quantity:n,subtotal}=line;return `<article class="checkout-line">${art(p)}<div><strong>${p.name}</strong><small>标准装</small><span>¥${exact(p.price)} × ${n}</span></div>${line.discount?linePriceHtml(line,q):`<b>¥${exact(subtotal)}</b>`}</article>`;}).join('')}${checkoutMode==='single'?`<div class="checkout-quantity-row"><span>购买数量</span><div class="quantity"><button data-quantity="-1" aria-label="减少购买数量" ${orderQuantity===1?'disabled':''}>${icon('minus')}</button><strong>${orderQuantity}</strong><button data-quantity="1" aria-label="增加购买数量" ${orderQuantity===9?'disabled':''}>${icon('plus')}</button></div></div>`:''}</section>`).join('');
  const info=`<section class="commerce-card checkout-services"><div><span>配送</span><strong>普通快递 · 免运费</strong></div><button data-checkout-edit="invoice"><span>发票</span><strong>${esc(prefs.invoice)}</strong>${icon('chevron-right')}</button><button data-checkout-edit="note"><span>备注</span><strong>${esc(prefs.note||'选填')}</strong>${icon('chevron-right')}</button></section>`;
  const pricing=`<section class="commerce-card checkout-pricing"><h3>价格明细</h3><div><span>商品金额</span><strong>¥${exact(q.subtotal)}</strong></div><button data-checkout-coupons><span>${q.discountKind==='benefit'?'专享优惠':'优惠券'}</span><strong class="${q.discount?'has-discount':''}">${q.discount?`−¥${exact(q.discount)}`:discountChoice==='none'?'不使用优惠':q.reason==='minimum'?'未达门槛':'暂无可用'}</strong><span class="coupon-change">更换${icon('chevron-right')}</span></button>${q.reason==='minimum'&&discountChoice!=='none'?`<div class="checkout-shortfall"><span>${icon('info')}还差¥${exact(q.minimumShortfall)}可用券</span><button data-go-topup>去凑单</button></div>`:''}<div><span>运费</span><strong>¥0.00</strong></div><p>每单限用一张券，优惠不叠加</p></section>`;
  const summary=q.discountKind==='benefit'?'已享专享价':q.coupon?(q.coupon.min?`满${q.coupon.min}减${q.coupon.value}`:`免单券抵${exact(q.discount)}元`):discountChoice==='none'?'本单不使用优惠':'已选'+q.quantity+'件商品';
@@ -446,7 +459,7 @@ function showTopup(resetScroll=true){
  const q=Basket.quote(sourceState,allProducts,todayKey(),options),goal=Basket.goal(sourceState,allProducts,todayKey(),options);
  const candidates=recommendationProducts(c).filter(p=>(!options.shop||p.shop===options.shop)&&Basket.applies(c,p));
  const groups=Object.entries(shops).map(([key,shop])=>{
-  const products=candidates.filter(p=>p.shop===key);return products.length?`<section class="topup-store"><h3>${shop.name}</h3><div class="shop-product-list">${products.map(p=>productRow(p,{topup:true})).join('')}</div></section>`:'';
+  const products=candidates.filter(p=>p.shop===key);return products.length?`<section class="topup-store"><h3>${shop.name}</h3><div class="shop-product-list">${products.map(p=>productRow(p,{topup:true,order:q})).join('')}</div></section>`:'';
  }).join('');
  openModal('topup',`<header class="sheet-head commerce-header"><div><h2 id="modalTitle">凑单好物</h2><p>${c.min?`满${c.min}减${c.value}`:`最高抵${c.value}元`} · 以下商品可用券</p></div><button class="detail-close" data-topup-back aria-label="返回凑单前页面">${icon('x')}</button></header><div class="shop-products-scroll commerce-scroll topup-scroll">${groups||'<div class="basket-empty"><p>暂时没有适用商品</p></div>'}</div><footer class="commerce-dock">${couponProgress(q,options,'',sourceState)}<div class="topup-settle-row"><div><strong>已选 <em>¥${exact(q.subtotal)}</em></strong><small>${q.discount?`用券后¥${exact(q.total)} · 已选${q.quantity}件`:`已选${q.quantity}件${goal?.shortfall?' · 继续添加适用商品':''}`}</small></div><button class="basket-checkout-cta" data-topup-checkout ${!q.valid?'disabled':''}>结算</button></div></footer>`,'sheet commerce-sheet topup-sheet');
 }
@@ -555,8 +568,9 @@ function showBenefit(id){
  if(!b){toast('这项权益已过期，看看今天的新奖励吧');showRewards();return;}
  activeBenefitId=id;const preview=b.type==='preview',products=b.productIds.map(id=>allProducts.find(p=>p.id===id)).filter(Boolean),shop=shops[products[0]?.shop];
  if(!preview&&products[0])browsingShop=products[0].shop;
- const rows=preview?products.map(p=>`<article class="preview-product">${art(p)}<div><strong>${p.name}</strong><span>¥${money(p.price)}</span><small>明日10点，进店挑选</small></div></article>`).join(''):products.map(p=>productRow(p,{exclusive:true})).join('');
- openModal('benefit',`<header class="sheet-head"><div><h2 id="modalTitle">${preview?'明日精选预览':'今日专享好物'}</h2><p>${shop?.name||'精选小店'} · ${preview?'明日发现店，提前看一看':'精选商品每件立减1元'}</p></div><div class="sheet-actions"><button data-dismiss aria-label="关闭权益详情">${icon('x')}</button></div></header><div class="shop-products-scroll"><div class="benefit-note">${icon(preview?'eye':'tag')}${preview?'明日10点上街 · 今天先看看':'本活动日内有效 · 不与券叠加'}</div><div class="shop-product-list">${rows}</div></div>${preview?'<footer class="daily-sheet-footer"><button class="secondary-cta" data-show-rewards>返回我的奖励</button></footer>':basketFooter(browsingShop)}`,'sheet shop-sheet benefit-sheet');
+ const order=preview?null:shopQuote(browsingShop);
+ const rows=preview?products.map(p=>`<article class="preview-product">${art(p)}<div><strong>${p.name}</strong><span>¥${money(p.price)}</span><small>明日10点，进店挑选</small></div></article>`).join(''):products.map(p=>productRow(p,{exclusive:true,order})).join('');
+ openModal('benefit',`<header class="sheet-head"><div><h2 id="modalTitle">${preview?'明日精选预览':'今日专享好物'}</h2><p>${shop?.name||'精选小店'} · ${preview?'明日发现店，提前看一看':'精选商品每件立减1元'}</p></div><div class="sheet-actions"><button data-dismiss aria-label="关闭权益详情">${icon('x')}</button></div></header><div class="shop-products-scroll"><div class="benefit-note">${icon(preview?'eye':'tag')}${preview?'明日10点上街 · 今天先看看':'本活动日内有效 · 不与券叠加'}</div><div class="shop-product-list">${rows}</div></div>${preview?'<footer class="daily-sheet-footer"><button class="secondary-cta" data-show-rewards>返回我的奖励</button></footer>':basketFooter(browsingShop,order)}`,'sheet shop-sheet benefit-sheet');
 }
 function browseCoupon(id){
  const c=Flow.couponList(state).find(c=>c.id===id);

@@ -108,6 +108,20 @@
   return {...base,benefits:[...(s.benefits||[]),benefit]};
  }
  const applies=(c,p)=>(!c.shopIds||c.shopIds.includes(p.shop))&&(!c.productIds||c.productIds.includes(p.id))&&(c.scope==='street'||p.eligible);
+ const cents=amount=>Math.round(amount*100);
+ function allocateCoupon(items,coupon){
+  const shares=items.filter(i=>applies(coupon.c,i.product)).map(i=>{
+   const weighted=coupon.discount*cents(i.subtotal);
+   return {id:i.product.id,discount:Math.floor(weighted/coupon.cents),remainder:weighted%coupon.cents};
+  });
+  // Give leftover cents to the largest remainders so line totals match checkout.
+  const remaining=coupon.discount-shares.reduce((sum,share)=>sum+share.discount,0);
+  shares.sort((a,b)=>b.remainder-a.remainder).slice(0,remaining).forEach(share=>share.discount++);
+  return new Map(shares.map(share=>[share.id,share.discount]));
+ }
+ function benefitDiscountFor(item,benefit){
+  return benefit.productIds.includes(item.product.id)?Math.min(cents(item.product.price),cents(benefit.unitDiscount))*item.quantity:0;
+ }
  function quoteItems(s,lines,today,{couponId='auto'}={}){
   const invalid=reason=>({valid:false,reason,items:[],quantity:0,subtotal:0,discount:0,total:0,minimumShortfall:0,discountKind:null,coupon:null,benefit:null});
   if(!Array.isArray(lines)||!lines.length)return invalid('empty');
@@ -123,8 +137,14 @@
   const eligible=availableCoupons(s,today).filter(c=>couponId==='auto'||c.id===couponId).map(c=>({c,cents:items.filter(i=>applies(c,i.product)).reduce((sum,i)=>sum+Math.round(i.subtotal*100),0)})).filter(x=>x.cents>0);
   const candidates=eligible.filter(x=>x.cents>=Math.round(x.c.min*100)).map(x=>({...x,discount:Math.min(x.cents,Math.round(x.c.value*100))})).sort((a,b)=>b.discount-a.discount||a.c.expiresOn.localeCompare(b.c.expiresOn)||a.c.id.localeCompare(b.c.id));
   const selected=candidates[0]||null,couponDiscount=selected?.discount||0;
-  const benefits=activeBenefits(s,today).filter(b=>couponId==='auto'&&b.type==='exclusive').map(b=>({b,discount:items.filter(i=>b.productIds.includes(i.product.id)).reduce((sum,i)=>sum+Math.min(Math.round(i.product.price*100),Math.round(b.unitDiscount*100))*i.quantity,0)})).sort((a,b)=>b.discount-a.discount);
+  const benefits=activeBenefits(s,today).filter(b=>couponId==='auto'&&b.type==='exclusive').map(b=>({b,discount:items.reduce((sum,i)=>sum+benefitDiscountFor(i,b),0)})).sort((a,b)=>b.discount-a.discount);
   const bestBenefit=benefits[0],benefitDiscount=bestBenefit?.discount||0,useBenefit=benefitDiscount>couponDiscount,discountCents=useBenefit?benefitDiscount:couponDiscount;
+  const couponShares=!useBenefit&&couponDiscount?allocateCoupon(items,selected):null;
+  for(const item of items){
+   const share=useBenefit?benefitDiscountFor(item,bestBenefit.b):(couponShares?.get(item.product.id)||0);
+   item.discount=share/100;
+   item.total=(cents(item.subtotal)-share)/100;
+  }
   const reason=discountCents?(useBenefit?'benefit':'applied'):eligible.length?'minimum':availableCoupons(s,today).length?'ineligible':all.some(c=>couponStatus(c,today)==='used')?'used':all.length?'expired':'unclaimed';
   const minimumShortfall=eligible.length?Math.max(0,Math.min(...eligible.map(x=>Math.round(x.c.min*100)-x.cents)))/100:0;
   return {valid:true,items,shop,shopIds,quantity:items.reduce((sum,i)=>sum+i.quantity,0),subtotal:subtotalCents/100,discount:discountCents/100,total:(subtotalCents-discountCents)/100,reason,minimumShortfall,discountKind:discountCents?(useBenefit?'benefit':'coupon'):null,coupon:!useBenefit&&discountCents?selected.c:null,benefit:useBenefit?bestBenefit.b:null};

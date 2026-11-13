@@ -109,7 +109,7 @@
 #app .modal.sheet>.bottom-sheet-header p,#app .daily-sheet-header p,
 #app .rewards-sheet-header p,#app .coupon-picker-intro {color:var(--q-muted)}
 #app .detail-copy p,#app .shop-product-copy>span,#app .cart-product-copy>span,
-#app .checkout-address small,#app .checkout-line small,#app .checkout-line span,
+#app .checkout-address small,#app .checkout-line>div>small,#app .checkout-line>div>span,
 #app .basket-summary small,#app .cart-settle-total>small,#app .checkout-pay-summary small {color:var(--q-muted)}
 #app .cart-store,#app .commerce-card,#app .shop-product-row,#app .more-product {background:var(--q-card);border-color:var(--q-line)}
 #app .cart-store-heading,#app .cart-product+.cart-product,#app .checkout-store-heading,
