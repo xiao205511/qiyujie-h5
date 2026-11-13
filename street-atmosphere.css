@@ -11,7 +11,7 @@
 .music-toggle .music-off{display:block}.music-toggle .music-on{display:none}
 .music-toggle[data-playing=true] .music-off{display:none}.music-toggle[data-playing=true] .music-on{display:block}
 #app.has-modal .music-toggle{visibility:hidden}
-#app.shop-welcoming .storefront-front,#app.shop-welcoming[data-scene-mode=street] .shop-hotspot.paper .storefront-sprite{animation:shop-welcome 1.4s ease-out both}
+#app.shop-welcoming .storefront-front,#app.shop-welcoming[data-scene-mode=street] .shop-hotspot.is-current .storefront-sprite{animation:shop-welcome 1.4s ease-out both}
 @keyframes shop-welcome{0%,100%{filter:brightness(1)}32%{filter:brightness(1.07) drop-shadow(0 0 8px #fff3c970)}}
 #app .guide-copy{display:block;max-width:148px;white-space:normal;line-height:18px;font-size:14px}
 .atmosphere-paused .street-cloud{animation-play-state:paused}

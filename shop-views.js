@@ -7,10 +7,11 @@
   const positionFor=key=>slots.find(slot=>slot.shop===key)?.position||'front';
   const facingFor=position=>position==='paper'?'right':position==='snack'?'left':'front';
   const travelKind=(from,to)=>from===to?'enter':positionFor(from)==='paper'&&positionFor(to)==='snack'?'walk':'cut';
-  const modeFor=key=>positionFor(key)==='paper'?'street':'store';
+  const modeFor=key=>['paper','snack'].includes(positionFor(key))?'street':'store';
+  const nextShopFor=key=>slots[(slots.findIndex(slot=>slot.shop===key)+1)%slots.length]?.shop;
   function restFor(key,walking){
     const position=positionFor(key);
-    if(position==='paper'||position==='snack'&&!configured)return walking.rest(position);
+    if(position==='paper'||position==='snack')return walking.rest(position);
     const base=walking.rest('paper'),dx=302-base.point[0],dy=548-base.point[1];
     const feet=Object.fromEntries(Object.entries(base.feet).map(([side,foot])=>[side,{...foot,x:foot.x+dx,y:foot.y+dy}]));
     return {...base,point:[302,548],screen:{x:302,y:548},camera:{x:0,y:0,scale:1},size:1,scene:configured?'shop-front':'kitchen-front',feet,arrivalHeading:[0,1]};
@@ -42,7 +43,7 @@
     doc.querySelector('#app').classList.add('has-daily-shops');
   }
   function setView(key){
-    const position=positionFor(key),front=position==='kitchen'||position==='front'||configured&&position==='snack';
+    const position=positionFor(key),front=position==='kitchen'||position==='front';
     art.alt=configured?slots.map(s=>shops[s.shop]?.name).join('、')+'沿街排列':'纸巾铺、零食铺和厨房铺沿街排列';
     const backdrop=doc.querySelector('#storefrontBackdrop'),source=configured?originalArt:'assets/kitchen-front.png';
     if(backdrop.getAttribute('src')!==source)backdrop.src=source;
@@ -73,5 +74,5 @@
     commit();
     return ()=>{};
   }
-  return {travelKind,modeFor,positionFor,restFor,init,configure,setView,transition,hitAreaFor};
+  return {travelKind,modeFor,nextShopFor,positionFor,restFor,init,configure,setView,transition,hitAreaFor};
 });
