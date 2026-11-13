@@ -6,7 +6,7 @@
   <meta name="theme-color" content="#a3d5e5">
   <title>奇遇街 · 今天逛点喜欢的</title>
   <link rel="icon" href="data:,">
-  <link rel="preload" as="image" href="assets/street-simple-trees-v1.jpg">
+  <link rel="preload" as="image" href="assets/street-cloudless-v1.jpg">
   <link rel="stylesheet" href="styles.css?v=ground-walk-5">
   <script defer src="assets/icons.js"></script>
   <script defer src="walking.js?v=depth-navigation-1"></script>
@@ -27,7 +27,9 @@
   <script defer src="lottery-wheel.js?v=1"></script>
   <script defer src="catalog.js?v=design-review-fixes-1"></script>
   <script defer src="daily-street.js?v=prd-v1-baseline-1"></script>
-  <script defer src="app.js?v=simple-trees-1"></script>
+  <link rel="stylesheet" href="street-atmosphere.css?v=street-atmosphere-1">
+  <script defer src="street-atmosphere.js?v=street-atmosphere-1"></script>
+  <script defer src="app.js?v=street-atmosphere-1"></script>
   <script defer src="image-loading.js?v=mobile-product-images-1"></script>
   <script type="module" src="ip-rig-stage2/street-character.js?v=4"></script>
   <style>
@@ -90,13 +92,15 @@
         <section class="street" aria-label="奇遇街街景">
           <div id="streetLoading" role="status" style="position:absolute;left:24px;right:24px;top:260px;padding:16px;border-radius:16px;background:var(--q-surface,#fffdfa);color:var(--q-muted,#747078);font-size:14px;text-align:center;z-index:8;pointer-events:none">正在准备小街…</div>
           <div class="world" id="world">
-            <img class="street-art" src="assets/street-simple-trees-v1.jpg" alt="圆角薄荷色纸巾铺、橙色零食铺和蓝色厨房铺沿着小路排列" draggable="false">
+            <img class="street-art" src="assets/street-cloudless-v1.jpg" alt="圆角薄荷色纸巾铺、橙色零食铺和蓝色厨房铺沿着小路排列" draggable="false">
+            <div class="street-clouds" aria-hidden="true"><span class="street-cloud"></span><span class="street-cloud"></span><span class="street-cloud"></span></div>
             <button class="shop-hotspot paper" data-slot="paper" data-shop="paper" aria-label="进入纸巾补货铺"><span>进入纸巾铺</span></button>
             <button class="shop-hotspot snack" data-slot="snack" data-shop="snack" aria-label="查看零食小铺"><span>去零食小铺</span></button>
             <button class="shop-hotspot kitchen" data-slot="kitchen" data-shop="kitchen" aria-label="查看厨房帮手铺"><span>去厨房帮手铺</span></button>
           </div>
           <div class="storefront-scene" id="storefrontScene" hidden>
-            <img class="street-art" id="storefrontBackdrop" src="assets/street-simple-trees-v1.jpg" alt="当前店铺门前街景" draggable="false">
+            <img class="street-art" id="storefrontBackdrop" src="assets/street-cloudless-v1.jpg" alt="当前店铺门前街景" draggable="false">
+            <div class="street-clouds" aria-hidden="true"><span class="street-cloud"></span><span class="street-cloud"></span><span class="street-cloud"></span></div>
             <div class="storefront-front" id="storefrontFront" role="img" hidden></div>
             <div class="storefront-neighbor" data-front-neighbor="paper" aria-hidden="true"></div>
             <div class="storefront-neighbor" data-front-neighbor="snack" aria-hidden="true"></div>
@@ -106,6 +110,7 @@
           <div class="walk-trail" id="walkTrail" aria-hidden="true"></div>
           <button class="guide" id="guide" hidden><span class="guide-copy">点家小店，逛逛去～</span></button>
           <button class="skip-walk" id="skipWalk" hidden>跳过动效</button>
+          <button class="music-toggle" id="musicToggle" aria-label="开启背景音乐" aria-pressed="false" title="开启背景音乐"><i class="music-off" data-lucide="volume-x"></i><i class="music-on" data-lucide="music-2"></i></button>
           <button class="daily-progress" id="daily" aria-label="查看七天每日奖励"><span>已来<b id="visitCount">1</b>天 · 明日<b id="nextValue">5</b>元券</span><div class="daily-track"><span id="progressFill"></span></div><i class="gift-icon" data-lucide="gift"></i></button>
           <div class="street-actions"><button class="side-action claim-action" id="claim"><i data-lucide="ticket-percent"></i><span id="claimText">领3元券</span></button><button class="primary-action" id="enter">逛纸巾铺</button><button class="side-action" id="switch"><i data-lucide="refresh-cw"></i><span>换家店</span></button></div>
           <p class="coupon-condition" id="couponCondition">满9.9减3 · 限指定商品 · 今日有效</p>
@@ -114,6 +119,7 @@
         <section class="recent" aria-labelledby="recentTitle"><div class="recent-heading"><h2 id="recentTitle">最近看过</h2></div><div class="recent-scroll" id="recentScroll"><div class="recent-grid" id="recentGrid"></div></div></section>
         </div>
         <button class="home-cart-entry" id="homeCart" data-open-basket="paper" aria-label="打开购物车"><i data-lucide="shopping-cart"></i><b id="homeCartCount" hidden></b></button>
+        <audio id="streetMusic" src="assets/street-music-v1.mp3" loop preload="none" playsinline aria-hidden="true"></audio>
         <div class="overlay" id="overlay" hidden><section class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle" tabindex="-1"></section></div>
         <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
       </div>

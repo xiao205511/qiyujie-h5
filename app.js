@@ -38,9 +38,13 @@ let cartScope=null,topupContext=null,discountChoice='auto',couponReturn='basket'
 let modalView=null,modalHistory=[],restoringModal=false,activeCouponId=null;
 const shops=Catalog.shops,allProducts=Catalog.allProducts,dailyRewards=Flow.rewards;
 const paperProducts=shops.paper.products,snackProducts=shops.snack.products,kitchenProducts=shops.kitchen.products;
-let streetSlots=[],streetSignature='';
+let streetSlots=[],streetSignature='',atmosphere=null;
 const primaryShop=()=>streetSlots[0]?.shop||'paper';
 const secondaryShop=()=>streetSlots[1]?.shop||'face';
+function syncAtmosphere(arrival=false){
+ atmosphere?.scene({key:streetSignature+':'+focusShop,shop:focusShop,shopName:shops[focusShop].short,overview:focusShop===primaryShop(),target:secondaryShop(),targetName:shops[secondaryShop()].short});
+ atmosphere?.setBlocked(!!currentModal||moving);if(arrival)atmosphere?.arrive();
+}
 function syncStreet({preserveStreet=false}={}){
  const result=DailyStreet.resolve(state,todayKey());state=result.state;
  if(preserveStreet&&streetSignature)return;
@@ -100,10 +104,10 @@ function renderHome({preserveStreet=!!currentModal}={}){
  document.querySelectorAll('[data-shop]').forEach(el=>{const key=el.dataset.shop;el.setAttribute('aria-label',(key===focusShop?'进入':characterEnabled?'走到':'查看')+shops[key].name);});
  const dateLabel=$('#streetDate');if(dateLabel)dateLabel.textContent=todayKey().slice(5).replace('-','月')+'日 · 今日小街';
  const previewDay=$('#previewDay');if(previewDay)previewDay.value=['first','second','third','fourth','fifth','sixth','seventh'][state.visits-1]||'first';
- document.querySelectorAll('[data-preview-day]').forEach((link,i)=>{const url=new URL(location.href);url.searchParams.set('demo',link.dataset.previewDay);url.searchParams.set('demoDay',Flow.addDays(state.streetStartedOn||todayKey(),i));url.searchParams.set('v','simple-trees-1');link.href=url.href;if(i===state.visits-1)link.setAttribute('aria-current','page');else link.removeAttribute('aria-current');});
+ document.querySelectorAll('[data-preview-day]').forEach((link,i)=>{const url=new URL(location.href);url.searchParams.set('demo',link.dataset.previewDay);url.searchParams.set('demoDay',Flow.addDays(state.streetStartedOn||todayKey(),i));url.searchParams.set('v','street-atmosphere-1');link.href=url.href;if(i===state.visits-1)link.setAttribute('aria-current','page');else link.removeAttribute('aria-current');});
  const previewCaption=$('#previewDayCaption');if(previewCaption)previewCaption.textContent=`第${state.visits}天 · ${todayKey().slice(5).replace('-','月')}日`;
  const profileSelect=$('#previewProfile');if(profileSelect)profileSelect.value=shopProfile;
- $('#app').dataset.focusShop=focusShop;updateCartEntry();icons();save();
+ $('#app').dataset.focusShop=focusShop;updateCartEntry();icons();save();syncAtmosphere();
 }
 function closeModal(){modalHistory=[];modalView=null;if(!currentModal)return;$('#overlay').hidden=true;$('#modal').innerHTML='';currentModal=null;$('#homeScroll').inert=false;$('.topbar').inert=false;$('#app').classList.remove('has-modal');renderHome();if(lastFocus?.isConnected)lastFocus.focus({preventScroll:true});}
 function describeModal(kind){
@@ -199,7 +203,7 @@ function openModal(kind,html,classes='sheet simple-sheet',{replace=false,reset=f
  else if(!restoringModal&&!replace&&modalView&&modalView.key!==next.key){modalView.ui=captureModalUI();modalHistory.push(modalView);}
  modalView=next;
  const sameStyle=!$('#overlay').hidden&&$('#modal').className==='modal '+classes;
- currentModal=kind;$('#modal').dataset.kind=kind;$('#modal').dataset.settled=sameStyle?'true':'false';$('#modal').className='modal '+classes;$('#modal').innerHTML=html;$('#homeScroll').inert=true;$('.topbar').inert=true;
+ currentModal=kind;atmosphere?.setBlocked(true);$('#modal').dataset.kind=kind;$('#modal').dataset.settled=sameStyle?'true':'false';$('#modal').className='modal '+classes;$('#modal').innerHTML=html;$('#homeScroll').inert=true;$('.topbar').inert=true;
  layoutAtmosphereModal($('#modal'));layoutBottomSheet($('#modal'));
  if(modalHistory.length){const close=$('#modal').querySelector('[data-dismiss]');if(close){close.setAttribute('aria-label','返回上一个弹窗');close.setAttribute('title','返回上一个弹窗');}}
  $('#overlay').hidden=false;$('#app').classList.add('has-modal');icons();$('#modal').focus({preventScroll:true});$('#modal').scrollTop=0;
@@ -637,7 +641,7 @@ function positionGuide(key){
   guide.style.top=`${Math.max(145,pose.screen.y-138*size*pose.camera.scale-40)}px`;
 }
 function changeShopView(key){
-  closeModal();moving=true;$('#app').classList.add('moving');$('#app').dataset.walking='true';$('#app').dataset.navigation='cut';$('#guide').hidden=true;
+  closeModal();moving=true;$('#app').classList.add('moving');$('#app').dataset.walking='true';atmosphere?.setBlocked(true);$('#app').dataset.navigation='cut';$('#guide').hidden=true;
   $('#enter').disabled=true;$('#switch').disabled=true;$('#skipWalk').hidden=true;
   $('#walkStatus').textContent=key===primaryShop()?'返回街道':'正在前往'+shops[key].name;
   const finish=ShopViews.transition(()=>{
@@ -645,7 +649,7 @@ function changeShopView(key){
     moving=false;$('#app').classList.remove('moving');$('#app').dataset.walking='false';$('#app').dataset.navigation='idle';
     $('#enter').disabled=false;$('#switch').disabled=false;renderHome();
     refreshGuide(key);
-    positionGuide(key);$('#guide').hidden=false;icons();
+    positionGuide(key);$('#guide').hidden=false;syncAtmosphere(true);icons();
     $('#walkStatus').textContent=key===primaryShop()?'已返回街道总览':'已到'+shops[key].name+'门口，点击进店';motionFinish=null;
   },reduced);
   motionFinish=moving?finish:null;
@@ -656,11 +660,11 @@ function goTo(key,options={}){
   if(key===focusShop&&!options.replay){showShop(key);return;}
   const target=shops[key];if(!target)return;
   if(ShopViews&&(!characterEnabled||ShopViews.travelKind(focusShop,key)==='cut'))return changeShopView(key);
-  closeModal();moving=true;$('#app').classList.add('moving');$('#app').dataset.walking='true';$('#guide').hidden=true;
+  closeModal();moving=true;$('#app').classList.add('moving');$('#app').dataset.walking='true';atmosphere?.setBlocked(true);$('#guide').hidden=true;
   $('#skipWalk').hidden=reduced;$('#enter').disabled=true;$('#switch').disabled=true;
   $('#walkStatus').textContent='正在前往'+target.name;
   const path=Walking.route(ShopViews?ShopViews.positionFor(focusShop):focusShop,ShopViews?ShopViews.positionFor(key):key);
-  const finalise=()=>{if(!moving)return;moving=false;cancelAnimationFrame(walkingFrame);ShopViews?.setView(key);drawWalker(restPose(key));focusShop=key;if(ShopViews)window.QiyuIP3D?.stand([-.25,1]);$('#app').classList.remove('moving');$('#app').dataset.walking='false';$('#skipWalk').hidden=true;$('#enter').disabled=false;$('#switch').disabled=false;$('#walkTrail').innerHTML='';renderHome();refreshGuide(key);positionGuide(key);$('#guide').hidden=false;icons();$('#walkStatus').textContent='已到达'+target.name+'，点击进店';motionFinish=null;};
+  const finalise=()=>{if(!moving)return;moving=false;cancelAnimationFrame(walkingFrame);ShopViews?.setView(key);drawWalker(restPose(key));focusShop=key;if(ShopViews)window.QiyuIP3D?.stand([-.25,1]);$('#app').classList.remove('moving');$('#app').dataset.walking='false';$('#skipWalk').hidden=true;$('#enter').disabled=false;$('#switch').disabled=false;$('#walkTrail').innerHTML='';renderHome();refreshGuide(key);positionGuide(key);$('#guide').hidden=false;syncAtmosphere(true);icons();$('#walkStatus').textContent='已到达'+target.name+'，点击进店';motionFinish=null;};
   motionFinish=finalise;
   if(reduced){finalise();return;}
   const duration=riggedEnabled?Walking.durationFor(path)*1000:ShopViews?2600:Walking.durationFor?Walking.durationFor(path)*1000:Math.max(1900,path.length/72*1000),started=performance.now();
@@ -743,8 +747,9 @@ document.addEventListener('keydown',event=>{
 $('#motionToggle').checked=reduced;$('#motionToggle').addEventListener('change',event=>{reduced=event.target.checked;$('#app').classList.toggle('reduce-motion',reduced);if(reduced)motionFinish?.();});
 $('#replay').addEventListener('click',()=>{if(moving)return;closeModal();goTo(focusShop===primaryShop()?secondaryShop():primaryShop());});
 $('#reset').addEventListener('click',()=>{motionFinish?.();closeModal();state=fresh();streetSignature='';renderHome();window.QiyuIP3D?.greet();$('#guide').hidden=false;if(demo==='wallet')showRewards();else maybeOfferReward();});
-$('#previewDay')?.addEventListener('change',event=>{const scenarios=['first','second','third','fourth','fifth','sixth','seventh'],url=new URL(location.href);url.searchParams.set('demo',event.target.value);url.searchParams.set('demoDay',Flow.addDays(state.streetStartedOn||todayKey(),scenarios.indexOf(event.target.value)));url.searchParams.set('v','simple-trees-1');location.href=url.href;});
-$('#previewProfile')?.addEventListener('change',event=>{const url=new URL(location.href);url.searchParams.set('shopProfile',event.target.value);url.searchParams.set('v','simple-trees-1');location.href=url.href;});
+$('#previewDay')?.addEventListener('change',event=>{const scenarios=['first','second','third','fourth','fifth','sixth','seventh'],url=new URL(location.href);url.searchParams.set('demo',event.target.value);url.searchParams.set('demoDay',Flow.addDays(state.streetStartedOn||todayKey(),scenarios.indexOf(event.target.value)));url.searchParams.set('v','street-atmosphere-1');location.href=url.href;});
+$('#previewProfile')?.addEventListener('change',event=>{const url=new URL(location.href);url.searchParams.set('shopProfile',event.target.value);url.searchParams.set('v','street-atmosphere-1');location.href=url.href;});
+atmosphere=window.QiyuStreetAtmosphere?.mount({document,storage:localStorage,greet:()=>window.QiyuIP3D?.greet(),reduced:()=>reduced});
 window.addEventListener('resize',resize);resize();$('#app').classList.toggle('reduce-motion',reduced);renderHome();
 setTimeout(demo==='wallet'?showRewards:maybeOfferReward,450);
 
