@@ -6,13 +6,13 @@
 })(typeof window!=='undefined'?window:this,function(){
  function createCache(ImageClass){
   const records=new Map(),attempts=new Map();
-  function load(url,{retry=false}={}){
+  function load(url,{retry=false,priority='auto'}={}){
    if(!retry&&records.has(url))return records.get(url);
    const attempt=retry?(attempts.get(url)||0)+1:attempts.get(url)||0;
    attempts.set(url,attempt);
    const source=attempt?url+(url.includes('?')?'&':'?')+'imageRetry='+attempt:url;
    const promise=new Promise((resolve,reject)=>{
-    const image=new ImageClass();
+    const image=new ImageClass();image.fetchPriority=priority;image.decoding='async';
     image.onload=()=>resolve(source);
     image.onerror=()=>reject(new Error('Image unavailable: '+url));
     image.src=source;
@@ -25,6 +25,10 @@
   const cache=createCache(win.Image),bindings=new Map();let notice;
   const root=doc.querySelector('#app')||doc.querySelector('main');if(!root)return;
   function refreshNotice(){
+   const shops=[...root.querySelectorAll('.shop-hotspot>.storefront-sprite')];
+   if(shops.length&&shops.every(node=>node.dataset.artState==='ready')&&root.dataset.streetReady!=='true'){
+    root.dataset.streetReady='true';doc.dispatchEvent(new win.Event('qiyu-street-ready'));
+   }
    const failed=[...bindings.values()].some(b=>b.element.isConnected&&b.host.dataset.artState==='error');
    if(!failed&&!notice)return;
    if(!notice){
@@ -52,7 +56,7 @@
     }
    },20000);
    refreshNotice();
-   cache.load(url).then(source=>{
+   cache.load(url,{priority:binding.label==='商品图'?'low':'high'}).then(source=>{
     if(binding.token!==token)return;
     win.clearTimeout(slow);
     if(element.tagName.toLowerCase()==='image')element.setAttribute('href',source);

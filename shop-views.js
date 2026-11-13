@@ -26,7 +26,7 @@
   }
   function sprite(shop,position='front'){
     const sheet=shops[shop]?.artSheet,facing=facingFor(position);
-    return sheet?Art.render(sheet.url,sheet.row*sheet.columns+{right:0,left:1,front:2}[facing]):Art.render('assets/shops-hue-'+facing+'-v1.png',shops[shop]?.art||0);
+    return sheet?Art.renderShop(sheet.url,sheet.row*sheet.columns+{right:0,left:1,front:2}[facing]):Art.renderShop('assets/shops-hue-'+facing+'-v1.png',shops[shop]?.art||0);
   }
   function configure(nextSlots,nextShops){
     slots=nextSlots;shops=nextShops;configured=true;
@@ -37,8 +37,7 @@
       target.dataset.facing=facingFor(slot.position);
       target.style.cssText=spriteStyle(slot.shop,slot.position);
       target.innerHTML='<span class="storefront-sprite" aria-hidden="true">'+sprite(slot.shop,slot.position)+'</span>';
-      const neighbor=doc.querySelector(`[data-front-neighbor="${slot.position}"]`);
-      if(neighbor){neighbor.style.cssText=spriteStyle(slot.shop,slot.position);neighbor.dataset.facing=facingFor(slot.position);neighbor.innerHTML=sprite(slot.shop,slot.position);}
+
     }
     doc.querySelector('#app').classList.add('has-daily-shops');
   }
@@ -50,7 +49,7 @@
     backdrop.alt=(shops[key]?.name||'小店')+'门前街景';
     const app=doc.querySelector('#app');app.dataset.sceneMode=modeFor(key);app.dataset.sceneAsset=front?(configured?'shop-front':'kitchen-front'):'street';
     const storefront=doc.querySelector('#storefrontFront');
-    if(storefront){storefront.hidden=!front;storefront.style.cssText=spriteStyle(key);storefront.dataset.facing='front';storefront.setAttribute('aria-label',shops[key]?.name||'当前店铺');storefront.innerHTML=sprite(key);}
+    if(storefront){storefront.hidden=!front;if(front){storefront.style.cssText=spriteStyle(key);storefront.dataset.facing='front';storefront.setAttribute('aria-label',shops[key]?.name||'当前店铺');storefront.innerHTML=sprite(key);}}
     // Keep the neighboring stores as context, without duplicating the current shop.
     if(front){
       const neighbors=slots.filter(slot=>slot.shop!==key);
