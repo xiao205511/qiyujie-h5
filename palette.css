@@ -58,6 +58,7 @@
 #app .daily-track span {background:var(--q-action)}
 #app .side-action {background:var(--q-surface);color:var(--q-ink);box-shadow:0 2px 5px var(--q-shadow)}
 #app .side-action>.lucide {color:var(--q-muted)}
+#app #switch>.lucide {color:var(--q-orange-ink)}
 #app .claim-action>.lucide {color:var(--q-orange)}
 #app .coupon-condition {color:var(--q-muted)}
 #app .recent {background:var(--q-surface)}

@@ -100,7 +100,7 @@ function renderHome({preserveStreet=!!currentModal}={}){
  document.querySelectorAll('[data-shop]').forEach(el=>{const key=el.dataset.shop;el.setAttribute('aria-label',(key===focusShop?'进入':characterEnabled?'走到':'查看')+shops[key].name);});
  const dateLabel=$('#streetDate');if(dateLabel)dateLabel.textContent=todayKey().slice(5).replace('-','月')+'日 · 今日小街';
  const previewDay=$('#previewDay');if(previewDay)previewDay.value=['first','second','third','fourth','fifth','sixth','seventh'][state.visits-1]||'first';
- document.querySelectorAll('[data-preview-day]').forEach((link,i)=>{const url=new URL(location.href);url.searchParams.set('demo',link.dataset.previewDay);url.searchParams.set('demoDay',Flow.addDays(state.streetStartedOn||todayKey(),i));url.searchParams.set('v','coupon-action-spacing-1');link.href=url.href;if(i===state.visits-1)link.setAttribute('aria-current','page');else link.removeAttribute('aria-current');});
+ document.querySelectorAll('[data-preview-day]').forEach((link,i)=>{const url=new URL(location.href);url.searchParams.set('demo',link.dataset.previewDay);url.searchParams.set('demoDay',Flow.addDays(state.streetStartedOn||todayKey(),i));url.searchParams.set('v','switch-icon-color-1');link.href=url.href;if(i===state.visits-1)link.setAttribute('aria-current','page');else link.removeAttribute('aria-current');});
  const previewCaption=$('#previewDayCaption');if(previewCaption)previewCaption.textContent=`第${state.visits}天 · ${todayKey().slice(5).replace('-','月')}日`;
  const profileSelect=$('#previewProfile');if(profileSelect)profileSelect.value=shopProfile;
  $('#app').dataset.focusShop=focusShop;updateCartEntry();icons();save();
@@ -743,8 +743,8 @@ document.addEventListener('keydown',event=>{
 $('#motionToggle').checked=reduced;$('#motionToggle').addEventListener('change',event=>{reduced=event.target.checked;$('#app').classList.toggle('reduce-motion',reduced);if(reduced)motionFinish?.();});
 $('#replay').addEventListener('click',()=>{if(moving)return;closeModal();goTo(focusShop===primaryShop()?secondaryShop():primaryShop());});
 $('#reset').addEventListener('click',()=>{motionFinish?.();closeModal();state=fresh();streetSignature='';renderHome();window.QiyuIP3D?.greet();$('#guide').hidden=false;if(demo==='wallet')showRewards();else maybeOfferReward();});
-$('#previewDay')?.addEventListener('change',event=>{const scenarios=['first','second','third','fourth','fifth','sixth','seventh'],url=new URL(location.href);url.searchParams.set('demo',event.target.value);url.searchParams.set('demoDay',Flow.addDays(state.streetStartedOn||todayKey(),scenarios.indexOf(event.target.value)));url.searchParams.set('v','coupon-action-spacing-1');location.href=url.href;});
-$('#previewProfile')?.addEventListener('change',event=>{const url=new URL(location.href);url.searchParams.set('shopProfile',event.target.value);url.searchParams.set('v','coupon-action-spacing-1');location.href=url.href;});
+$('#previewDay')?.addEventListener('change',event=>{const scenarios=['first','second','third','fourth','fifth','sixth','seventh'],url=new URL(location.href);url.searchParams.set('demo',event.target.value);url.searchParams.set('demoDay',Flow.addDays(state.streetStartedOn||todayKey(),scenarios.indexOf(event.target.value)));url.searchParams.set('v','switch-icon-color-1');location.href=url.href;});
+$('#previewProfile')?.addEventListener('change',event=>{const url=new URL(location.href);url.searchParams.set('shopProfile',event.target.value);url.searchParams.set('v','switch-icon-color-1');location.href=url.href;});
 window.addEventListener('resize',resize);resize();$('#app').classList.toggle('reduce-motion',reduced);renderHome();
 setTimeout(demo==='wallet'?showRewards:maybeOfferReward,450);
 
