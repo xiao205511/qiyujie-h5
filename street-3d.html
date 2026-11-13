@@ -10,27 +10,27 @@
   <link rel="stylesheet" href="styles.css?v=ground-walk-5">
   <script defer src="assets/icons.js"></script>
   <script defer src="walking.js?v=depth-navigation-1"></script>
-  <script defer src="rig-street-motion.js?v=rear-walk-1"></script>
-  <script defer src="street-navigation.js?v=street-walk-music-1"></script>
+  <script defer src="rig-street-motion.js?v=street-polish-2"></script>
+  <script defer src="street-navigation.js?v=street-polish-2"></script>
   <script defer src="shop-hit-areas.js?v=1"></script>
-  <script defer src="sprite-art.js?v=shop-roofs-1"></script>
-  <script defer src="shop-roofs.js?v=shop-roofs-1"></script>
-  <script defer src="shop-views.js?v=shop-roofs-1"></script>
+  <script defer src="sprite-art.js?v=street-polish-2"></script>
+  <script defer src="shop-roofs.js?v=street-polish-2"></script>
+  <script defer src="shop-views.js?v=street-polish-2"></script>
   <link rel="stylesheet" href="popup-ui.css?v=sheet-close-align-1">
-  <link rel="stylesheet" href="home-scroll.css?v=recent-square-1">
+  <link rel="stylesheet" href="home-scroll.css?v=street-polish-2">
   <link rel="stylesheet" href="image-loading.css?v=unified-colors-2">
   <link rel="stylesheet" href="commerce-ui.css?v=mobile-product-images-1">
   <link rel="stylesheet" href="daily-shops.css?v=design-polish-4">
-  <link rel="stylesheet" href="palette.css?v=switch-icon-color-1">
+  <link rel="stylesheet" href="palette.css?v=street-polish-2">
   <script defer src="rewards-flow.js?v=8"></script>
   <script defer src="shopping-basket.js?v=3"></script>
   <script defer src="reward-groups.js?v=1"></script>
   <script defer src="lottery-wheel.js?v=1"></script>
   <script defer src="catalog.js?v=design-review-fixes-1"></script>
   <script defer src="daily-street.js?v=prd-v1-baseline-1"></script>
-  <link rel="stylesheet" href="street-atmosphere.css?v=shop-roofs-1">
+  <link rel="stylesheet" href="street-atmosphere.css?v=street-polish-2">
   <script defer src="street-atmosphere.js?v=street-walk-music-1"></script>
-  <script defer src="app.js?v=rear-walk-1"></script>
+  <script defer src="app.js?v=street-polish-2"></script>
   <script defer src="image-loading.js?v=shop-roofs-1"></script>
   <script defer src="model-loader.js?v=load-fast-1"></script>
   <script type="module" src="ip-rig-stage2/street-character.js?v=load-fast-1"></script>
@@ -115,9 +115,8 @@
           <div class="walk-trail" id="walkTrail" aria-hidden="true"></div>
           <button class="guide" id="guide" hidden><span class="guide-copy">点家小店，逛逛去～</span></button>
           <button class="skip-walk" id="skipWalk" hidden>跳过动效</button>
-          <button class="daily-progress" id="daily" aria-label="查看七天每日奖励"><span>已来<b id="visitCount">1</b>天 · 明日<b id="nextValue">5</b>元券</span><div class="daily-track"><span id="progressFill"></span></div><i class="gift-icon" data-lucide="gift"></i></button>
+          <button class="daily-progress" id="daily" aria-label="查看七天每日奖励"><span>已来<b id="visitCount">1</b>天 · 明日<b id="nextValue">5</b>元券</span><div class="daily-track"><span id="progressFill"></span></div></button>
           <div class="street-actions"><button class="side-action claim-action" id="claim"><i data-lucide="ticket-percent"></i><span id="claimText">领3元券</span></button><button class="primary-action" id="enter">逛纸巾铺</button><button class="side-action" id="switch"><i data-lucide="refresh-cw"></i><span>换家店</span></button></div>
-          <p class="coupon-condition" id="couponCondition">满9.9减3 · 限指定商品 · 今日有效</p>
           <span class="walk-status sr-only" id="walkStatus" role="status" aria-live="polite"></span>
         </section>
         <section class="recent" aria-labelledby="recentTitle"><div class="recent-heading"><h2 id="recentTitle">最近看过</h2></div><div class="recent-scroll" id="recentScroll"><div class="recent-grid" id="recentGrid"></div></div></section>

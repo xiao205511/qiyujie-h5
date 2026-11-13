@@ -51,16 +51,14 @@
 #app .topbar nav {background:linear-gradient(150deg,#fffdf670,#fff9ed4d);border-color:#fffdf669}
 #app .topbar nav button+button:before {background:#6b65552b}
 #app .topbar nav button:hover,#app .topbar nav button:focus-visible {background:#fffaf54d;color:var(--q-ink)}
-#app .daily-progress {background:var(--q-surface);color:var(--q-ink)}
-#app .daily-progress b,#app .gift-icon {color:var(--q-orange-ink)}
-#app .gift-icon {fill:#ff5b2720}
+#app .daily-progress {width:max-content;min-width:144px;padding:8px 10px;background:var(--q-surface);color:var(--q-ink)}
+#app .daily-progress b {color:var(--q-orange-ink)}
 #app .daily-track {background:var(--q-orange-line)}
 #app .daily-track span {background:var(--q-action)}
 #app .side-action {background:var(--q-surface);color:var(--q-ink);box-shadow:0 2px 5px var(--q-shadow)}
-#app .side-action>.lucide {color:var(--q-muted)}
+#app .street-actions .side-action>.lucide {width:22px;height:22px;flex:none;stroke-width:2.2;fill:none}
 #app #switch>.lucide {color:var(--q-orange-ink)}
 #app .claim-action>.lucide {color:var(--q-orange)}
-#app .coupon-condition {color:var(--q-muted)}
 #app .recent {background:var(--q-surface)}
 #app .recent h2,#app .recent-card h3,#app .product-card h3,#app .product-name {color:var(--q-ink)}
 #app .recent-card {background:var(--q-card);border-color:var(--q-line)}

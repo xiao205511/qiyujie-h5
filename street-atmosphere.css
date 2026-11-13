@@ -18,26 +18,35 @@
 .roof-playing .shop-roof-effect{display:inline}
 .roof-playing .shop-roof-base{mask:var(--roof-mask)}
 .shop-roof-piece{transform-box:view-box;transform-origin:var(--roof-origin)}
-.roof-playing [data-roof-effect=tissue] .shop-roof-piece{animation:roof-tissue .82s ease-in-out both}
-.roof-playing [data-roof-effect=spatula] .shop-roof-piece{animation:roof-spatula .82s ease-in-out both}
-.roof-playing .shop-foam-bubble{opacity:0;animation:roof-foam .64s var(--bubble-delay) ease-out both}
+.roof-playing [data-roof-effect=tissue] .shop-roof-piece{animation:roof-tissue 3.4s ease-in-out infinite}
+.roof-playing [data-roof-effect=spatula] .shop-roof-piece{animation:roof-spatula 3s ease-in-out infinite}
+.roof-playing .shop-foam-bubble{opacity:0;animation:roof-foam 3.1s var(--bubble-delay) ease-out infinite}
+.roof-playing .shop-roof-accent{opacity:0;animation:roof-accent 3.6s var(--accent-delay) ease-in-out infinite}
+.roof-playing [data-roof-effect=steam] .shop-roof-accent{animation-duration:2.8s}
+.roof-playing [data-roof-effect=snow] .shop-roof-accent{--accent-rise:9px}
+.atmosphere-paused .roof-playing :is(.shop-roof-piece,.shop-foam-bubble,.shop-roof-accent){animation-play-state:paused}
 @keyframes roof-tissue{
  0%,100%{transform:none}
- 26%{transform:skewX(-8deg) scaleY(1.06)}
- 58%{transform:skewX(5deg) scaleY(.97)}
- 80%{transform:skewX(-2deg)}
+ 25%{transform:skewX(-4deg) scaleY(1.035)}
+ 68%{transform:skewX(3deg) scaleY(.988)}
 }
 @keyframes roof-spatula{
  0%,100%{transform:none}
- 25%{transform:rotate(-9deg)}
- 60%{transform:rotate(5deg)}
- 80%{transform:rotate(-2deg)}
+ 24%{transform:rotate(-4deg)}
+ 58%{transform:rotate(2deg)}
+ 78%{transform:rotate(-1deg)}
 }
 @keyframes roof-foam{
  0%{opacity:0;transform:scale(.25)}
- 22%{opacity:1}
- 70%{opacity:.9}
- 100%{opacity:0;transform:translate(var(--bubble-x),var(--bubble-y)) scale(1.13)}
+ 9%{opacity:.86}
+ 24%{opacity:.68}
+ 38%,100%{opacity:0;transform:translate(var(--bubble-x),var(--bubble-y)) scale(1.05)}
+}
+@keyframes roof-accent{
+ 0%,100%{opacity:0;transform:translateY(1px) scale(.68)}
+ 18%{opacity:.9}
+ 41%{opacity:0;transform:translateY(var(--accent-rise,-18px)) scale(1.04)}
+ 42%,99%{opacity:0}
 }
 #app.reduce-motion .shop-roof-effect{display:none}
 #app.reduce-motion .shop-roof-base{mask:none}

@@ -31,7 +31,7 @@ function fresh(){
 let saved;try {saved=JSON.parse(storage.getItem(KEY));} catch {}
 let state = saved ? Flow.enter(saved,todayKey()) : fresh();
 let focusShop='paper', moving=false, reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
-let currentModal=null, lastFocus=null, motionFinish=null, walkingFrame=0, toastTimer, streetShopTimer, orderSubmitting=false;
+let currentModal=null, lastFocus=null, motionFinish=null, walkingFrame=0, toastTimer, orderSubmitting=false;
 let orderProduct=null, orderQuantity=1, checkoutOrigin=null, browsingShop='paper', detailProductId=null, activeBenefitId=null;
 let renderedActivityDay=todayKey(), checkoutMode='single', basketReturnShop='paper', rewardsTab='available', rewardsHistoryFilter='all';
 let cartScope=null,topupContext=null,discountChoice='auto',couponReturn='basket',editingCheckoutField=null;
@@ -94,7 +94,6 @@ function renderHome({preserveStreet=!!currentModal}={}){
  $('#progressFill').style.width=state.visits/7*100+'%';
  $('#claimText').textContent=claimed?(state.coupon?.date===todayKey()&&state.coupon.used&&!validCoupon()?'券已使用':'我的奖励'):(reward.value?`领${reward.value}元券`:state.visits===7?'去抽奖':'查看奖励');
  $('#claim').classList.toggle('claimed',!!(state.coupon?.date===todayKey()&&state.coupon.used&&!validCoupon()));
- $('#couponCondition').textContent=validCoupon()&&claimed?`有${Flow.availableCoupons(state,todayKey()).length}张券可用 · 进店自动选优惠`:(state.coupon?.date===todayKey()&&state.coupon.used?'今日券已使用 · 明天来逛有新奖励':reward.value?`满${reward.min}减${reward.value} · 限指定商品 · 今日有效`:'每天来逛，都有新奖励');
  const atStore=ShopViews&&focusShop!==primaryShop(),atFront=ShopViews?.modeFor(focusShop)==='store';
  $('#enter').innerHTML=`${atStore?'进店逛逛':'逛'+shops[focusShop].short}`;
  if(ShopViews){$('#switch').innerHTML=atFront?`${icon('corner-up-left')}<span>返回街道</span>`:`${icon('refresh-cw')}<span>换家店</span>`;$('#back').setAttribute('aria-label',atStore?'返回街道':params.get('from')==='mall'?'返回商城':'返回主推店');}
@@ -105,7 +104,7 @@ function renderHome({preserveStreet=!!currentModal}={}){
  document.querySelectorAll('[data-shop]').forEach(el=>{const key=el.dataset.shop;el.setAttribute('aria-label',(key===focusShop?'进入':characterEnabled?'走到':'查看')+shops[key].name);el.classList.toggle('is-current',key===focusShop);});
  const dateLabel=$('#streetDate');if(dateLabel)dateLabel.textContent=todayKey().slice(5).replace('-','月')+'日 · 今日小街';
  const previewDay=$('#previewDay');if(previewDay)previewDay.value=['first','second','third','fourth','fifth','sixth','seventh'][state.visits-1]||'first';
- document.querySelectorAll('[data-preview-day]').forEach((link,i)=>{const url=new URL(location.href);url.searchParams.set('demo',link.dataset.previewDay);url.searchParams.set('demoDay',Flow.addDays(state.streetStartedOn||todayKey(),i));url.searchParams.set('v','rear-walk-1');link.href=url.href;if(i===state.visits-1)link.setAttribute('aria-current','page');else link.removeAttribute('aria-current');});
+ document.querySelectorAll('[data-preview-day]').forEach((link,i)=>{const url=new URL(location.href);url.searchParams.set('demo',link.dataset.previewDay);url.searchParams.set('demoDay',Flow.addDays(state.streetStartedOn||todayKey(),i));url.searchParams.set('v','street-polish-2');link.href=url.href;if(i===state.visits-1)link.setAttribute('aria-current','page');else link.removeAttribute('aria-current');});
  const previewCaption=$('#previewDayCaption');if(previewCaption)previewCaption.textContent=`第${state.visits}天 · ${todayKey().slice(5).replace('-','月')}日`;
  const profileSelect=$('#previewProfile');if(profileSelect)profileSelect.value=shopProfile;
  $('#app').dataset.focusShop=focusShop;updateCartEntry();icons();save();syncAtmosphere();
@@ -197,13 +196,7 @@ function layoutAtmosphereModal(modal){
  }
  if(close){close.classList.add('atmosphere-close');modal.append(close);}
 }
-function cancelStreetShop(){
-  if(streetShopTimer===undefined)return;
-  clearTimeout(streetShopTimer);
-  streetShopTimer=undefined;
-}
 function openModal(kind,html,classes='sheet simple-sheet',{replace=false,reset=false}={}){
- cancelStreetShop();
  pendingWalk=null;
  if(!currentModal)lastFocus=document.activeElement;
  const next=describeModal(kind);
@@ -648,16 +641,6 @@ function positionGuide(key){
   guide.style.left=`${Math.max(18,Math.min(282,pose.screen.x-(pose.screen.x>310?120:-20)))}px`;
   guide.style.top=`${Math.max(145,pose.screen.y-138*size*pose.camera.scale-40)}px`;
 }
-function openStreetShop(){
-  cancelStreetShop();
-  const key=focusShop;
-  if(!ShopViews?.playRoof(key,reduced))return showShop(key);
-  // Give the rooftop response a moment before the sheet covers it.
-  streetShopTimer=setTimeout(()=>{
-    streetShopTimer=undefined;
-    if(!moving&&!currentModal&&focusShop===key)showShop(key);
-  },500);
-}
 function changeShopView(key){
   closeModal();moving=true;$('#app').classList.add('moving');$('#app').dataset.walking='true';atmosphere?.setBlocked(true);$('#app').dataset.navigation='cut';$('#guide').hidden=true;
   $('#enter').disabled=true;$('#switch').disabled=true;$('#skipWalk').hidden=true;
@@ -668,7 +651,6 @@ function changeShopView(key){
     $('#enter').disabled=false;$('#switch').disabled=false;renderHome();
     refreshGuide(key);
     positionGuide(key);$('#guide').hidden=false;syncAtmosphere(true);icons();
-    ShopViews.playRoof(key,reduced);
     $('#walkStatus').textContent=key===primaryShop()?'已返回街道总览':'已到'+shops[key].name+'门口，点击进店';motionFinish=null;
   },reduced);
   motionFinish=moving?finish:null;
@@ -690,9 +672,8 @@ async function goTo(key,options={}){
   if(moving)return;
   if(pendingWalk?.key===key)return;
   pendingWalk=null;
-  cancelStreetShop();
   $('#homeScroll').scrollTo({top:0,behavior:reduced?'auto':'smooth'});
-  if(key===focusShop&&!options.replay){openStreetShop();return;}
+  if(key===focusShop&&!options.replay){showShop(key);return;}
   const target=shops[key];if(!target)return;
   if(ShopViews&&(!characterEnabled||ShopViews.travelKind(focusShop,key)==='cut'))return changeShopView(key);
   if(riggedEnabled&&!reduced&&$('#app').dataset.ipRenderer!=='skinned-glb'){
@@ -706,27 +687,18 @@ async function goTo(key,options={}){
     if(!ready||reduced)return changeShopView(key);
   }
   closeModal();moving=true;$('#app').classList.add('moving');$('#app').dataset.walking='true';atmosphere?.setBlocked(true);$('#guide').hidden=true;
-  ShopViews?.playRoof(key,reduced);
   $('#skipWalk').hidden=reduced;$('#enter').disabled=true;$('#switch').disabled=true;
   $('#walkStatus').textContent='正在前往'+target.name;
   const path=Walking.route(ShopViews?ShopViews.positionFor(focusShop):focusShop,ShopViews?ShopViews.positionFor(key):key);
   const finalise=()=>{if(!moving)return;moving=false;cancelAnimationFrame(walkingFrame);ShopViews?.setView(key);drawWalker(restPose(key));focusShop=key;if(ShopViews)window.QiyuIP3D?.stand([-.25,1]);$('#app').classList.remove('moving');$('#app').dataset.walking='false';$('#skipWalk').hidden=true;$('#enter').disabled=false;$('#switch').disabled=false;$('#walkTrail').innerHTML='';renderHome();refreshGuide(key);positionGuide(key);$('#guide').hidden=false;syncAtmosphere(true);icons();$('#walkStatus').textContent='已到达'+target.name+'，点击进店';motionFinish=null;};
   motionFinish=finalise;
   if(reduced){finalise();return;}
-  const duration=riggedEnabled?Walking.durationFor(path)*1000:ShopViews?2600:Walking.durationFor?Walking.durationFor(path)*1000:Math.max(1900,path.length/72*1000);
-  const startPose=Walking.pose(path,0);
-  const rearHeading=window.QiyuRigStreetMotion?.walkingHeading;
-  const turnTime=riggedEnabled&&rearHeading?180:0;
-  if(turnTime)drawWalker({...startPose,heading:rearHeading(startPose.heading)},true);
-  const started=performance.now()+turnTime;
+  const duration=riggedEnabled?Walking.durationFor(path)*1000:ShopViews?2600:Walking.durationFor?Walking.durationFor(path)*1000:Math.max(1900,path.length/72*1000),started=performance.now();
   function frame(now){
     if(!moving)return;
-    const progress=Math.max(0,Math.min(1,(now-started)/duration)),distance=Walking.distanceForProgress?Walking.distanceForProgress(path,progress):path.length*(progress*progress*(3-2*progress));
+    const progress=Math.min(1,(now-started)/duration),distance=Walking.distanceForProgress?Walking.distanceForProgress(path,progress):path.length*(progress*progress*(3-2*progress));
     const pose=Walking.pose(path,distance);
-    if(riggedEnabled){
-      pose.gait=Walking.gaitForProgress(path,progress);
-      if(rearHeading)pose.heading=rearHeading(pose.heading);
-    }
+    if(riggedEnabled)pose.gait=Walking.gaitForProgress(path,progress);
     drawWalker(pose,true);
     if(progress>=1)finalise();else walkingFrame=requestAnimationFrame(frame);
   }
@@ -739,7 +711,7 @@ document.addEventListener('click',event=>{
  const button=event.target.closest('button');if(!button||button.disabled)return;
  if(button.hasAttribute('data-dismiss'))return dismissModal();
  if(button.hasAttribute('data-close'))return closeModal();
- if(button.id==='storeDoorHit')return openStreetShop();
+ if(button.id==='storeDoorHit')return showShop(focusShop);
  if(button.dataset.shop)return goTo(button.dataset.shop);
  if(button.dataset.detail)return showDetail(button.dataset.detail);
  if(button.dataset.buy)return showCheckout(button.dataset.buy);
@@ -784,10 +756,10 @@ document.addEventListener('click',event=>{
  if(button.hasAttribute('data-submit-order'))return submitOrder();
 });
 $('#homeScroll').addEventListener('scroll',()=>$('#app').classList.toggle('home-scrolled',$('#homeScroll').scrollTop>24),{passive:true});
-$('#claim').addEventListener('click',showOffer);$('#enter').addEventListener('click',openStreetShop);
+$('#claim').addEventListener('click',showOffer);$('#enter').addEventListener('click',()=>showShop(focusShop));
 $('#switch').addEventListener('click',()=>goTo(ShopViews?.nextShopFor(focusShop)||secondaryShop()));
 $('#back').addEventListener('click',()=>{if(currentModal)dismissModal();else if(moving)motionFinish?.();else if(focusShop!==primaryShop())goTo(primaryShop());else if(ShopViews&&params.get('from')==='mall')location.href='mall.html';else toast('已经在为你推荐的主推店');});
-$('#guide').addEventListener('click',()=>focusShop===primaryShop()?goTo(secondaryShop()):openStreetShop());
+$('#guide').addEventListener('click',()=>focusShop===primaryShop()?goTo(secondaryShop()):showShop(focusShop));
 $('#skipWalk').addEventListener('click',()=>motionFinish?.());
 $('#daily').addEventListener('click',showDaily);$('#rules').addEventListener('click',showRules);$('#rewards').addEventListener('click',()=>showRewards());$('#favorites').addEventListener('click',showFavorites);
 $('#overlay').addEventListener('click',event=>{if(event.target===$('#overlay'))dismissModal();});
@@ -801,8 +773,8 @@ document.addEventListener('keydown',event=>{
 $('#motionToggle').checked=reduced;$('#motionToggle').addEventListener('change',event=>{reduced=event.target.checked;$('#app').classList.toggle('reduce-motion',reduced);if(reduced)motionFinish?.();});
 $('#replay').addEventListener('click',()=>{if(moving)return;closeModal();goTo(focusShop===primaryShop()?secondaryShop():primaryShop());});
 $('#reset').addEventListener('click',()=>{pendingWalk=null;motionFinish?.();closeModal();state=fresh();streetSignature='';renderHome();window.QiyuIP3D?.greet();$('#guide').hidden=false;if(demo==='wallet')showRewards();else maybeOfferReward();});
-$('#previewDay')?.addEventListener('change',event=>{const scenarios=['first','second','third','fourth','fifth','sixth','seventh'],url=new URL(location.href);url.searchParams.set('demo',event.target.value);url.searchParams.set('demoDay',Flow.addDays(state.streetStartedOn||todayKey(),scenarios.indexOf(event.target.value)));url.searchParams.set('v','rear-walk-1');location.href=url.href;});
-$('#previewProfile')?.addEventListener('change',event=>{const url=new URL(location.href);url.searchParams.set('shopProfile',event.target.value);url.searchParams.set('v','rear-walk-1');location.href=url.href;});
+$('#previewDay')?.addEventListener('change',event=>{const scenarios=['first','second','third','fourth','fifth','sixth','seventh'],url=new URL(location.href);url.searchParams.set('demo',event.target.value);url.searchParams.set('demoDay',Flow.addDays(state.streetStartedOn||todayKey(),scenarios.indexOf(event.target.value)));url.searchParams.set('v','street-polish-2');location.href=url.href;});
+$('#previewProfile')?.addEventListener('change',event=>{const url=new URL(location.href);url.searchParams.set('shopProfile',event.target.value);url.searchParams.set('v','street-polish-2');location.href=url.href;});
 atmosphere=window.QiyuStreetAtmosphere?.mount({document,greet:()=>window.QiyuIP3D?.greet(),reduced:()=>reduced});
 window.addEventListener('resize',resize);resize();$('#app').classList.toggle('reduce-motion',reduced);renderHome();
 setTimeout(demo==='wallet'?showRewards:maybeOfferReward,450);

@@ -12,7 +12,6 @@
 #app .recent{display:block;height:auto;min-height:251px;overflow:visible;padding:16px 13px 84px;margin-top:-16px;border-radius:16px 16px 0 0}
 /* Keep the street actions clear of the overlapping rounded product panel. */
 #app .street-actions{bottom:46px}
-#app .coupon-condition{bottom:25px}
 #app .recent-scroll{display:block;overflow:visible;padding:0 1px 16px}
 /* Sprite cells are square; keep their display area square at every card width. */
 #app .recent-card .product-art{height:auto;aspect-ratio:1}

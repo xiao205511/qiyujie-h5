@@ -35,11 +35,13 @@
  }
  function shopSource(url,index){
   const source=frame(url,index);if(!source)return null;
+  const paperAngle=index===0&&url.match(/^assets\/shops-hue-(right|left|front)-v1\.png$/);
+  if(paperAngle)return {url:`assets/mobile-shops/paper-vinda-${paperAngle[1]}-v2.webp`,crop:source.crop,replacement:true};
   return {url:source.url.replace(/^assets\//,'assets/mobile-shops/').replace(/\.png$/,`-${index}.webp`),crop:source.crop};
  }
  function renderShop(url,index,options={}){return render(url,index,{...options,isolated:true});}
  function productSource(url,index){
-  if(url==='assets/products.png'&&index===1)return {url:'assets/mobile-products/manhua-hanging-tissue-v2.jpg',width:640,height:640,replacement:true};
+  if(url==='assets/products.png'&&index===1)return {url:'assets/mobile-products/manhua-hanging-tissue-v4.jpg',width:640,height:640,replacement:true};
   const source=frame(url,index);if(!source)return null;
   const [x,y,width,height]=source.crop;
   return {url:source.url.replace(/^assets\//,'assets/mobile-products/').replace(/\.png$/,`-${x}-${y}-${width}-${height}.jpg`),width,height};

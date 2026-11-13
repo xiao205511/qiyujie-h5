@@ -12,7 +12,7 @@
     snack:{point:rigged?[310,434]:[353,443],scale:rigged?1.3:1.7,screen:rigged?[280,512]:[332,540],facing:1,arrivalHeading:[.35,-.94]},
     kitchen:{point:[292,327],scale:2,screen:[224,510],facing:1,arrivalHeading:[0,-1]},
   };
-  // Follow the bend around the foreground terrace with room for both feet.
+  // Follow the pavement around the terrace; the inside curb needs foot clearance.
   const paperSnack=rigged
     ?[stops.paper.point,[311,528],[334,511],[344,491],[334,470],[321,451],stops.snack.point]
     :[stops.paper.point,[306,541],[334,527],[357,506],[368,485],[363,464],stops.snack.point];
