@@ -25,12 +25,12 @@
    failed(){request++;audio.pause();playing=false;unlocked=false;publish();}
   };
  }
- const invitations={paper:'日常用纸，进店补一点～',snack:'嘴馋啦？挑点小零食～',kitchen:'厨房小帮手，进店看看～',face:'清爽护理，进店慢慢挑～',trend:'发现新喜欢，进店看看～',makeup:'挑点美妆，添一点好心情～',skin:'护肤小心意，进店看看～',winter:'暖暖好物，进店挑一挑～',baby:'宝宝好物，进店慢慢挑～',laundry:'洗护好物，进店补一点～',accessories:'小小配饰，挑点新喜欢～'};
+ const invitations={paper:'日常用纸，补一点～',snack:'嘴馋啦？挑点零食～',kitchen:'厨房帮手，挑一挑～',face:'清爽护理，慢慢挑～',trend:'新喜欢，进店看看～',makeup:'挑点美妆，好心情～',skin:'护肤心意，慢慢挑～',winter:'暖暖好物，挑一挑～',baby:'宝宝好物，慢慢挑～',laundry:'洗护好物，补一点～',accessories:'小小配饰，新喜欢～'};
  function mount({document:doc,storage,greet,reduced=()=>false}){
   const app=doc.querySelector('#app'),guide=doc.querySelector('#guide'),scroll=doc.querySelector('#homeScroll'),button=doc.querySelector('#musicToggle'),audio=doc.querySelector('#streetMusic');
   if(!app||!button||!audio)return null;
   let context=null,blocked=false,welcomeTimer=null;
-  const idle=createIdle({onIdle(){if(!context)return;const target=context.overview?context.target:context.shop;const copy=guide.querySelector('.guide-copy');if(copy){copy.textContent=context.overview?`去${context.targetName}逛逛？`:(invitations[target]||'好物在店里，进去看看～');guide.dataset.hint='idle';}}});
+  const idle=createIdle({onIdle(){if(!context)return;const target=context.overview?context.target:context.shop;const copy=guide.querySelector('.guide-copy');if(copy){copy.textContent=context.overview?`去${context.targetName}逛逛？`:(invitations[target]||'好物在店里，看看～');guide.dataset.hint='idle';}}});
   const music=createMusic({audio,read:()=>storage.getItem('qiyu-street-music-v1'),write:v=>storage.setItem('qiyu-street-music-v1',v),onChange({playing}){button.setAttribute('aria-pressed',String(playing));button.setAttribute('aria-label',playing?'关闭背景音乐':'开启背景音乐');button.title=playing?'关闭背景音乐':'开启背景音乐';button.dataset.playing=String(playing);}});
   audio.volume=.22;
   function active(){const visible=!doc.hidden&&!blocked&&scroll.scrollTop<360;idle.active(visible);app.classList.toggle('atmosphere-paused',!visible);}
