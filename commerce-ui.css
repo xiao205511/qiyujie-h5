@@ -159,6 +159,7 @@
 #app .product-art{position:relative;background-image:none}
 #app .sprite-image{display:block;width:100%;height:100%;overflow:hidden;pointer-events:none}
 #app .product-art>.sprite-image{position:absolute;inset:0}
+#app .product-art>.product-image{position:absolute;inset:0;display:block;width:100%;height:100%;object-fit:contain;padding:2.38%;border-radius:inherit;pointer-events:none}
 
 /* Walkthrough polish: legible supporting copy and compact, content-sized sheets. */
 #app{--tap-size:max(44px,calc(44px / var(--s,1)))}

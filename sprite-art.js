@@ -29,5 +29,14 @@
   const shape=source.outline?'<polygon points="'+source.outline.map(point=>point.join(',')).join(' ')+'"/>':`<rect x="${x}" y="${y}" width="${w}" height="${h}"/>`;
   return `<svg class="sprite-image" viewBox="${view}" preserveAspectRatio="xMidYMid meet" aria-hidden="true" focusable="false"><defs><clipPath id="${id}" clipPathUnits="userSpaceOnUse">${shape}</clipPath></defs><image href="${escape(source.url)}" width="${source.width}" height="${source.height}" clip-path="url(#${id})"/></svg>`;
  }
- return {frame,render};
+ function productSource(url,index){
+  const source=frame(url,index);if(!source)return null;
+  const [x,y,width,height]=source.crop;
+  return {url:source.url.replace(/^assets\//,'assets/mobile-products/').replace(/\.png$/,`-${x}-${y}-${width}-${height}.jpg`),width,height};
+ }
+ function renderProduct(url,index){
+  const source=productSource(url,index);if(!source)return render(url,index);
+  return `<img class="product-image" src="${escape(source.url)}" width="${source.width}" height="${source.height}" decoding="async" fetchpriority="high" alt="">`;
+ }
+ return {frame,render,productSource,renderProduct};
 });
