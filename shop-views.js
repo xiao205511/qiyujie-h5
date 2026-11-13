@@ -36,6 +36,9 @@
     activeRoof=roof;
     activeRoof?.classList.add('roof-playing');
   }
+  function activateStreetRoof(key){
+    activateRoof(doc?.querySelector(`[data-slot="${positionFor(key)}"]`));
+  }
   function configure(nextSlots,nextShops){
     slots=nextSlots;shops=nextShops;configured=true;
     if(!doc)return;
@@ -74,7 +77,8 @@
     // its shops leave together, without an outgoing layer lingering over the door.
     doc.querySelector('#world').hidden=front;
     doc.querySelector('#storefrontScene').hidden=!front;
-    activateRoof(front?storefront:doc.querySelector(`[data-slot="${position}"]`));
+    if(front)activateRoof(storefront);
+    else activateStreetRoof(key);
     doc.querySelector('#guide').hidden=false;
   }
   function transition(commit){
@@ -82,5 +86,5 @@
     commit();
     return ()=>{};
   }
-  return {travelKind,modeFor,nextShopFor,positionFor,restFor,init,configure,setView,transition,hitAreaFor};
+  return {travelKind,modeFor,nextShopFor,positionFor,restFor,init,configure,setView,transition,hitAreaFor,activateStreetRoof};
 });

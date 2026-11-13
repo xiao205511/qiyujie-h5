@@ -55,7 +55,7 @@ const primaryShop=()=>streetSlots[0]?.shop||'paper';
 const secondaryShop=()=>streetSlots[1]?.shop||'face';
 function syncAtmosphere(arrival=false){
  atmosphere?.scene({key:streetSignature+':'+focusShop,shop:focusShop,shopName:shops[focusShop].short,overview:focusShop===primaryShop(),target:secondaryShop(),targetName:shops[secondaryShop()].short});
- atmosphere?.setBlocked(!!currentModal||moving);if(arrival)atmosphere?.arrive();
+ atmosphere?.setBlocked(!!currentModal||moving,{onTheWay:moving&&!currentModal});if(arrival)atmosphere?.arrive();
 }
 function syncStreet({preserveStreet=false}={}){
  const result=DailyStreet.resolve(state,todayKey());state=result.state;
@@ -120,7 +120,7 @@ function renderHome({preserveStreet=!!currentModal}={}){
  document.querySelectorAll('[data-shop]').forEach(el=>{const key=el.dataset.shop;el.setAttribute('aria-label',(key===focusShop?'进入':characterEnabled?'走到':'查看')+shops[key].name);el.classList.toggle('is-current',key===focusShop);});
  const dateLabel=$('#streetDate');if(dateLabel)dateLabel.textContent=todayKey().slice(5).replace('-','月')+'日 · 今日小街';
  const previewDay=$('#previewDay');if(previewDay)previewDay.value=['first','second','third','fourth','fifth','sixth','seventh'][state.visits-1]||'first';
- document.querySelectorAll('[data-preview-day]').forEach((link,i)=>{const url=new URL(location.href);url.searchParams.set('demo',link.dataset.previewDay);url.searchParams.set('demoDay',Flow.addDays(state.streetStartedOn||todayKey(),i));url.searchParams.set('v','street-rewards-price-1');link.href=url.href;if(i===state.visits-1)link.setAttribute('aria-current','page');else link.removeAttribute('aria-current');});
+ document.querySelectorAll('[data-preview-day]').forEach((link,i)=>{const url=new URL(location.href);url.searchParams.set('demo',link.dataset.previewDay);url.searchParams.set('demoDay',Flow.addDays(state.streetStartedOn||todayKey(),i));url.searchParams.set('v','shop-motion-on-tap-1');link.href=url.href;if(i===state.visits-1)link.setAttribute('aria-current','page');else link.removeAttribute('aria-current');});
  const previewCaption=$('#previewDayCaption');if(previewCaption)previewCaption.textContent=`第${state.visits}天 · ${todayKey().slice(5).replace('-','月')}日`;
  const profileSelect=$('#previewProfile');if(profileSelect)profileSelect.value=shopProfile;
  $('#app').dataset.focusShop=focusShop;updateCartEntry();icons();save();syncAtmosphere();
@@ -213,6 +213,7 @@ function layoutAtmosphereModal(modal){
  if(close){close.classList.add('atmosphere-close');modal.append(close);}
 }
 function openModal(kind,html,classes='sheet simple-sheet',{replace=false,reset=false}={}){
+ if(pendingWalk)ShopViews?.activateStreetRoof(focusShop);
  pendingWalk=null;
  if(!currentModal)lastFocus=document.activeElement;
  const next=describeModal(kind);
@@ -705,11 +706,13 @@ function waitForStreetRig(){
 async function goTo(key,options={}){
   if(moving)return;
   if(pendingWalk?.key===key)return;
+  if(pendingWalk)ShopViews?.activateStreetRoof(focusShop);
   pendingWalk=null;
   $('#homeScroll').scrollTo({top:0,behavior:reduced?'auto':'smooth'});
   if(key===focusShop&&!options.replay){showShop(key);return;}
   const target=shops[key];if(!target)return;
   if(ShopViews&&(!characterEnabled||ShopViews.travelKind(focusShop,key)==='cut'))return changeShopView(key);
+  ShopViews?.activateStreetRoof(key);
   if(riggedEnabled&&!reduced&&$('#app').dataset.ipRenderer!=='skinned-glb'){
     if(location.protocol==='file:'||$('#app').dataset.ipRenderer==='error')return changeShopView(key);
     const request={key,from:focusShop};pendingWalk=request;
@@ -720,7 +723,7 @@ async function goTo(key,options={}){
     if(currentModal||focusShop!==request.from)return;
     if(!ready||reduced)return changeShopView(key);
   }
-  closeModal();moving=true;$('#app').classList.add('moving');$('#app').dataset.walking='true';atmosphere?.setBlocked(true);$('#guide').hidden=true;
+  closeModal();moving=true;$('#app').classList.add('moving');$('#app').dataset.walking='true';atmosphere?.setBlocked(true,{onTheWay:true});$('#guide').hidden=true;
   $('#skipWalk').hidden=reduced;$('#enter').disabled=true;$('#switch').disabled=true;
   $('#walkStatus').textContent='正在前往'+target.name;
   const path=Walking.route(ShopViews?ShopViews.positionFor(focusShop):focusShop,ShopViews?ShopViews.positionFor(key):key);
@@ -807,8 +810,8 @@ document.addEventListener('keydown',event=>{
 $('#motionToggle').checked=reduced;$('#motionToggle').addEventListener('change',event=>{reduced=event.target.checked;$('#app').classList.toggle('reduce-motion',reduced);if(reduced)motionFinish?.();});
 $('#replay').addEventListener('click',()=>{if(moving)return;closeModal();goTo(focusShop===primaryShop()?secondaryShop():primaryShop());});
 $('#reset').addEventListener('click',()=>{pendingWalk=null;motionFinish?.();closeModal();state=restoreDailyCouponScopes(fresh());streetSignature='';renderHome();window.QiyuIP3D?.greet();$('#guide').hidden=false;if(demo==='wallet')showRewards();else maybeOfferReward();});
-$('#previewDay')?.addEventListener('change',event=>{const scenarios=['first','second','third','fourth','fifth','sixth','seventh'],url=new URL(location.href);url.searchParams.set('demo',event.target.value);url.searchParams.set('demoDay',Flow.addDays(state.streetStartedOn||todayKey(),scenarios.indexOf(event.target.value)));url.searchParams.set('v','street-rewards-price-1');location.href=url.href;});
-$('#previewProfile')?.addEventListener('change',event=>{const url=new URL(location.href);url.searchParams.set('shopProfile',event.target.value);url.searchParams.set('v','street-rewards-price-1');location.href=url.href;});
+$('#previewDay')?.addEventListener('change',event=>{const scenarios=['first','second','third','fourth','fifth','sixth','seventh'],url=new URL(location.href);url.searchParams.set('demo',event.target.value);url.searchParams.set('demoDay',Flow.addDays(state.streetStartedOn||todayKey(),scenarios.indexOf(event.target.value)));url.searchParams.set('v','shop-motion-on-tap-1');location.href=url.href;});
+$('#previewProfile')?.addEventListener('change',event=>{const url=new URL(location.href);url.searchParams.set('shopProfile',event.target.value);url.searchParams.set('v','shop-motion-on-tap-1');location.href=url.href;});
 atmosphere=window.QiyuStreetAtmosphere?.mount({document,greet:()=>window.QiyuIP3D?.greet(),reduced:()=>reduced});
 window.addEventListener('resize',resize);resize();$('#app').classList.toggle('reduce-motion',reduced);renderHome();
 setTimeout(demo==='wallet'?showRewards:maybeOfferReward,450);

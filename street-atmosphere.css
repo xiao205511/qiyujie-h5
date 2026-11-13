@@ -24,7 +24,7 @@
 .roof-playing .shop-roof-accent{opacity:0;filter:drop-shadow(0 1px 1px #63455788);animation:roof-accent 2.65s var(--accent-delay) ease-in-out infinite}
 .roof-playing [data-roof-effect=steam] .shop-roof-accent{animation-duration:2.4s}
 .roof-playing [data-roof-effect=snow] .shop-roof-accent{--accent-rise:18px}
-.atmosphere-paused .roof-playing :is(.shop-roof-piece,.shop-foam-bubble,.shop-roof-accent){animation-play-state:paused}
+.shop-motion-paused .roof-playing :is(.shop-roof-piece,.shop-foam-bubble,.shop-roof-accent){animation-play-state:paused}
 @keyframes roof-tissue{
  0%,100%{transform:none}
  25%{transform:skewX(-7deg) scaleY(1.06)}

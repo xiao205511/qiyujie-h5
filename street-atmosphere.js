@@ -66,14 +66,19 @@
  function mount({document:doc,greet,reduced=()=>false}){
   const app=doc.querySelector('#app'),guide=doc.querySelector('#guide'),scroll=doc.querySelector('#homeScroll'),audio=doc.querySelector('#streetMusic');
   if(!app||!scroll||!audio)return null;
-  let context=null,blocked=false,pageHidden=false,welcomeTimer=null;
+  let context=null,blocked=false,approaching=false,pageHidden=false,welcomeTimer=null;
   const dialogue=createDialogue({onLine(line){
    const copy=guide?.querySelector('.guide-copy');
    if(copy&&copy.textContent!==line)copy.textContent=line;
   }});
   const music=createMusic({audio});
   audio.volume=.22;
-  function active(){const visible=!pageHidden&&!doc.hidden&&!blocked&&scroll.scrollTop<360;dialogue.active(visible);app.classList.toggle('atmosphere-paused',!visible);}
+  function active(){
+   const visible=!pageHidden&&!doc.hidden&&scroll.scrollTop<360;
+   dialogue.active(visible&&!blocked);
+   app.classList.toggle('atmosphere-paused',!visible||blocked);
+   app.classList.toggle('shop-motion-paused',!visible||(blocked&&!approaching));
+  }
   doc.addEventListener('touchend',music.gesture,{capture:true,passive:true});
   doc.addEventListener('click',music.gesture,true);
   doc.addEventListener('keydown',event=>{if(!event.repeat)music.gesture();},true);
@@ -91,7 +96,7 @@
     else dialogue.paint();
     active();
    },
-   setBlocked(value){blocked=value;active();},
+   setBlocked(value,{onTheWay=false}={}){blocked=value;approaching=onTheWay;active();},
    arrive(){
     if(!context)return;clearTimeout(welcomeTimer);app.classList.remove('shop-welcoming');
     // Reflow only on arrival, so a second visit can replay the brief welcome.
