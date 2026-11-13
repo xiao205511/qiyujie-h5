@@ -9,9 +9,11 @@
     return pose.scene==='kitchen-front'?1.5:1;
   }
   const yawFor=heading=>Math.atan2(heading[0],heading[1]/Math.sin(elevation));
+  // Keep the face out of view while allowing a small lean into the street bend.
+  const walkingHeading=([x])=>[x*.7,-1];
   const strideFor=(point,heading)=>{
     const yaw=yawFor(heading),projection=Math.hypot(Math.sin(yaw),Math.cos(yaw)*Math.sin(elevation));
     return pixelsPerUnit*stride*perspectiveFor({point})*projection;
   };
-  root.QiyuRigStreetMotion={pixelsPerUnit,elevation,period,travelSpeed,stride,perspectiveFor,yawFor,strideFor};
+  root.QiyuRigStreetMotion={pixelsPerUnit,elevation,period,travelSpeed,stride,perspectiveFor,yawFor,strideFor,walkingHeading};
 })(typeof window==='undefined'?globalThis:window);
