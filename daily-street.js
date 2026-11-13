@@ -37,7 +37,30 @@
   }
   return scores;
  }
+ // A seven-day preview uses dated sample activity, separate from shopping history.
+ const sampleActivity=[
+  {orders:['paper'],interest:['face']},
+  {orders:['laundry'],interest:['makeup']},
+  {orders:[],interest:['skin']},
+  {orders:['face'],interest:['kitchen'],discovery:'baby'},
+  {orders:['face'],interest:['winter']},
+  {orders:['kitchen','kitchen'],interest:['snack'],discovery:'accessories'},
+  {orders:['paper','paper'],interest:['makeup']}
+ ];
+ function sampleSignals(state,day){
+  if(!state.simulateShopActivity)return state;
+  const start=startDay(state,day),orders=[...(state.orders||[])],shopSignals=[...(state.shopSignals||[])];
+  sampleActivity.forEach((activity,index)=>{
+   const date=addDays(start,index);
+   if(date>day)return;
+   for(const shop of activity.orders)orders.push({date,shop});
+   for(const shop of activity.interest)shopSignals.push({date,shop,type:'cart'});
+   if(activity.discovery)shopSignals.push({date,shop:activity.discovery,type:'view'});
+  });
+  return {...state,orders,shopSignals};
+ }
  function derive(state,day){
+  state=sampleSignals(state,day);
   const bought=purchaseScores(state,day),ranked=[...bought].filter(([key])=>core.includes(key)).sort((a,b)=>b[1].count-a[1].count||b[1].date.localeCompare(a[1].date)||core.indexOf(a[0])-core.indexOf(b[0]));
   const first=ranked[0]?.[0]||'paper',scores=interestScores(state,day);
   const interested=[...scores].filter(([key])=>core.includes(key)&&key!==first&&!bought.has(key)).sort((a,b)=>b[1].score-a[1].score||b[1].date.localeCompare(a[1].date)||core.indexOf(a[0])-core.indexOf(b[0]));

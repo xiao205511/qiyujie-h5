@@ -3,7 +3,10 @@ const $ = selector => document.querySelector(selector);
 const icon = name => `<i data-lucide="${name}"></i>`;
 const Flow = window.QiyuRewards, Basket = window.QiyuBasket, RewardGroups = window.QiyuRewardGroups, Catalog=window.QiyuCatalog, DailyStreet=window.QiyuDailyStreet;
 const params = new URLSearchParams(location.search), demo = ['first','second','third','fourth','fifth','sixth','seventh','wallet','freeorder'].includes(params.get('demo')) ? params.get('demo') : null;
-const shopProfile=demo&&['family','laundry','beauty','skin','baby','accessories'].includes(params.get('shopProfile'))?params.get('shopProfile'):'family';
+const previewProfiles=['simulated','family','laundry','beauty','skin','baby','accessories'];
+const requestedProfile=params.get('shopProfile');
+const shopProfile=demo&&previewProfiles.includes(requestedProfile)?requestedProfile:
+ demo&&demo!=='wallet'&&demo!=='freeorder'?'simulated':'family';
 const KEY = 'qiyu-street-interactive-v1' + (demo ? '-demo-' + demo+(shopProfile==='family'?'':'-'+shopProfile) : '');
 const storage = demo ? sessionStorage : localStorage;
 const Walking = window.QiyuWalking, ShopViews = window.QiyuShopViews;
@@ -18,7 +21,8 @@ function fresh(){
  const count={first:1,second:2,third:3,fourth:4,fifth:5,sixth:6,seventh:7,wallet:6,freeorder:7}[demo]||1;
  let base=Flow.enter(null,Flow.addDays(todayKey(),1-count));
  for(let n=1;n<count;n++)base=Flow.enter(base,Flow.addDays(todayKey(),n-count+1));
- if(shopProfile!=='family'){
+ if(shopProfile==='simulated')base={...base,simulateShopActivity:true};
+ else if(shopProfile!=='family'){
   const firstDay=Flow.addDays(todayKey(),1-count),bought=shopProfile==='laundry'?'laundry':'paper';
   const interest={beauty:'makeup',skin:'skin',baby:'baby',accessories:'accessories'}[shopProfile];
   base={...base,orders:[{id:'profile-1',date:Flow.addDays(firstDay,-2),shop:bought},{id:'profile-2',date:Flow.addDays(firstDay,-1),shop:bought}],favorites:interest?[interest]:[],shopSignals:interest?[{shop:interest,type:'favorite',date:firstDay}]:[]};
@@ -74,7 +78,11 @@ function recommendationProducts(c){
  const currentIds=new Set(Catalog.shelfProducts.map(p=>p.id));
  return allProducts.filter(p=>currentIds.has(p.id)||c.productIds?.includes(p.id)||(shops[p.shop]?.archived&&c.shopIds?.includes(p.shop)));
 }
-function priceHtml(p){const q=Flow.quote(state,p,1,todayKey());return `<span class="price"><small>${q.discount?(q.discountKind==='benefit'?'专享 ':'券后 '):''}</small><sup>¥</sup>${money(q.total)}</span>`;}
+function priceHtml(p,{quote=Flow.quote(state,p,1,todayKey()),format=money}={}){
+ const label=quote.discountKind==='benefit'?'专享':'券后';
+ const price=`<span class="price">${quote.discount?`<small>${label} </small>`:''}<sup>¥</sup>${format(quote.total)}</span>`;
+ return quote.discount?`<span class="product-prices">${price}<del class="product-original-price" aria-label="原价${format(p.price)}元">¥${format(p.price)}</del></span>`:price;
+}
 function toast(message){$('#toast').textContent=message;$('#toast').hidden=false;clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('#toast').hidden=true,2300);}
 function resize(){
  const scale=Math.min(1,innerWidth/414);
@@ -112,7 +120,7 @@ function renderHome({preserveStreet=!!currentModal}={}){
  document.querySelectorAll('[data-shop]').forEach(el=>{const key=el.dataset.shop;el.setAttribute('aria-label',(key===focusShop?'进入':characterEnabled?'走到':'查看')+shops[key].name);el.classList.toggle('is-current',key===focusShop);});
  const dateLabel=$('#streetDate');if(dateLabel)dateLabel.textContent=todayKey().slice(5).replace('-','月')+'日 · 今日小街';
  const previewDay=$('#previewDay');if(previewDay)previewDay.value=['first','second','third','fourth','fifth','sixth','seventh'][state.visits-1]||'first';
- document.querySelectorAll('[data-preview-day]').forEach((link,i)=>{const url=new URL(location.href);url.searchParams.set('demo',link.dataset.previewDay);url.searchParams.set('demoDay',Flow.addDays(state.streetStartedOn||todayKey(),i));url.searchParams.set('v','daily-coupon-shops-1');link.href=url.href;if(i===state.visits-1)link.setAttribute('aria-current','page');else link.removeAttribute('aria-current');});
+ document.querySelectorAll('[data-preview-day]').forEach((link,i)=>{const url=new URL(location.href);url.searchParams.set('demo',link.dataset.previewDay);url.searchParams.set('demoDay',Flow.addDays(state.streetStartedOn||todayKey(),i));url.searchParams.set('v','street-rewards-price-1');link.href=url.href;if(i===state.visits-1)link.setAttribute('aria-current','page');else link.removeAttribute('aria-current');});
  const previewCaption=$('#previewDayCaption');if(previewCaption)previewCaption.textContent=`第${state.visits}天 · ${todayKey().slice(5).replace('-','月')}日`;
  const profileSelect=$('#previewProfile');if(profileSelect)profileSelect.value=shopProfile;
  $('#app').dataset.focusShop=focusShop;updateCartEntry();icons();save();syncAtmosphere();
@@ -236,12 +244,22 @@ function ticket(c,{offered=false,usable=false,claimable=false,statusText,count=1
 function benefitTicket(r){
  return `<div class="benefit-ticket">${icon(r.icon)}<div><strong>${r.name}</strong><span>${r.condition}</span><small>当活动日有效 · 每日10点更新</small></div></div>`;
 }
+const checkInTitles=[
+ '你来啦？先送你份见面礼！',
+ '你又来玩啦！这次的券更大哦。',
+ '三天啦！我们是老街坊啦。',
+ '老规矩，今天来看看什么呀！',
+ '还差两天，千万别鸽了我呀',
+ '第六天啦，明天我要送你大红包！',
+ '恭喜你拿到永久居住证！这次的红包最大哦！'
+];
+const checkInTitle=()=>checkInTitles[(state.streak||1)-1];
 function showOffer(){
  if(Flow.todayClaimed(state,todayKey()))return showRewards();
  if(state.visits===7)return showLottery();
  state=Flow.markPrompted(state,todayKey());save();
  const r=currentReward();
- openModal('offer',`<div class="popup-mascot" aria-hidden="true"><img src="assets/ip-popup-peek-v1.png" width="1254" height="1254" alt="" decoding="async"></div>${closeButton()}<p class="eyebrow">${state.returnedAfterGap?'欢迎回来 · 累计':'第'} ${state.visits} 天 · 已为你签到</p><h2 id="modalTitle">今天逛街，先${r.value?'领券':'收好礼'}</h2>${r.value?ticket(r,{offered:true,showStatus:false}):benefitTicket(r)}<button class="wide-cta" data-claim-today>${r.value?'领取今日券':r.type==='preview'?'解锁新品预览':'领取专享价'}</button><button class="secondary-cta" data-close>先逛逛</button>`,'center reward-popup offer-popup');
+ openModal('offer',`<div class="popup-mascot" aria-hidden="true"><img src="assets/ip-popup-peek-v1.png" width="1254" height="1254" alt="" decoding="async"></div>${closeButton()}<p class="eyebrow">${state.returnedAfterGap?'欢迎回来 · 累计':'第'} ${state.visits} 天 · 已为你签到</p><h2 id="modalTitle">${checkInTitle()}</h2>${r.value?ticket(r,{offered:true,showStatus:false}):benefitTicket(r)}<button class="wide-cta" data-claim-today>${r.value?'领取今日券':r.type==='preview'?'解锁新品预览':'领取专享价'}</button><button class="secondary-cta" data-close>先逛逛</button>`,'center reward-popup offer-popup');
 }
 function maybeOfferReward(){if(Flow.shouldPrompt(state,todayKey())&&!currentModal&&!moving)showOffer();}
 function claim({inShop=false,inRewards=false}={}){
@@ -276,7 +294,7 @@ function selectionControl(p,topup=false){
  if(topup&&topupContext?.selectedOnly&&n&&state.basketSelection?.[p.id]===false)return `<button class="product-buy" data-topup-select="${p.id}">加入本单</button>`;
  return n?quantityPicker(p,n):`<button class="product-buy quick-add" data-add-basket="${p.id}" aria-label="将${p.name}加入购物车">${icon('plus')}</button>`;
 }
-function productRow(p,{topup=false,exclusive=false}={}){return `<article class="shop-product-row"><button class="row-art" data-detail="${p.id}" aria-label="查看${p.name}详情">${art(p)}</button><div class="row-product-copy"><button class="product-name" data-detail="${p.id}">${p.name}</button><span class="original-price product-price-hint">${topup&&topupContext?.selectedOnly&&state.basketSelection?.[p.id]===false?'已加购 · 未计入本单':'标准装'}</span><div class="row-price-action">${exclusive?`<span class="exclusive-product-prices">${priceHtml(p)}<del class="exclusive-original-price" aria-label="原价${money(p.price)}元">¥${money(p.price)}</del></span>`:`<span class="price"><sup>¥</sup>${exact(p.price)}</span>`}${selectionControl(p,topup)}</div></div></article>`;}
+function productRow(p,{topup=false,exclusive=false}={}){return `<article class="shop-product-row"><button class="row-art" data-detail="${p.id}" aria-label="查看${p.name}详情">${art(p)}</button><div class="row-product-copy"><button class="product-name" data-detail="${p.id}">${p.name}</button><span class="original-price product-price-hint">${topup&&topupContext?.selectedOnly&&state.basketSelection?.[p.id]===false?'已加购 · 未计入本单':'标准装'}</span><div class="row-price-action">${topup?`<span class="price"><sup>¥</sup>${exact(p.price)}</span>`:priceHtml(p,{format:exclusive?money:exact})}${selectionControl(p,topup)}</div></div></article>`;}
 function moreProductCard(p){return `<article class="more-product"><button class="more-product-detail" data-detail="${p.id}" aria-label="查看${p.name}详情">${art(p)}<strong>${p.name}</strong></button><div class="more-product-footer">${priceHtml(p)}${selectionControl(p)}</div></article>`;}
 function basketHint(q){
  if(!q.valid)return '选几件喜欢的好物';
@@ -383,7 +401,7 @@ function showShop(key=focusShop){
 function showDetail(id){
  const p=allProducts.find(p=>p.id===id);if(!p)return;browsingShop=p.shop;detailProductId=id;const q=Flow.quote(state,p,1,todayKey());
  state={...DailyStreet.record(state,p.shop,'view',todayKey()),recentProductIds:[p.id,...(state.recentProductIds||[]).filter(id=>id!==p.id)].slice(0,12)};renderHome({preserveStreet:true});
- openModal('detail',`<header class="sheet-head"><h2 id="modalTitle">商品详情</h2><div class="sheet-actions"><button class="detail-close" data-dismiss aria-label="关闭商品详情">${icon('x')}</button></div></header><div class="shop-products-scroll detail-scroll"><div class="detail-hero">${art(p)}</div><div class="detail-copy">${priceHtml(p)}${q.discount?`<del class="detail-original">原价 ¥${money(p.price)}</del>`:''}<h3>${p.name}</h3><p>标准装 · 来自${shops[p.shop].name}</p></div><div class="detail-coupon ${q.discount?'is-usable':''}">${icon('ticket-percent')}<div><strong>${q.discount?`${q.discountKind==='benefit'?'专享价已生效':'优惠券可用'}，到手 ¥${money(q.total)}`:couponReason(q,p)}</strong><span>${q.discountKind==='benefit'?'本活动日内有效 · 不与券叠加':q.coupon?`有效期至 ${formatExpiry(q.coupon)} · 每单限一张`:'适用范围、门槛与有效期以券面为准'}</span></div></div></div><footer class="detail-footer">${detailCartButton(p.shop)}<div class="detail-purchase-actions"><button class="wide-cta" data-add-basket="${p.id}">加入购物车</button><button class="secondary-cta" data-buy="${p.id}">立即购买</button></div></footer>`,'sheet detail-sheet');
+ openModal('detail',`<header class="sheet-head"><h2 id="modalTitle">商品详情</h2><div class="sheet-actions"><button class="detail-close" data-dismiss aria-label="关闭商品详情">${icon('x')}</button></div></header><div class="shop-products-scroll detail-scroll"><div class="detail-hero">${art(p)}</div><div class="detail-copy">${priceHtml(p,{quote:q})}<h3>${p.name}</h3><p>标准装 · 来自${shops[p.shop].name}</p></div><div class="detail-coupon ${q.discount?'is-usable':''}">${icon('ticket-percent')}<div><strong>${q.discount?`${q.discountKind==='benefit'?'专享价已生效':'优惠券可用'}，到手 ¥${money(q.total)}`:couponReason(q,p)}</strong><span>${q.discountKind==='benefit'?'本活动日内有效 · 不与券叠加':q.coupon?`有效期至 ${formatExpiry(q.coupon)} · 每单限一张`:'适用范围、门槛与有效期以券面为准'}</span></div></div></div><footer class="detail-footer">${detailCartButton(p.shop)}<div class="detail-purchase-actions"><button class="wide-cta" data-add-basket="${p.id}">加入购物车</button><button class="secondary-cta" data-buy="${p.id}">立即购买</button></div></footer>`,'sheet detail-sheet');
 }
 function couponReason(q,p){return ({unclaimed:'未领取优惠，本单按原价结算',expired:'优惠已过期，本单按原价结算',used:'可用券已用完，本单按原价结算',ineligible:'该商品暂不适用现有优惠券',minimum:`还差 ¥${exact(q.minimumShortfall||0)} 达到用券门槛`,applied:`已自动选择${q.discount}元优惠券`,benefit:`已享专享价，每件立减1元`})[q.reason];}
 function showCheckout(id,quantity=1,preserveOrigin=false){
@@ -566,7 +584,7 @@ function syncActivity(){
 }
 function showLottery(){
  state=Flow.markPrompted(state,todayKey());save();if(state.drawn)return showLotteryResult();
- openModal('lottery',`<header class="lottery-popup-header">${closeButton()}<p class="eyebrow">累计到访 7 天 · 专属好礼</p><h2 id="modalTitle">转出今天的小惊喜</h2></header><div class="lottery-popup-scroll" role="region" aria-label="抽奖转盘与奖品概率" tabindex="0"><p class="wheel-intro"><strong>100%中奖</strong><span>最高可得100元免单券</span></p><div class="lottery-wheel" id="lotteryWheel">${Array.from({length:12},(_,i)=>`<i class="wheel-light" style="--light-angle:${i*30}deg" aria-hidden="true"></i>`).join('')}<div class="wheel-rotor" id="lotteryRotor">${Flow.prizes.map((p,i)=>`<div class="wheel-prize" style="--prize-angle:${i*90}deg" data-prize-value="${p.value}"><strong>${p.value}<small>元</small></strong><span>${p.value<50?'券包':'免单券'}</span><em>${p.chance}% 概率</em></div>`).join('')}</div><span class="wheel-pointer" aria-hidden="true"></span><button class="wheel-draw" data-draw aria-label="立即抽奖"><strong>立即</strong><span>抽奖</span></button></div><p class="wheel-prize-note">券包含2张券 · 抽中奖励有效7个活动日</p></div><footer class="lottery-popup-footer"><p class="wheel-status" id="lotteryStatus" role="status">点击转盘中心，抽取今日好礼</p><p class="popup-footnote">每轮一次</p></footer>`,'center lottery-popup lottery-wheel-popup');
+ openModal('lottery',`<header class="lottery-popup-header">${closeButton()}<p class="eyebrow">累计到访 7 天 · 专属好礼</p><h2 id="modalTitle">${checkInTitle()}</h2></header><div class="lottery-popup-scroll" role="region" aria-label="抽奖转盘与奖品概率" tabindex="0"><p class="wheel-intro"><strong>100%中奖</strong><span>最高可得100元免单券</span></p><div class="lottery-wheel" id="lotteryWheel">${Array.from({length:12},(_,i)=>`<i class="wheel-light" style="--light-angle:${i*30}deg" aria-hidden="true"></i>`).join('')}<div class="wheel-rotor" id="lotteryRotor">${Flow.prizes.map((p,i)=>`<div class="wheel-prize" style="--prize-angle:${i*90}deg" data-prize-value="${p.value}"><strong>${p.value}<small>元</small></strong><span>${p.value<50?'券包':'免单券'}</span><em>${p.chance}% 概率</em></div>`).join('')}</div><span class="wheel-pointer" aria-hidden="true"></span><button class="wheel-draw" data-draw aria-label="立即抽奖"><strong>立即</strong><span>抽奖</span></button></div><p class="wheel-prize-note">券包含2张券 · 抽中奖励有效7个活动日</p></div><footer class="lottery-popup-footer"><p class="wheel-status" id="lotteryStatus" role="status">点击转盘中心，抽取今日好礼</p><p class="popup-footnote">每轮一次</p></footer>`,'center lottery-popup lottery-wheel-popup');
 }
 function drawPrize(){
  if(state.visits<7||state.drawn||currentModal!=='lottery')return;
@@ -789,8 +807,8 @@ document.addEventListener('keydown',event=>{
 $('#motionToggle').checked=reduced;$('#motionToggle').addEventListener('change',event=>{reduced=event.target.checked;$('#app').classList.toggle('reduce-motion',reduced);if(reduced)motionFinish?.();});
 $('#replay').addEventListener('click',()=>{if(moving)return;closeModal();goTo(focusShop===primaryShop()?secondaryShop():primaryShop());});
 $('#reset').addEventListener('click',()=>{pendingWalk=null;motionFinish?.();closeModal();state=restoreDailyCouponScopes(fresh());streetSignature='';renderHome();window.QiyuIP3D?.greet();$('#guide').hidden=false;if(demo==='wallet')showRewards();else maybeOfferReward();});
-$('#previewDay')?.addEventListener('change',event=>{const scenarios=['first','second','third','fourth','fifth','sixth','seventh'],url=new URL(location.href);url.searchParams.set('demo',event.target.value);url.searchParams.set('demoDay',Flow.addDays(state.streetStartedOn||todayKey(),scenarios.indexOf(event.target.value)));url.searchParams.set('v','daily-coupon-shops-1');location.href=url.href;});
-$('#previewProfile')?.addEventListener('change',event=>{const url=new URL(location.href);url.searchParams.set('shopProfile',event.target.value);url.searchParams.set('v','daily-coupon-shops-1');location.href=url.href;});
+$('#previewDay')?.addEventListener('change',event=>{const scenarios=['first','second','third','fourth','fifth','sixth','seventh'],url=new URL(location.href);url.searchParams.set('demo',event.target.value);url.searchParams.set('demoDay',Flow.addDays(state.streetStartedOn||todayKey(),scenarios.indexOf(event.target.value)));url.searchParams.set('v','street-rewards-price-1');location.href=url.href;});
+$('#previewProfile')?.addEventListener('change',event=>{const url=new URL(location.href);url.searchParams.set('shopProfile',event.target.value);url.searchParams.set('v','street-rewards-price-1');location.href=url.href;});
 atmosphere=window.QiyuStreetAtmosphere?.mount({document,greet:()=>window.QiyuIP3D?.greet(),reduced:()=>reduced});
 window.addEventListener('resize',resize);resize();$('#app').classList.toggle('reduce-motion',reduced);renderHome();
 setTimeout(demo==='wallet'?showRewards:maybeOfferReward,450);

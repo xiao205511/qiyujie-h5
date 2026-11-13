@@ -57,7 +57,14 @@
   });
   return {...s,unlockedRewards};
  }
- function initial(today){return rememberUnlock({version:3,cycleId:`cycle:${today}`,visits:1,cashTier:1,lastVisit:today,coupon:null,coupons:[],benefits:[],unlockedRewards:[],favorites:[],orders:[],drawn:false,prize:null,prizeHistory:[],rewardClaims:{},promptedDate:null,returnedAfterGap:false});}
+ function initial(today){return rememberUnlock({version:3,cycleId:`cycle:${today}`,visits:1,streak:1,cashTier:1,lastVisit:today,coupon:null,coupons:[],benefits:[],unlockedRewards:[],favorites:[],orders:[],drawn:false,prize:null,prizeHistory:[],rewardClaims:{},promptedDate:null,returnedAfterGap:false});}
+ function restoreStreak(s){
+  if(Number.isInteger(s.streak)&&s.streak>=1&&s.streak<=7)return s.streak;
+  const dates=new Set(s.unlockedRewards.filter(entry=>entry.cycleId===s.cycleId).map(entry=>entry.date));
+  let streak=1;
+  while(streak<7&&dates.has(addDays(s.lastVisit,-streak)))streak++;
+  return streak;
+ }
  const benefitFor=(s,r,date)=>({id:`${s.cycleId}:${r.type}:${date}`,cycleId:s.cycleId,rewardDay:s.visits,unlockId:unlockId(s),type:r.type,name:r.name,date,expiresOn:date,productIds:r.type==='exclusive'?['snack-0','paper-1','kitchen-0']:['paper-5','paper-7','paper-8'],unitDiscount:1});
  function issuePrize(s,raw,date){
   const cycleId=s.cycleId||`legacy:${date}`,id=`${cycleId}:prize`,existing=(s.prizeHistory||[]).find(p=>p.id===id);
@@ -74,16 +81,18 @@
   let s={...saved,version:3,cycleId:saved.cycleId||`legacy:${saved.lastVisit}`,visits:Math.max(1,Math.min(7,Math.floor(saved.visits))),cashTier:saved.cashTier??cashDays.filter(d=>d<=saved.visits).length,benefits:saved.benefits||[],prizeHistory:saved.prizeHistory||[],rewardClaims:saved.rewardClaims||{},prize:saved.prize||null};
   s.coupons=couponList(s);s.coupon=s.coupon?s.coupons.find(c=>c.id===couponKey(s.coupon))||null:null;
   s=restoreUnlocks(s);
+  s.streak=restoreStreak(s);
   for(const entry of s.unlockedRewards){
    if(!entry.date||!s.rewardClaims[entry.date]||!['preview','exclusive'].includes(entry.reward.type))continue;
    if(!s.benefits.some(b=>b.date===entry.date&&b.type===entry.reward.type))s.benefits=[...s.benefits,benefitFor({...s,cycleId:entry.cycleId,visits:entry.day},entry.reward,entry.date)];
   }
   if(s.drawn&&s.prize)s=issuePrize(s,s.prize,s.prize.date||s.lastVisit);
   if(today<=s.lastVisit)return s;
-  if(s.drawn){return rememberUnlock({...s,cycleId:`cycle:${today}`,visits:1,cashTier:1,lastVisit:today,drawn:false,prize:null,promptedDate:null,returnedAfterGap:false});}
+  if(s.drawn){return rememberUnlock({...s,cycleId:`cycle:${today}`,visits:1,streak:1,cashTier:1,lastVisit:today,drawn:false,prize:null,promptedDate:null,returnedAfterGap:false});}
   const consecutive=addDays(s.lastVisit,1)===today,visits=Math.min(7,s.visits+1);
   const cashTier=Math.min(4,(consecutive?s.cashTier:0)+(cashDays.includes(visits)?1:0));
-  return rememberUnlock({...s,visits,cashTier,lastVisit:today,returnedAfterGap:!consecutive});
+  const streak=consecutive?Math.min(7,s.streak+1):1;
+  return rememberUnlock({...s,visits,streak,cashTier,lastVisit:today,returnedAfterGap:!consecutive});
  }
  const todayClaimed=(s,today)=>Boolean(s.rewardClaims?.[today])||couponList(s).some(c=>c.source==='daily'&&c.date===today)||s.visits===7&&s.drawn&&s.lastVisit===today;
  const shouldPrompt=(s,today)=>s.promptedDate!==today&&!todayClaimed(s,today);

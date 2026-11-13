@@ -71,8 +71,8 @@
 #app .shop-product-row .row-art,#app .shop-product-row .row-art .product-art{width:108px;height:108px}
 #app .shop-product-row .row-product-copy{gap:9px}
 #app .shop-product-row .row-price-action{gap:10px}
-#app .exclusive-product-prices{display:flex;align-items:baseline;flex-wrap:wrap;gap:3px 6px;min-width:0}
-#app .exclusive-original-price{font-size:11px;line-height:18px;font-weight:400;letter-spacing:0;color:var(--q-muted);white-space:nowrap}
+#app .product-prices{display:flex;align-items:baseline;flex-wrap:wrap;gap:3px 6px;min-width:0}
+#app .product-original-price{font-size:11px;line-height:18px;font-weight:400;letter-spacing:0;color:var(--q-muted);white-space:nowrap}
 #app .shop-product-row .price{font-size:25px;letter-spacing:-.6px}
 #app .shop-product-row .product-buy.quick-add{width:29px;height:29px;min-height:29px;padding:5px;border-radius:50%;justify-content:center}
 #app .shop-product-row .product-buy.quick-add>.lucide{width:18px;height:18px}
