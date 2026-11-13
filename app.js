@@ -78,6 +78,11 @@ function recommendationProducts(c){
  const currentIds=new Set(Catalog.shelfProducts.map(p=>p.id));
  return allProducts.filter(p=>currentIds.has(p.id)||c.productIds?.includes(p.id)||(shops[p.shop]?.archived&&c.shopIds?.includes(p.shop)));
 }
+function coversWholeStores(c){
+ if(c.productIds)return false;
+ const products=c.shopIds?c.shopIds.flatMap(key=>shops[key]?.products||[]):Catalog.shelfProducts;
+ return products.length>0&&products.every(p=>Basket.applies(c,p));
+}
 function priceHtml(p,{quote=Flow.quote(state,p,1,todayKey()),format=money,original=p.price,subtotal=false}={}){
  const label=(quote.discountKind==='benefit'?'专享':'券后')+(subtotal?'小计':'');
  const price=`<span class="price">${quote.discount?`<small>${label} </small>`:''}<sup>¥</sup>${format(quote.total)}</span>`;
@@ -245,7 +250,10 @@ function ticket(c,{offered=false,usable=false,claimable=false,statusText,count=1
  const normalized={...c,date:c.date||todayKey()},status=statusText||(offered?'待领取':({used:'已使用',expired:'已过期',future:'未生效',available:'待使用'})[Flow.couponStatus(normalized,todayKey())]);
  const inactive=!offered&&status!=='待使用',gradientId=`coupon-fill-${++ticketSequence}`,free=c.type==='free-order';
  const threshold=free?`最高抵${c.value}元`:`满${c.min}减${c.value}`;
- const label=free?'免单券 · 全街商品可用':c.source==='lottery'?'抽奖券包 · 全街商品可用':c.value===3?'新人见面礼 · 限指定商品':'逛街专属券 · 限指定商品';
+ const name=free?'免单券':c.source==='lottery'?'抽奖券包':c.value===3?'新人见面礼':'逛街专属券';
+ const wholeStores=coversWholeStores(c);
+ const scope=wholeStores?(c.scope==='street'&&!c.shopIds?'全街商品可用':'适用店铺全店可用'):'限指定商品';
+ const label=`${name} · ${scope}`;
  const action=claimable?'<button class="coupon-use-action" data-claim-in-rewards>去领取</button>':usable&&!offered&&!inactive?`<button class="coupon-use-action" data-browse-coupon="${c.id}" aria-label="去使用${c.value}元${free?'免单券':'券'}，${threshold}">去使用</button>`:showStatus?(['已使用','已过期'].includes(status)?`<button class="coupon-use-action" disabled>${status}</button>`:`<b class="coupon-status">${status}</b>`):'';
  const digits=c.value>=100?'is-three-digit':c.value>=10?'is-two-digit':'';
  return `<article class="coupon-ticket ${inactive?'is-unavailable':''} ${digits}" aria-label="${c.value}元${free?'免单券':'券'}，${threshold}，${status}${count>1?`，共${count}张`:``}"><svg class="coupon-shape" viewBox="0 0 320 104" preserveAspectRatio="none" aria-hidden="true" focusable="false"><defs><linearGradient id="${gradientId}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${inactive?'#fcf8f1':'#fff3e5'}"/><stop offset="1" stop-color="${inactive?'#f3ece1':'#ffe7cb'}"/></linearGradient></defs><path d="M18 .5H302A17.5 17.5 0 0 1 319.5 18V44A8 8 0 0 0 319.5 60V86A17.5 17.5 0 0 1 302 103.5H18A17.5 17.5 0 0 1 .5 86V60A8 8 0 0 0 .5 44V18A17.5 17.5 0 0 1 18 .5Z" fill="url(#${gradientId})" stroke="${inactive?'#e4d8c8':'#ffc68f'}" stroke-width="1" vector-effect="non-scaling-stroke"/></svg><div class="coupon-main"><div class="coupon-amount"><small>¥</small>${c.value}</div>${count>1?`<span class="coupon-stack-count">×${count}张</span>`:``}<div class="coupon-copy"><strong>${threshold}</strong><span class="coupon-label">${label}</span><span class="coupon-validity">有效期至 <time datetime="${new Date(Flow.couponExpiry(normalized)).toISOString()}">${formatExpiry(normalized)}</time></span>${showDetails&&c.id?`<button class="coupon-details-link" data-coupon-detail="${c.id}">使用说明 ${icon('chevron-right')}</button>`:''}</div>${action}</div></article>`;
@@ -480,12 +488,16 @@ function showCouponPicker(origin){
 function showCouponDetails(id){
  const c=Flow.couponList(state).find(c=>c.id===id);if(!c)return;activeCouponId=id;
  const products=recommendationProducts(c).filter(p=>Basket.applies(c,p));
- const storeIds=c.shopIds||[...new Set(products.map(p=>p.shop))];
- const groups=storeIds.filter(key=>shops[key]).map(key=>{
+ const storeIds=(c.shopIds||[...new Set(products.map(p=>p.shop))]).filter(key=>shops[key]);
+ const storeNames=storeIds.map(key=>shops[key].name).join('、');
+ const wholeStores=coversWholeStores(c);
+ const scope=wholeStores&&c.scope==='street'&&!c.shopIds?'全街商品可用':`${storeNames||'暂无适用店铺'}${wholeStores?'（全店商品可用）':''}`;
+ const groups=wholeStores?'':storeIds.map(key=>{
   const names=[...new Set(products.filter(p=>p.shop===key).map(p=>p.name))];
   return `<details class="coupon-scope-store"><summary>${shops[key].name}<span>${names.length}款适用商品</span></summary><ul>${names.map(name=>`<li>${esc(name)}</li>`).join('')||'<li>暂无在售商品</li>'}</ul></details>`;
  }).join('');
- openModal('coupon-detail',`<header class="sheet-head commerce-header"><h2 id="modalTitle">优惠券详情</h2><button class="detail-close" data-dismiss aria-label="返回上一个弹窗">${icon('x')}</button></header><div class="shop-products-scroll commerce-scroll coupon-detail-scroll">${ticket(c,{showStatus:false})}<section class="commerce-card coupon-terms"><h3>使用说明</h3><dl><div><dt>使用门槛</dt><dd>${c.type==='free-order'?`最高抵扣¥${exact(c.value)}`:`适用商品满¥${exact(c.min)}减¥${exact(c.value)}`}</dd></div><div><dt>有效期至</dt><dd>${formatExpiry(c)}</dd></div><div><dt>适用范围</dt><dd>${c.scope==='street'?'全街适用商品':storeIds.filter(key=>shops[key]).map(key=>shops[key].name).join('、')}</dd></div><div><dt>使用规则</dt><dd>每单限用一张，仅适用商品计入门槛，不与专享价叠加。</dd></div></dl></section><section class="commerce-card coupon-eligible"><h3>适用店铺与商品</h3><p>${c.dailyStreetScope?'适用于领取当天街上的三家店。展开店铺可查看商品。':'展开店铺可查看商品。'}</p>${groups}</section></div>`,'sheet commerce-sheet coupon-detail-sheet');
+ const eligibleDetails=wholeStores?'':`<section class="commerce-card coupon-eligible"><h3>适用商品</h3><p>展开店铺可查看商品。</p>${groups}</section>`;
+ openModal('coupon-detail',`<header class="sheet-head commerce-header"><h2 id="modalTitle">优惠券详情</h2><button class="detail-close" data-dismiss aria-label="返回上一个弹窗">${icon('x')}</button></header><div class="shop-products-scroll commerce-scroll coupon-detail-scroll">${ticket(c,{showStatus:false})}<section class="commerce-card coupon-terms"><h3>使用说明</h3><dl><div><dt>使用门槛</dt><dd>${c.type==='free-order'?`最高抵扣¥${exact(c.value)}`:`适用商品满¥${exact(c.min)}减¥${exact(c.value)}`}</dd></div><div><dt>有效期至</dt><dd>${formatExpiry(c)}</dd></div><div><dt>适用范围</dt><dd>${scope}</dd></div><div><dt>使用规则</dt><dd>每单限用一张，仅适用商品计入门槛，不与专享价叠加。</dd></div></dl></section>${eligibleDetails}</div>`,`sheet commerce-sheet coupon-detail-sheet${wholeStores?' coupon-detail-compact':''}`);
 }
 function chooseCoupon(id){
  if(couponReturn==='basket'){if(!restoreModalView('basket',{discountChoice:id})){discountChoice=id;showBasket(basketReturnShop,cartScope,true);}return;}
@@ -580,7 +592,7 @@ function browseCoupon(id){
  if(!p){toast('暂无适用商品，稍后再来看看');return;}
  showShop(p.shop);toast(c.min?`满${c.min}减${c.value}，可增加件数凑单`:`最高抵${c.value}元，结算自动用券`);
 }
-function showRules(){openModal('rules',`${closeButton()}<h2 id="modalTitle">奇遇街怎么玩</h2><p class="intro">逛喜欢的小店，领每日好礼。</p><div class="rule-block"><h3>每天上午10点，开启新一天</h3><p>以北京时间10:00到次日09:59:59为一个活动日。首次进街自动签到，同一活动日只记一次，奖励手动领取。</p></div><div class="rule-block"><h3>断签不清累计进度</h3><p>回来继续累计，普通券从3元基础档重新开始；第3、5天特权及第7天抽奖按累计到访天数解锁。</p></div><div class="rule-block"><h3>选好商品，结算时用优惠</h3><p>日常券适用于领取当天街上的三家店的指定商品，当活动日有效；抽奖券全街可用，有效7个活动日。每单限一张券，专享价不与券叠加，系统自动选更优惠的方案，订单成功后核销。</p></div><div class="rule-block"><h3>7天抽奖，每轮一次</h3><p>10元券包85%（2张满39减5）；20元券包12%（2张满59减10）；50元免单券2.5%；100元免单券0.5%。免单券按实付前金额抵扣，最高不超过券面额。抽奖后下个活动日开启新一轮，未过期的旧券和历史记录保留。</p></div>`);}
+function showRules(){openModal('rules',`${closeButton()}<h2 id="modalTitle">奇遇街怎么玩</h2><p class="intro">逛喜欢的小店，领每日好礼。</p><div class="rule-block"><h3>每天上午10点，开启新一天</h3><p>以北京时间10:00到次日09:59:59为一个活动日。首次进街自动签到，同一活动日只记一次，奖励手动领取。</p></div><div class="rule-block"><h3>断签不清累计进度</h3><p>回来继续累计，普通券从3元基础档重新开始；第3、5天特权及第7天抽奖按累计到访天数解锁。</p></div><div class="rule-block"><h3>选好商品，结算时用优惠</h3><p>领取当天街上的三家店，店内商品均可使用日常券，当活动日有效；抽奖券全街可用，有效7个活动日。每单限一张券，专享价不与券叠加，系统自动选更优惠的方案，订单成功后核销。</p></div><div class="rule-block"><h3>7天抽奖，每轮一次</h3><p>10元券包85%（2张满39减5）；20元券包12%（2张满59减10）；50元免单券2.5%；100元免单券0.5%。免单券按实付前金额抵扣，最高不超过券面额。抽奖后下个活动日开启新一轮，未过期的旧券和历史记录保留。</p></div>`);}
 function syncActivity(){
  const day=todayKey();if(day===renderedActivityDay)return false;
  renderedActivityDay=day;modalHistory=[];modalView=null;state=Flow.enter(state,day);save();renderHome();

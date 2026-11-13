@@ -4,12 +4,12 @@
  'use strict';
  const DAY=86400000,cashDays=[1,2,4,6],cashValues=[3,5,6,8],cashMinimums=[9.9,29,39,59];
  const rewards=[
-  {name:'3元券',value:3,min:9.9,condition:'满9.9减3 · 限指定商品',icon:'ticket-percent'},
-  {name:'5元券',value:5,min:29,condition:'满29减5 · 限指定商品',icon:'ticket-percent'},
+  {name:'3元券',value:3,min:9.9,condition:'满9.9减3 · 适用店铺全店可用',icon:'ticket-percent'},
+  {name:'5元券',value:5,min:29,condition:'满29减5 · 适用店铺全店可用',icon:'ticket-percent'},
   {name:'新品预览资格',type:'preview',condition:'提前查看明日精选好物',icon:'eye'},
-  {name:'6元券',value:6,min:39,condition:'满39减6 · 限指定商品',icon:'ticket-percent'},
+  {name:'6元券',value:6,min:39,condition:'满39减6 · 适用店铺全店可用',icon:'ticket-percent'},
   {name:'兴趣专享价',type:'exclusive',condition:'精选商品每件立减1元',icon:'tag'},
-  {name:'8元券',value:8,min:59,condition:'满59减8 · 限指定商品',icon:'ticket-percent'},
+  {name:'8元券',value:8,min:59,condition:'满59减8 · 适用店铺全店可用',icon:'ticket-percent'},
   {name:'抽奖机会',type:'lottery',condition:'累计到访7天解锁',icon:'gift'}
  ];
  const prizes=[{name:'10元券包',value:10,chance:85},{name:'20元券包',value:20,chance:12},{name:'50元免单券',value:50,chance:2.5},{name:'100元免单券',value:100,chance:.5}];
@@ -37,7 +37,7 @@
  function dailyReward(s){
   const r=rewards[Math.max(0,Math.min(6,s.visits-1))];if(!r.value)return {...r};
   const tier=Math.max(1,Math.min(4,s.cashTier||cashDays.filter(d=>d<=s.visits).length)),value=cashValues[tier-1],min=cashMinimums[tier-1];
-  return {...r,name:`${value}元券`,value,min,condition:`满${min}减${value} · 限指定商品`};
+  return {...r,name:`${value}元券`,value,min,condition:`满${min}减${value} · 适用店铺全店可用`};
  }
  const unlockId=s=>`${s.cycleId}:unlock:${s.visits}`;
  function rememberUnlock(s){
@@ -52,7 +52,7 @@
   const unlockedRewards=Array.from({length:s.visits},(_,i)=>{
    const day=i+1,current=day===s.visits,date=consecutive?addDays(start,i):current?s.lastVisit:null;
    let reward=current?dailyReward(s):dailyReward({visits:day,cashTier:cashDays.filter(d=>d<=day).length});
-   if(!date&&reward.value){const {value,min,...rest}=reward;reward={...rest,name:'逛街优惠券',condition:'当活动日内有效 · 限指定商品'};}
+   if(!date&&reward.value){const {value,min,...rest}=reward;reward={...rest,name:'逛街优惠券',condition:'当活动日内有效 · 适用店铺全店可用'};}
    return {id:`${s.cycleId}:unlock:${day}`,cycleId:s.cycleId,day,date,reward};
   });
   return {...s,unlockedRewards};

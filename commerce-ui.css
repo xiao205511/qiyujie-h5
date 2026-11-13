@@ -1,5 +1,6 @@
 /* The commerce surfaces share a fixed title, generous scrolling content and a small action dock. */
 #app .modal.commerce-sheet{height:85%;min-height:0;background:#fcf8f3;border-radius:29px 29px 0 0}
+#app .modal.commerce-sheet.coupon-detail-compact{height:auto;max-height:85%}
 #app .modal.commerce-sheet>.commerce-header{padding:25px 22px 17px;display:flex;align-items:center;justify-content:space-between;gap:16px;min-height:78px;background:#fffcf8}
 #app .commerce-header .bottom-sheet-title{text-align:left;white-space:nowrap;font-size:25px;line-height:34px}
 #app .commerce-header h2>span{font-size:20px;letter-spacing:0;font-weight:650}
