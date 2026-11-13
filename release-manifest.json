@@ -1,7 +1,7 @@
 {
-  "street-3d.html": "239590e7056517a98218827a685ba516935f4eb82f8d166763e535b5742df8bc",
+  "street-3d.html": "180a2680a92ea0e35eb77eaee6f738fb5c5d70052743eaf0fdcad94246819ef2",
   "mall.html": "188c4e25444aafb4c4a8e23ea2ba5b11f527acb6bf4d07fdc4d9bfd588311252",
-  "app.js": "d27815dd2f1ea5b31a9b496387453a65e4a1f82669d347650b37778eea6c75a9",
+  "app.js": "9cb5ca90f02999a8686db08a7460f245dfb789b94d1da0ab8fc3f2b94e65248c",
   "styles.css": "e0feb33a623a1a9bce726734c0b250ced8ca4d86ab4c22f5b1f0d17ec384e934",
   "popup-ui.css": "d42fad50ca011bec6c35cba9e7a94a1d49acf8356243bd17bdac695cf4925f34",
   "home-scroll.css": "9ee49cd497a9bfa5aec02853074c6a23d3cf0c7bd32f2e201694f86349d8974b",
@@ -36,6 +36,7 @@
   "ip-rig-stage2/assets/qiyu-rigged.glb": "1519790fc1da73e6427a25787f8ff677c5d265cbb45d5839eea996689e9dfd25",
   "assets/street-soft-palette-v1.png": "913d21012b5a2b67c426f2f2f8e11db640ef058d19d5dccfdea4176c5cce5a14",
   "assets/ip-popup-peek-v1.png": "2443a0b2d4add16e65cb2765cd61d3a8c8dacd305f3f9165ef518d2dfdb83c53",
+  "assets/street-simple-trees-v1.jpg": "d504e6e427ea2da34553be039b7b84417417a41422930719186435560f71b7f1",
   "assets/shops-hue-right-v1.png": "d10b7bc7e5f892876d47f00b1612866a773fc25e9f4a554b0e11c8b0c1546d28",
   "assets/shops-hue-left-v1.png": "ee8746d6bdaf7f7a4afb114749a71b91483b00fda382efc46acb91a9add5afb2",
   "assets/shops-hue-front-v1.png": "a644623b0100bc3b0723444f21180270479398f3b83394756e800e843dcf896b",
