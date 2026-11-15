@@ -115,9 +115,14 @@ function updateCartEntry(){
 function renderHome({preserveStreet=!!currentModal}={}){
  syncStreet({preserveStreet});
  const reward=currentReward(),claimed=Flow.todayClaimed(state,todayKey()),tomorrow=nextReward();
- const nextLabel=tomorrow.value?`明日<b>${tomorrow.value}</b>元券`:tomorrow.name;
- $('#daily').querySelector(':scope>span').innerHTML=`已来<b>${state.visits}</b>天 · ${state.visits===7?(state.drawn?'奖励已领取':'抽奖已解锁'):nextLabel}`;
- $('#progressFill').style.width=state.visits/7*100+'%';
+ const nextLabel=tomorrow.value?`明日${tomorrow.value}元券`:tomorrow.name;
+ const progressCopy=`已来${state.visits}天 · ${state.visits===7?(state.drawn?'奖励已领取':'抽奖已解锁'):nextLabel}`;
+ $('.daily-progress-copy').textContent=progressCopy;
+ $('#daily').setAttribute('aria-label',`${progressCopy}，查看七天每日奖励`);
+ $('.daily-progress-steps').innerHTML=dailyRewards.map((_,index)=>{
+  const day=index+1;
+  return `<span class="${day===state.visits?'is-current':day<state.visits?'is-complete':''}"></span>`;
+ }).join('');
  $('#claimText').textContent=claimed?(state.coupon?.date===todayKey()&&state.coupon.used&&!validCoupon()?'券已使用':'我的奖励'):(reward.value?`领${reward.value}元券`:state.visits===7?'去抽奖':'查看奖励');
  $('#claim').classList.toggle('claimed',!!(state.coupon?.date===todayKey()&&state.coupon.used&&!validCoupon()));
  const atStore=ShopViews&&focusShop!==primaryShop(),atFront=ShopViews?.modeFor(focusShop)==='store';

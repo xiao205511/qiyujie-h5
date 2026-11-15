@@ -16,12 +16,12 @@
   <script defer src="sprite-art.js?v=street-polish-2"></script>
   <script defer src="shop-roofs.js?v=daily-coupon-shops-1"></script>
   <script defer src="shop-views.js?v=shop-motion-on-tap-1"></script>
-  <link rel="stylesheet" href="popup-ui.css?v=sheet-close-align-1">
-  <link rel="stylesheet" href="home-scroll.css?v=street-polish-2">
+  <link rel="stylesheet" href="popup-ui.css?v=street-ui-refresh-2">
+  <link rel="stylesheet" href="home-scroll.css?v=street-ui-refresh-3">
   <link rel="stylesheet" href="image-loading.css?v=unified-colors-2">
   <link rel="stylesheet" href="commerce-ui.css?v=coupon-store-scope-1">
-  <link rel="stylesheet" href="daily-shops.css?v=daily-preferences-1">
-  <link rel="stylesheet" href="palette.css?v=item-coupon-price-1">
+  <link rel="stylesheet" href="daily-shops.css?v=street-ui-refresh-2">
+  <link rel="stylesheet" href="palette.css?v=street-ui-refresh-1">
   <script defer src="rewards-flow.js?v=coupon-store-scope-1"></script>
   <script defer src="shopping-basket.js?v=3"></script>
   <script defer src="reward-groups.js?v=1"></script>
@@ -30,7 +30,7 @@
   <script defer src="daily-street.js?v=daily-preferences-1"></script>
   <link rel="stylesheet" href="street-atmosphere.css?v=shop-motion-on-tap-1">
   <script defer src="street-atmosphere.js?v=shop-motion-on-tap-1"></script>
-  <script defer src="app.js?v=daily-preferences-1"></script>
+  <script defer src="app.js?v=street-ui-refresh-1"></script>
   <script defer src="image-loading.js?v=shop-roofs-1"></script>
   <script defer src="model-loader.js?v=load-fast-1"></script>
   <script type="module" src="ip-rig-stage2/street-character.js?v=load-fast-1"></script>
@@ -115,7 +115,10 @@
           <div class="walk-trail" id="walkTrail" aria-hidden="true"></div>
           <button class="guide" id="guide" hidden><span class="guide-copy">点家小店，逛逛去～</span></button>
           <button class="skip-walk" id="skipWalk" hidden>跳过动效</button>
-          <button class="daily-progress" id="daily" aria-label="查看七天每日奖励"><span>已来<b id="visitCount">1</b>天 · 明日<b id="nextValue">5</b>元券</span><div class="daily-track"><span id="progressFill"></span></div></button>
+          <button class="daily-progress" id="daily" aria-label="已来1天 · 明日5元券，查看七天每日奖励">
+            <span class="daily-progress-heading"><span class="daily-progress-copy">已来1天 · 明日5元券</span><i data-lucide="chevron-right" aria-hidden="true"></i></span>
+            <span class="daily-progress-steps" aria-hidden="true"></span>
+          </button>
           <div class="street-actions"><button class="side-action claim-action" id="claim"><i data-lucide="ticket-percent"></i><span id="claimText">领3元券</span></button><button class="primary-action" id="enter">逛纸巾铺</button><button class="side-action" id="switch"><i data-lucide="refresh-cw"></i><span>换家店</span></button></div>
           <span class="walk-status sr-only" id="walkStatus" role="status" aria-live="polite"></span>
         </section>

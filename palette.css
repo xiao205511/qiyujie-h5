@@ -48,14 +48,10 @@
 #app .street {background:#a3d5e5}
 #app .topbar,#app .topbar nav button {color:var(--q-ink)}
 #app .topbar:before {background:linear-gradient(180deg,#fff6ef,var(--q-surface));box-shadow:0 1px 0 var(--q-line)}
-#app .topbar nav {background:linear-gradient(150deg,#fffdf670,#fff9ed4d);border-color:#fffdf669}
 #app .topbar nav button+button:before {background:#6b65552b}
 #app .topbar nav button:hover,#app .topbar nav button:focus-visible {background:#fffaf54d;color:var(--q-ink)}
-#app .daily-progress {width:max-content;min-width:144px;padding:8px 10px;background:var(--q-surface);color:var(--q-ink)}
-#app .daily-progress b {color:var(--q-orange-ink)}
-#app .daily-track {background:var(--q-orange-line)}
-#app .daily-track span {background:var(--q-action)}
-#app .side-action {background:var(--q-surface);color:var(--q-ink);box-shadow:0 2px 5px var(--q-shadow)}
+#app .daily-progress {background:rgb(255 255 255 / 57%);color:var(--q-ink);box-shadow:0 2px 10px #365d790a}
+#app .side-action {background:var(--q-surface);color:var(--q-ink);box-shadow:0 3px 12px #493a3514}
 #app .street-actions .side-action>.lucide {width:22px;height:22px;flex:none;stroke-width:2.2;fill:none}
 #app #switch>.lucide {color:var(--q-orange-ink)}
 #app .claim-action>.lucide {color:var(--q-orange)}
@@ -73,7 +69,7 @@
   color:#fff;
   box-shadow:inset 0 1px 1px #ffffff55,0 3px 8px #ff4c2826;
 }
-#app .primary-action {border:1px solid var(--q-action-border)}
+#app .primary-action {border:1px solid #ffffff40;box-shadow:0 4px 12px #e6532529}
 #app .coupon-strip button {
   background:var(--q-coupon-top);
   border:1px solid var(--q-orange-line);

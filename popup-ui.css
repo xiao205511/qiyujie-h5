@@ -2,7 +2,8 @@
 #app{--popup-max-height:85%;--popup-ink:#432719;--popup-muted:#887b71;--popup-line:#f5dfcd;--popup-cream:#fffaf4;--popup-orange:#ff5c0b;--reward-action-inset:30px;overflow:clip}
 .phone-shell{overflow:clip}
 #app .overlay{background:#263b3d55}
-#app.has-modal .world,#app.has-modal #walkerPosition,#app.has-modal .street-depth-mask,#app.has-modal .street-actions,#app.has-modal .coupon-condition,#app.has-modal .guide,#app.has-modal .recent{filter:blur(3px)}
+#app.has-modal .world{filter:blur(1px)}
+#app.has-modal #walkerPosition,#app.has-modal .street-depth-mask,#app.has-modal .street-actions,#app.has-modal .coupon-condition,#app.has-modal .guide,#app.has-modal .recent{filter:blur(3px)}
 #app .modal{max-height:var(--popup-max-height);color:var(--popup-ink);background:linear-gradient(155deg,#fffefa,#fff8ef);border:1px solid #fff9ef;box-shadow:0 12px 30px #45382120;scrollbar-width:thin;scrollbar-color:#ead8c6 transparent}
 #app .modal h2{font-weight:800;letter-spacing:-.5px;color:#3b2117}
 #app .modal.center{top:20px;width:344px;border-radius:28px;padding:28px 23px 23px}
