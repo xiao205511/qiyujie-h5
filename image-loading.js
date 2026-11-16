@@ -48,7 +48,7 @@
    notice.hidden=!failed;
   }
   function watch(binding){
-   const {element,host,url,message}=binding,token={};binding.token=token;
+   const {element,host,url,preview,message}=binding,token={};binding.token=token;
    host.dataset.artState='loading';message.textContent=binding.label+'加载中';message.hidden=false;
    const slow=win.setTimeout(()=>{
     if(binding.token===token&&host.dataset.artState==='loading'){
@@ -56,30 +56,62 @@
     }
    },20000);
    refreshNotice();
-   cache.load(url,{priority:binding.label==='商品图'?'low':'high'}).then(source=>{
-    if(binding.token!==token)return;
+   const load=()=>cache.load(url,{priority:binding.label==='商品图'||preview?'low':'high'});
+   const drawing=preview?cache.load(preview,{priority:'high'}).then(early=>{
+    if(binding.token!==token||!element.isConnected)return null;
+    element.setAttribute('href',early);
+    host.dataset.artPreview='true';
+    return load();
+   },load):load();
+   drawing.then(source=>{
+    if(!source||binding.token!==token||!element.isConnected)return;
     win.clearTimeout(slow);
     if(element.tagName.toLowerCase()==='image')element.setAttribute('href',source);
     else if(element.getAttribute('src')!==source)element.setAttribute('src',source);
     host.dataset.artState='ready';message.hidden=true;refreshNotice();
+    const detail=element.getAttribute('data-shop-detail');
+    if(!detail||win.navigator?.connection?.saveData)return;
+    const sourceWidth=Number(element.getAttribute('width'));
+    if(element.getBoundingClientRect().width*(win.devicePixelRatio||1)<=sourceWidth*1.12)return;
+    // Upgrade only after the lighter crop is visible. A failed detail version
+    // keeps the already-loaded original and its working hit area.
+    cache.load(detail,{priority:'low'}).then(enhanced=>{
+     if(binding.token===token&&element.isConnected)element.setAttribute('href',enhanced);
+    },()=>{});
    },()=>{
     if(binding.token!==token)return;
     win.clearTimeout(slow);host.dataset.artState='error';message.textContent='图片暂未加载';refreshNotice();
    });
   }
   function scan(){
-   for(const [element] of bindings)if(!element.isConnected)bindings.delete(element);
+   for(const [element] of bindings){
+    if(element.isConnected)continue;
+    recentImages?.unobserve(element);
+    bindings.delete(element);
+   }
    root.querySelectorAll('img.product-image,.sprite-image>image,.shop-roof-base>image,img.street-art,.popup-mascot>img,img.mall-reference').forEach(element=>{
     if(bindings.has(element))return;
     const svg=element.closest('.sprite-image'),host=svg?svg.parentElement:element.parentElement;
-    const url=element.getAttribute(svg?'href':'src');if(!url)return;
+    const current=element.getAttribute(svg?'href':'src');if(!current)return;
+    const base=element.getAttribute('data-shop-base');
+    if(base)host.classList.add('progressive-storefront');
     const message=doc.createElement('span');message.className='image-loading-message';message.setAttribute('aria-hidden','true');
     host.classList.add('image-loading-surface');host.append(message);
-    const binding={element,host,url,message,label:host.classList.contains('product-art')?'商品图':element.classList.contains('mall-reference')?'商城':'街景'};
-    bindings.set(element,binding);watch(binding);
+    const binding={element,host,url:base||current,preview:base?current:null,message,label:host.classList.contains('product-art')?'商品图':element.classList.contains('mall-reference')?'商城':'街景'};
+    bindings.set(element,binding);
+    if(recentImages&&element.closest('.recent-card'))recentImages.observe(element);
+    else watch(binding);
    });
    refreshNotice();
   }
+  const recentImages=win.IntersectionObserver?new win.IntersectionObserver(entries=>{
+   for(const entry of entries){
+    if(!entry.isIntersecting)continue;
+    recentImages.unobserve(entry.target);
+    const binding=bindings.get(entry.target);
+    if(binding)watch(binding);
+   }
+  },{rootMargin:'80px 0px'}):null;
   scan();new win.MutationObserver(scan).observe(root,{childList:true,subtree:true});
   const boot=doc.querySelector('#streetLoading');if(boot)boot.hidden=true;
  }

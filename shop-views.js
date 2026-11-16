@@ -16,7 +16,7 @@
     const feet=Object.fromEntries(Object.entries(base.feet).map(([side,foot])=>[side,{...foot,x:foot.x+dx,y:foot.y+dy}]));
     return {...base,point:[302,548],screen:{x:302,y:548},camera:{x:0,y:0,scale:1},size:1,scene:configured?'shop-front':'kitchen-front',feet,arrivalHeading:[0,1]};
   }
-  let doc,art,originalArt,activeRoof;
+  let doc,art,originalArt,activeRoof,activeSign;
   function init(document){
     doc=document;art=doc.querySelector('#world .street-art');originalArt=art.getAttribute('src');
   }
@@ -24,9 +24,14 @@
   function spriteStyle(shop,position='front'){
     return `--shop-hit:${hitAreaFor(shop,position)}`;
   }
-  function sprite(shop,position='front'){
+  function sprite(shop,position='front',detail=true){
     const sheet=shops[shop]?.artSheet,facing=facingFor(position);
-    const options={decorate:globalThis.QiyuShopRoofs?.decorate(shop,facing)};
+    const decorateRoof=globalThis.QiyuShopRoofs?.decorate(shop,facing);
+    const options={detail,progressive:doc?.querySelector('#app')?.dataset.character==='rigged',decorate:frame=>{
+      const roof=decorateRoof?.(frame);
+      const sign=globalThis.QiyuShopSignLights?.render(shop,facing,frame)||'';
+      return {...roof,content:(roof?.content||'')+sign};
+    }};
     return sheet?Art.renderShop(sheet.url,sheet.row*sheet.columns+{right:0,left:1,front:2}[facing],options):Art.renderShop('assets/shops-hue-'+facing+'-v1.png',shops[shop]?.art||0,options);
   }
   function activateRoof(storefront){
@@ -39,6 +44,13 @@
   function activateStreetRoof(key){
     activateRoof(doc?.querySelector(`[data-slot="${positionFor(key)}"]`));
   }
+  function lightSign(storefront){
+    const sign=storefront?.querySelector?.('[data-sign-tube-light]');
+    if(sign===activeSign)return;
+    activeSign?.setAttribute('opacity','0');
+    activeSign=sign;
+    activeSign?.setAttribute('opacity','1');
+  }
   function configure(nextSlots,nextShops){
     slots=nextSlots;shops=nextShops;configured=true;
     if(!doc)return;
@@ -47,7 +59,7 @@
       target.dataset.shop=slot.shop;target.dataset.role=slot.role||'';
       target.dataset.facing=facingFor(slot.position);
       target.style.cssText=spriteStyle(slot.shop,slot.position);
-      target.innerHTML='<span class="storefront-sprite" aria-hidden="true">'+sprite(slot.shop,slot.position)+'</span>';
+      target.innerHTML='<span class="storefront-sprite" aria-hidden="true">'+sprite(slot.shop,slot.position,slot.position!=='kitchen')+'</span>';
 
     }
     doc.querySelector('#app').classList.add('has-daily-shops');
@@ -77,8 +89,9 @@
     // its shops leave together, without an outgoing layer lingering over the door.
     doc.querySelector('#world').hidden=front;
     doc.querySelector('#storefrontScene').hidden=!front;
-    if(front)activateRoof(storefront);
-    else activateStreetRoof(key);
+    const current=front?storefront:doc.querySelector(`[data-slot="${position}"]`);
+    activateRoof(current);
+    lightSign(current);
     doc.querySelector('#guide').hidden=false;
   }
   function transition(commit){

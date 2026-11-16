@@ -47,7 +47,6 @@ let modalView=null,modalHistory=[],restoringModal=false,activeCouponId=null;
 const shops=Catalog.shops,allProducts=Catalog.allProducts,dailyRewards=Flow.rewards;
 const paperProducts=shops.paper.products,snackProducts=shops.snack.products,kitchenProducts=shops.kitchen.products;
 let streetSlots=[],streetSignature='',displayedStreet=null,atmosphere=null;
-let pendingWalk=null;
 const primaryShop=()=>streetSlots[0]?.shop||'paper';
 const secondaryShop=()=>streetSlots[1]?.shop||'face';
 function syncAtmosphere(arrival=false){
@@ -95,14 +94,16 @@ function listedPriceHtml(p,order,format,topup=false){
 }
 function toast(message){$('#toast').textContent=message;$('#toast').hidden=false;clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('#toast').hidden=true,2300);}
 function resize(){
- const scale=Math.min(1,innerWidth/414);
+ const viewportWidth=document.documentElement.clientWidth;
+ const viewportHeight=window.visualViewport?.scale===1?window.visualViewport.height:innerHeight;
+ const scale=Math.min(1,viewportWidth/414);
  const previewBar=$('#dayPreviewBar');if(previewBar)previewBar.hidden=!demo;
  document.body.classList.toggle('has-day-preview',!!demo);
  const previewHeight=previewBar&&!previewBar.hidden?previewBar.getBoundingClientRect().height:0;
  document.documentElement.style.setProperty('--preview-bar-height',previewHeight+'px');
  document.documentElement.style.setProperty('--s',String(scale));
- document.documentElement.style.setProperty('--preview-scale',String(Math.min(1,Math.max(320,innerHeight-previewHeight-48)/896)));
- document.documentElement.style.setProperty('--app-height',(innerWidth<=800?Math.max(320,(innerHeight-previewHeight)/scale):896)+'px');
+ document.documentElement.style.setProperty('--preview-scale',String(Math.min(1,Math.max(320,viewportHeight-previewHeight-48)/896)));
+ document.documentElement.style.setProperty('--app-height',(viewportWidth<=800?Math.max(320,(viewportHeight-previewHeight)/scale):896)+'px');
 }
 function updateCartEntry(){
  const button=$('#homeCart');if(!button)return;
@@ -234,8 +235,6 @@ function layoutAtmosphereModal(modal){
  if(close){close.classList.add('atmosphere-close');modal.append(close);}
 }
 function openModal(kind,html,classes='sheet simple-sheet',{replace=false,reset=false}={}){
- if(pendingWalk)ShopViews?.activateStreetRoof(focusShop);
- pendingWalk=null;
  if(!currentModal)lastFocus=document.activeElement;
  const next=describeModal(kind);
  if(reset)modalHistory=[];
@@ -534,13 +533,41 @@ function saveCheckoutDetails(){
 function dismissModal(){
  if(!restoreModalView())closeModal();
 }
+function createOrderId(){
+ if(typeof crypto.randomUUID==='function')return crypto.randomUUID();
+ // The LAN preview uses HTTP, where only getRandomValues is available.
+ const bytes=crypto.getRandomValues(new Uint8Array(16));
+ bytes[6]=(bytes[6]&15)|64;
+ bytes[8]=(bytes[8]&63)|128;
+ const hex=Array.from(bytes,value=>value.toString(16).padStart(2,'0')).join('');
+ return [hex.slice(0,8),hex.slice(8,12),hex.slice(12,16),hex.slice(16,20),hex.slice(20)].join('-');
+}
 function submitOrder(){
  if(orderSubmitting||!orderProduct||currentModal!=='checkout')return;
  orderSubmitting=true;const button=$('[data-submit-order]');button.disabled=true;
- const p=orderProduct,id=crypto.randomUUID(),before=state.orders.length;
- state=checkoutMode==='basket'?Basket.checkout(state,allProducts,todayKey(),id,cartOptions()):checkoutMode==='topup'?Basket.placeDraftOrder(state,allProducts,topupContext.singleDraft,todayKey(),id,{couponId:discountChoice}):Flow.placeItemsOrder(state,[{product:p,quantity:orderQuantity}],todayKey(),id,{couponId:discountChoice});
- if(state.orders.length===before){orderSubmitting=false;showBasket(basketReturnShop);toast('购物车已更新，请重新确认');return;}
- const order={...state.orders.at(-1),delivery:{...checkoutPreferences()}};state={...state,orders:[...state.orders.slice(0,-1),order]};state=DailyStreet.record(state,p.shop,'view',todayKey());save();renderHome();
+ const p=orderProduct,day=todayKey();
+ let order;
+ try{
+  const id=createOrderId();
+  let updated;
+  if(checkoutMode==='basket')updated=Basket.checkout(state,allProducts,day,id,cartOptions());
+  else if(checkoutMode==='topup')updated=Basket.placeDraftOrder(state,allProducts,topupContext.singleDraft,day,id,{couponId:discountChoice});
+  else updated=Flow.placeItemsOrder(state,[{product:p,quantity:orderQuantity}],day,id,{couponId:discountChoice});
+  if(updated.orders.length===state.orders.length){
+   orderSubmitting=false;showBasket(basketReturnShop);toast('购物车已更新，请重新确认');return;
+  }
+  order={...updated.orders.at(-1),delivery:{...checkoutPreferences()}};
+  updated={...updated,orders:[...updated.orders.slice(0,-1),order]};
+  updated=DailyStreet.record(updated,p.shop,'view',day);
+  storage.setItem(KEY,JSON.stringify(updated));
+  state=updated;
+ }catch(error){
+  orderSubmitting=false;button.disabled=false;
+  console.warn('Could not save the demo order:',error);
+  toast('订单提交失败，请重试');
+  return;
+ }
+ renderHome();
  const next=nextReward(),multiple=order.items?.length>1;
  const productArt=multiple?`<div class="order-basket-art">${order.items.slice(0,3).map(i=>art(allProducts.find(p=>p.id===i.product))).join('')}</div><p class="order-basket-count">${shops[order.shop]?.name||'奇遇街'} · 共${order.quantity}件</p>`:`<div class="order-success-art">${art(p)}</div>`;
  openModal('order-success',`${closeButton()}<h2 id="modalTitle"><span class="celebrate-rays">✦</span> 下单成功 <span class="celebrate-rays">✦</span></h2><p class="success-sub">好物已选好，今天也逛得开心</p>${productArt}<p class="success-paid">实付 <span>¥${money(order.amount)}</span></p><div class="used-coupon-chip">${order.discount?`${order.discountKind==='benefit'?'已享专享价，优惠':'本单用券减'}${order.discount}元`:'本单按商品原价结算'}</div><p class="tomorrow-reward">${icon('gift')}${state.drawn?'本轮已完成，明天开启新一轮好礼':state.visits===7?'抽奖机会已解锁，快去我的奖励领取':`明天再来，${next.value?`领<b>${next.value}元券</b>`:`解锁<b>${next.name}</b>`}`}</p><button class="wide-cta" data-close>继续逛街</button>`,'center order-success-popup',{reset:true});
@@ -645,12 +672,44 @@ function showLotteryResult(){
  openModal('lottery-result',`<header class="lottery-popup-header">${closeButton()}<p class="eyebrow">第7天专属好礼</p><h2 id="modalTitle">恭喜，抽中好礼！</h2></header><div class="lottery-popup-scroll" role="region" aria-label="已获得的抽奖奖励" tabindex="0"><div class="lottery-result-reward"><p class="lottery-result-summary">${prize?.name||'抽奖好礼'}<span>已放入「我的奖励」</span></p></div><div class="lottery-result-tickets">${groups.map(e=>ticket(e.coupon,{count:e.count,showStatus:false})).join('')}</div></div><footer class="lottery-popup-footer"><button class="wide-cta" data-show-rewards>查看并使用奖励</button><button class="quiet-action" data-close>继续逛街</button></footer>`,'center lottery-result-popup',{replace:currentModal==='lottery'});
 }
 
+function drawRigWalkFrames(anchor,pose,walking){
+  const canvas=$('#rigWalkFallback');
+  if(!walking){
+    if(anchor.dataset.walkRenderer==='frames'){
+      delete anchor.dataset.walkRenderer;
+      canvas.hidden=true;
+    }
+    return;
+  }
+  // Keep one renderer for the duration of a walk once its first frame is visible.
+  if(anchor.dataset.walkRenderer!=='frames'&&$('#app').dataset.ipRenderer==='skinned-glb')return;
+  const atlas=$('#rigWalkFrames');
+  if(!atlas?.naturalWidth)return;
+  const tile=canvas.width,frameCount=16;
+  const heading=window.QiyuRigStreetMotion.yawFor(pose.heading)*180/Math.PI;
+  const angle=heading<0?heading+360:heading;
+  const directions=[110,145,180,210];
+  const row=directions.reduce((closest,direction,index)=>
+    Math.abs(angle-direction)<Math.abs(angle-directions[closest])?index:closest,0);
+  const column=Math.floor((pose.gait%1)*frameCount);
+  const frame=String(row*frameCount+column);
+  if(canvas.dataset.frame!==frame){
+    const context=canvas.getContext('2d');
+    if(!context)return;
+    context.clearRect(0,0,tile,tile);
+    context.drawImage(atlas,column*tile,row*tile,tile,tile,0,0,tile,tile);
+    canvas.dataset.frame=frame;
+  }
+  canvas.hidden=false;
+  anchor.dataset.walkRenderer='frames';
+}
 function drawWalker(pose,walking=false){
   const camera=pose.camera;
   $('#world').style.transform=`translate(${camera.x}px, ${camera.y}px) scale(${camera.scale})`;
   if(!characterEnabled)return;
   const rig=$('#walkerPosition'),scale=(window.QiyuIP3D?.perspectiveFor(pose)??pose.size)*camera.scale;
   rig.style.transform=`translate(${pose.screen.x}px, ${pose.screen.y}px) scale(${scale})`;
+  if(riggedEnabled)drawRigWalkFrames(rig,pose,walking);
   // The optional 3D preview consumes exactly the same ground pose and camera.
   window.QiyuIPFrame={pose,walking};
   if(window.QiyuIP3D){
@@ -724,39 +783,13 @@ function changeShopView(key){
   },reduced);
   motionFinish=moving?finish:null;
 }
-function waitForStreetRig(){
-  return new Promise(resolve=>{
-    const finish=()=>{
-      clearTimeout(timeout);
-      window.removeEventListener('qiyu-ip-ready',ready);
-      resolve($('#app').dataset.ipRenderer==='skinned-glb');
-    };
-    // The renderer records its ready state just after dispatching this event.
-    const ready=()=>queueMicrotask(finish);
-    const timeout=setTimeout(finish,4500);
-    window.addEventListener('qiyu-ip-ready',ready,{once:true});
-  });
-}
-async function goTo(key,options={}){
+function goTo(key,options={}){
   if(moving)return;
-  if(pendingWalk?.key===key)return;
-  if(pendingWalk)ShopViews?.activateStreetRoof(focusShop);
-  pendingWalk=null;
   $('#homeScroll').scrollTo({top:0,behavior:reduced?'auto':'smooth'});
   if(key===focusShop&&!options.replay){showShop(key);return;}
   const target=shops[key];if(!target)return;
   if(ShopViews&&(!characterEnabled||ShopViews.travelKind(focusShop,key)==='cut'))return changeShopView(key);
   ShopViews?.activateStreetRoof(key);
-  if(riggedEnabled&&!reduced&&$('#app').dataset.ipRenderer!=='skinned-glb'){
-    if(location.protocol==='file:'||$('#app').dataset.ipRenderer==='error')return changeShopView(key);
-    const request={key,from:focusShop};pendingWalk=request;
-    $('#walkStatus').textContent='正在准备走路动效';
-    const ready=await waitForStreetRig();
-    if(pendingWalk!==request)return;
-    pendingWalk=null;
-    if(currentModal||focusShop!==request.from)return;
-    if(!ready||reduced)return changeShopView(key);
-  }
   closeModal();moving=true;$('#app').classList.add('moving');$('#app').dataset.walking='true';atmosphere?.setBlocked(true,{onTheWay:true});$('#guide').hidden=true;
   $('#skipWalk').hidden=reduced;$('#enter').disabled=true;$('#switch').disabled=true;
   $('#walkStatus').textContent='正在前往'+target.name;
@@ -843,11 +876,12 @@ document.addEventListener('keydown',event=>{
 });
 $('#motionToggle').checked=reduced;$('#motionToggle').addEventListener('change',event=>{reduced=event.target.checked;$('#app').classList.toggle('reduce-motion',reduced);if(reduced)motionFinish?.();});
 $('#replay').addEventListener('click',()=>{if(moving)return;closeModal();goTo(focusShop===primaryShop()?secondaryShop():primaryShop());});
-$('#reset').addEventListener('click',()=>{pendingWalk=null;motionFinish?.();closeModal();state=restoreDailyCouponScopes(fresh());streetSignature='';renderHome();window.QiyuIP3D?.greet();$('#guide').hidden=false;if(demo==='wallet')showRewards();else maybeOfferReward();});
+$('#reset').addEventListener('click',()=>{motionFinish?.();closeModal();state=restoreDailyCouponScopes(fresh());streetSignature='';renderHome();window.QiyuIP3D?.greet();$('#guide').hidden=false;if(demo==='wallet')showRewards();else maybeOfferReward();});
 $('#previewDay')?.addEventListener('change',event=>{const url=new URL(location.href);url.searchParams.set('demo',event.target.value);url.searchParams.set('demoDay',Flow.addDays(state.streetStartedOn||todayKey(),previewDays.indexOf(event.target.value)));url.searchParams.set('v','daily-preferences-1');location.href=url.href;});
 $('#previewProfile')?.addEventListener('change',event=>{const url=new URL(location.href);url.searchParams.set('shopProfile',event.target.value);url.searchParams.set('v','daily-preferences-1');location.href=url.href;});
 atmosphere=window.QiyuStreetAtmosphere?.mount({document,greet:()=>window.QiyuIP3D?.greet(),reduced:()=>reduced});
-window.addEventListener('resize',resize);resize();$('#app').classList.toggle('reduce-motion',reduced);renderHome();if(hasDailyPreview)resize();
+window.addEventListener('resize',resize);window.visualViewport?.addEventListener('resize',resize);
+resize();$('#app').classList.toggle('reduce-motion',reduced);renderHome();if(hasDailyPreview)resize();
 setTimeout(demo==='wallet'?showRewards:maybeOfferReward,450);
 
 window.addEventListener('pageshow',syncActivity);

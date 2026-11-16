@@ -6,51 +6,73 @@
 .street-cloud:nth-child(3){left:302px;top:89px;width:136px;height:63px;animation-duration:44s;animation-delay:-8s}
 #storefrontScene>.street-clouds{transform:translate(-264px,-102.5px) scale(1.875);transform-origin:0 0;z-index:1}
 @keyframes cloud-drift{from{transform:translate3d(-8px,0,0)}to{transform:translate3d(10px,1px,0)}}
-#app.shop-welcoming .storefront-front,#app.shop-welcoming[data-scene-mode=street] .shop-hotspot.is-current .storefront-sprite{animation:shop-welcome 1.4s ease-out both}
-@keyframes shop-welcome{0%,100%{filter:brightness(1)}32%{filter:brightness(1.07) drop-shadow(0 0 8px #fff3c970)}}
 #app .guide-copy{display:block;max-width:148px;white-space:normal;line-height:18px;font-size:14px}
 .atmosphere-paused .street-cloud{animation-play-state:paused}
-#app.reduce-motion .street-cloud,#app.reduce-motion .storefront-front,#app.reduce-motion .storefront-sprite{animation:none!important}
-@media(prefers-reduced-motion:reduce){.street-cloud,.storefront-front,.storefront-sprite{animation:none!important}}
+#app.reduce-motion .street-cloud{animation:none!important}
+@media(prefers-reduced-motion:reduce){.street-cloud{animation:none!important}}
 
 #app .street .sprite-image{overflow:visible}
 .shop-roof-effect{display:none}
 .roof-playing .shop-roof-effect{display:inline}
 .roof-playing .shop-roof-base{mask:var(--roof-mask)}
+.roof-playing:not([data-tissue-ready]) .shop-roof-base[data-roof-cut=tissue],
+.roof-playing:not([data-spatula-ready]) .shop-roof-base[data-roof-cut=spatula]{mask:none}
+.shop-roof-effect:is([data-roof-effect=tissue],[data-roof-effect=spatula]){display:inline;visibility:hidden}
+.roof-playing[data-tissue-ready] [data-roof-effect=tissue],
+.roof-playing[data-spatula-ready] [data-roof-effect=spatula]{visibility:visible}
 .shop-roof-piece{transform-box:view-box;transform-origin:var(--roof-origin)}
-.roof-playing [data-roof-effect=tissue] .shop-roof-piece{animation:roof-tissue 2.9s ease-in-out infinite}
-.roof-playing [data-roof-effect=spatula] .shop-roof-piece{animation:roof-spatula 2.7s ease-in-out infinite}
-.roof-playing .shop-foam-bubble{opacity:0;filter:drop-shadow(0 1px 1px #39798580);animation:roof-foam 2.5s var(--bubble-delay) ease-out infinite}
-.roof-playing .shop-roof-accent{opacity:0;filter:drop-shadow(0 1px 1px #63455788);animation:roof-accent 2.65s var(--accent-delay) ease-in-out infinite}
-.roof-playing [data-roof-effect=steam] .shop-roof-accent{animation-duration:2.4s}
-.roof-playing [data-roof-effect=snow] .shop-roof-accent{--accent-rise:18px}
-.shop-motion-paused .roof-playing :is(.shop-roof-piece,.shop-foam-bubble,.shop-roof-accent){animation-play-state:paused}
+.roof-playing[data-tissue-ready] .shop-tissue-strip{animation:roof-tissue 3.3s linear infinite}
+.roof-playing[data-spatula-ready] .shop-roof-piece{animation:roof-spatula 3.4s ease-in-out infinite}
+.roof-playing .shop-foam-bubble{opacity:0;filter:drop-shadow(0 1px 1px #46969e40);animation:roof-foam 3s var(--bubble-delay) ease-out infinite}
+.roof-playing .shop-roof-accent{opacity:0;transform-box:fill-box;transform-origin:center}
+.roof-playing [data-roof-effect=sheen] .shop-roof-accent{filter:blur(.5px);animation:roof-sheen 3.5s var(--accent-delay) ease-in-out infinite}
+.roof-playing [data-roof-effect=steam] .shop-roof-accent{filter:blur(.9px);animation:roof-steam 3.4s var(--accent-delay) ease-out infinite}
+.roof-playing [data-roof-effect=snow] .shop-roof-accent{animation:roof-snow 3.7s var(--accent-delay) linear infinite}
+.roof-playing [data-roof-effect=bubble] .shop-roof-accent{animation:roof-laundry-bubble 3.2s var(--accent-delay) ease-out infinite}
+.shop-motion-paused .roof-playing :is(.shop-roof-piece,.shop-tissue-strip,.shop-foam-bubble,.shop-roof-accent){animation-play-state:paused}
 @keyframes roof-tissue{
- 0%,100%{transform:none}
- 25%{transform:skewX(-7deg) scaleY(1.06)}
- 68%{transform:skewX(5deg) scaleY(.98)}
+ 0%{transform:translateY(0)}
+ 12%{transform:translateY(0);animation-timing-function:steps(31,end)}
+ 69%,100%{transform:translateY(var(--tissue-strip-shift))}
 }
 @keyframes roof-spatula{
- 0%,100%{transform:none}
- 24%{transform:rotate(-7deg)}
- 58%{transform:rotate(3.5deg)}
- 78%{transform:rotate(-1.5deg)}
+ 0%,13%,84%,100%{transform:none}
+ 31%{transform:rotate(-5.5deg)}
+ 53%{transform:rotate(2.7deg)}
+ 70%{transform:rotate(-.7deg)}
 }
 @keyframes roof-foam{
  0%{opacity:0;transform:scale(.25)}
- 9%{opacity:1}
- 33%{opacity:.78}
- 48%,100%{opacity:0;transform:translate(var(--bubble-x),var(--bubble-y)) scale(1.1)}
+ 9%{opacity:.94}
+ 31%{opacity:.74}
+ 52%,100%{opacity:0;transform:translate(var(--bubble-x),var(--bubble-y)) scale(1.08)}
 }
-@keyframes roof-accent{
- 0%,100%{opacity:0;transform:translateY(1px) scale(.68)}
- 18%,35%{opacity:.98}
- 60%{opacity:0;transform:translateY(var(--accent-rise,-28px)) scale(1.12)}
- 61%,99%{opacity:0}
+@keyframes roof-sheen{
+ 0%,12%{opacity:0;transform:translate(-2px,1px) scale(.64)}
+ 27%{opacity:.86;transform:translate(0,-.4px) scale(1)}
+ 49%,100%{opacity:0;transform:translate(2px,-1px) scale(.8)}
+}
+@keyframes roof-steam{
+ 0%{opacity:0;transform:translateY(5px) scale(.63)}
+ 15%{opacity:.7}
+ 37%{opacity:.48}
+ 63%,100%{opacity:0;transform:translate(5px,-19px) scale(1.12)}
+}
+@keyframes roof-snow{
+ 0%{opacity:0;transform:translate(4px,-12px) scale(.74)}
+ 15%{opacity:.86}
+ 49%{opacity:.72}
+ 68%,100%{opacity:0;transform:translate(-8px,23px) rotate(28deg) scale(.9)}
+}
+@keyframes roof-laundry-bubble{
+ 0%{opacity:0;transform:translateY(3px) scale(.55)}
+ 17%{opacity:.76}
+ 42%{opacity:.54}
+ 65%,100%{opacity:0;transform:translate(9px,-23px) scale(1)}
 }
 #app.reduce-motion .shop-roof-effect{display:none}
 #app.reduce-motion .shop-roof-base{mask:none}
 @media(prefers-reduced-motion:reduce){
- .roof-playing .shop-roof-effect{display:none}
+ .roof-playing .shop-roof-effect,.roof-playing [data-roof-effect=tissue],.roof-playing [data-roof-effect=spatula]{display:none}
  .roof-playing .shop-roof-base{mask:none}
 }

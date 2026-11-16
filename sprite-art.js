@@ -20,7 +20,7 @@
   }
   return source?{url,width:atlas.width,height:atlas.height,...source}:null;
  }
- function render(url,index,{padding=0,isolated=false,decorate}={}){
+ function render(url,index,{padding=0,isolated=false,detail=false,progressive=false,decorate}={}){
   const source=frame(url,index);
   if(!source)return '<svg class="sprite-image" viewBox="0 0 100 100" aria-hidden="true" focusable="false"><rect x="8" y="8" width="84" height="84" rx="8" fill="#f7f7f8"/></svg>';
   const [x,y,w,h]=source.crop,[vx,vy,vw,vh]=source.viewport||source.crop;
@@ -29,8 +29,12 @@
   const shape=source.outline?'<polygon points="'+source.outline.map(point=>point.join(',')).join(' ')+'"/>':`<rect x="${x}" y="${y}" width="${w}" height="${h}"/>`;
   const image=isolated?{url:shopSource(url,index).url,x,y,width:w,height:h}:{url:source.url,x:0,y:0,width:source.width,height:source.height};
   const extra=decorate?.({id,x:vx,y:vy,viewX,viewY,side});
-  const bitmap=`<image${extra?.cut?` id="${id}-art"`:''} href="${escape(image.url)}" x="${image.x}" y="${image.y}" width="${image.width}" height="${image.height}" clip-path="url(#${id})"/>`;
-  const base=extra?.cut?`<g class="shop-roof-base" style="--roof-mask:url(#${id}-roof-mask)">${bitmap}</g>`:bitmap;
+  const enhanced=isolated&&detail?` data-shop-detail="${escape(image.url.replace(/\.webp$/, '-detail-v1.webp'))}"`:'';
+  const early=isolated&&progressive;
+  const href=early?image.url.replace(/\.webp$/,'-preview-v1.webp'):image.url;
+  const full=early?` data-shop-base="${escape(image.url)}"`:'';
+  const bitmap=`<image href="${escape(href)}"${full}${enhanced} x="${image.x}" y="${image.y}" width="${image.width}" height="${image.height}" clip-path="url(#${id})"/>`;
+  const base=extra?.cut?`<g class="shop-roof-base" data-roof-cut="${extra.cut}" style="--roof-mask:url(#${id}-roof-mask)">${bitmap}</g>`:bitmap;
   return `<svg class="sprite-image" viewBox="${view}" preserveAspectRatio="xMidYMid meet" aria-hidden="true" focusable="false"><defs><clipPath id="${id}" clipPathUnits="userSpaceOnUse">${shape}</clipPath>${extra?.defs||''}</defs>${base}${extra?.content||''}</svg>`;
  }
  function shopSource(url,index){

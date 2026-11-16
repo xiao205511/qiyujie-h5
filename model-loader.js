@@ -1,13 +1,27 @@
 /* Deliver the exact existing rig with lossless compression, after visible shops. */
-(function(root,factory){const api=factory(root);if(typeof module==='object'&&module.exports)module.exports=api;else root.QiyuModelLoader=api;})(typeof window==='object'?window:globalThis,function(root){
+(function(root,factory){
+ const api=factory(root);
+ if(typeof module==='object'&&module.exports)module.exports=api;
+ else {root.QiyuModelLoader=api;api.start();}
+})(typeof window==='object'?window:globalThis,function(root){
  'use strict';
+ let streetReady;
  function waitForStreet(){
   const doc=root.document,app=doc?.querySelector('#app');
   if(!app||app.dataset.streetReady==='true')return Promise.resolve();
-  return new Promise(resolve=>{
+  return streetReady??=new Promise(resolve=>{
    const done=()=>{clearTimeout(timer);doc.removeEventListener('qiyu-street-ready',done);resolve();};
-   const timer=setTimeout(done,1500);doc.addEventListener('qiyu-street-ready',done,{once:true});
+   const timer=setTimeout(done,22000);doc.addEventListener('qiyu-street-ready',done,{once:true});
   });
+ }
+ async function start(){
+  const doc=root.document,app=doc.querySelector('#app');
+  if(app?.dataset.character!=='rigged')return;
+  await waitForStreet();
+  const script=doc.createElement('script');
+  script.type='module';
+  script.src='ip-rig-stage2/street-character.js?v=load-fast-1';
+  doc.head.append(script);
  }
  async function load(loader,{fetch=root.fetch,Decompression=root.DecompressionStream,wait=waitForStreet}={}){
   await wait();
@@ -24,5 +38,5 @@
   }
   report('original');return loader.loadAsync('ip-rig-stage2/assets/qiyu-rigged.glb?v=video2-legs1');
  }
- return {load};
+ return {load,start};
 });
