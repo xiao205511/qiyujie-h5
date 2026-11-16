@@ -335,9 +335,9 @@
 #app .detail-cart-entry{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;min-height:49px;width:44px;padding:0;background:transparent;color:var(--popup-muted);border-radius:10px}
 #app .detail-cart-entry>.lucide{width:23px;height:23px;stroke-width:1.8;color:var(--popup-orange)}
 #app .detail-cart-entry>span{font-size:10px;line-height:15px;white-space:nowrap}
-#app .detail-purchase-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;min-width:0}
-#app .detail-purchase-actions .wide-cta{width:100%;min-width:0;font-size:18px;min-height:49px;padding:10px}
-#app .detail-purchase-actions .secondary-cta{width:100%;min-width:0;min-height:49px;padding:10px;margin:0;font-size:18px;background:#fff3e3;color:#b87436}
+#app .detail-purchase-actions{display:grid;grid-template-columns:minmax(112px,1fr) minmax(0,1fr);gap:10px;min-width:0}
+#app .detail-purchase-actions :is(.wide-cta,.secondary-cta){width:100%;min-width:0;min-height:49px;padding:10px 6px;font-size:18px;white-space:nowrap}
+#app .detail-purchase-actions .secondary-cta{margin:0;background:#fff3e3;color:#b87436}
 #app .detail-sheet .sheet-head>.sheet-actions{display:flex;align-self:center;padding:0;margin-left:auto}
 #app .detail-sheet .sheet-actions>.detail-close{position:static;margin:0}
 #app .basket-sheet .detail-close{position:static;background:none;color:#767b72;padding:5px;width:32px;height:32px;flex:none}
@@ -384,7 +384,7 @@
 #app.has-modal .home-cart-entry{display:none}
 
 /* Atmospheric cards keep a separate close control below the card. */
-#app .modal.center,#app .modal.center:is(.lottery-popup,.lottery-result-popup){--atmosphere-top:0px;display:flex;flex-direction:column;flex:0 1 auto;min-height:0;top:0;margin:var(--atmosphere-top) 0 72px;padding:0;overflow:visible;max-height:min(var(--popup-max-height),calc(100% - var(--atmosphere-top) - 104px))}
+#app .modal.center,#app .modal.center:is(.lottery-popup,.lottery-result-popup){--atmosphere-top:0px;display:flex;flex-direction:column;flex:0 1 auto;min-height:0;top:0;margin:var(--atmosphere-top) 0 72px;padding:0;overflow:visible;max-width:calc(100% - 24px);max-height:min(var(--popup-max-height),calc(100% - var(--atmosphere-top) - 104px))}
 #app .modal.center.offer-popup{--atmosphere-top:150px}
 #app .modal.center.claim-success-popup{--atmosphere-top:34px}
 #app .atmosphere-content{flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;padding:28px 23px 23px;border-radius:inherit;scrollbar-width:thin;scrollbar-color:#ead8c6 transparent}

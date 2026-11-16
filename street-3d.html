@@ -7,7 +7,7 @@
   <title>奇遇街 · 今天逛点喜欢的</title>
   <link rel="icon" href="data:,">
   <link rel="preload" as="image" href="assets/street-cloudless-v1.jpg" fetchpriority="high">
-  <link rel="stylesheet" href="styles.css?v=ground-walk-5">
+  <link rel="stylesheet" href="styles.css?v=responsive-layout-1">
   <script defer src="assets/icons.js"></script>
   <script defer src="walking.js?v=depth-navigation-1"></script>
   <script defer src="rig-street-motion.js?v=street-polish-2"></script>
@@ -17,11 +17,11 @@
   <script defer src="shop-roofs.js?v=roof-detail-1"></script>
   <script defer src="shop-sign-lights.js?v=sign-lights-6"></script>
   <script defer src="shop-views.js?v=mobile-launch-1"></script>
-  <link rel="stylesheet" href="popup-ui.css?v=street-ui-refresh-2">
-  <link rel="stylesheet" href="home-scroll.css?v=mobile-launch-safe-area-20261116">
-  <link rel="stylesheet" href="image-loading.css?v=mobile-launch-1">
-  <link rel="stylesheet" href="commerce-ui.css?v=coupon-store-scope-1">
-  <link rel="stylesheet" href="daily-shops.css?v=shop-layers-1">
+  <link rel="stylesheet" href="popup-ui.css?v=fixed-type-3">
+  <link rel="stylesheet" href="home-scroll.css?v=responsive-safe-area-rounded-20261116">
+  <link rel="stylesheet" href="image-loading.css?v=responsive-layout-3">
+  <link rel="stylesheet" href="commerce-ui.css?v=responsive-layout-1">
+  <link rel="stylesheet" href="daily-shops.css?v=fixed-type-4">
   <link rel="stylesheet" href="palette.css?v=street-ui-refresh-1">
   <script defer src="rewards-flow.js?v=coupon-store-scope-1"></script>
   <script defer src="shopping-basket.js?v=3"></script>
@@ -31,7 +31,7 @@
   <script defer src="daily-street.js?v=daily-preferences-1"></script>
   <link rel="stylesheet" href="street-atmosphere.css?v=roof-detail-1">
   <script defer src="street-atmosphere.js?v=shop-layers-1"></script>
-  <script defer src="app.js?v=mobile-launch-1"></script>
+  <script defer src="app.js?v=responsive-mobile-launch-20261116"></script>
   <script defer src="image-loading.js?v=mobile-launch-1"></script>
   <script defer src="model-loader.js?v=mobile-launch-1"></script>
   <style>
@@ -57,7 +57,7 @@
   }
   .app[data-character="rigged"] .guide:before{
     content:"";position:absolute;inset:0 auto auto 0;width:180px;height:54px;z-index:0;pointer-events:none;
-    background:url('assets/speech-bubble-light.svg?v=2') center top/180px 54px no-repeat;
+    background:url('assets/speech-bubble-light.svg?v=3') center top/180px 54px no-repeat;
     filter:none;
   }
   .app[data-character="rigged"] .guide:after{
@@ -96,27 +96,29 @@
         <div class="home-scroll" id="homeScroll" role="region" aria-label="奇遇街首页，可上下滚动" tabindex="0">
         <section class="street" aria-label="奇遇街街景">
           <div id="streetLoading" role="status" style="position:absolute;left:50%;top:290px;transform:translateX(-50%);padding:6px 12px;border-radius:14px;background:var(--q-surface,#fffdfa);color:var(--q-muted,#747078);font-size:12px;white-space:nowrap;z-index:8;pointer-events:none">正在准备小街…</div>
-          <div class="world" id="world">
-            <img class="street-art" src="assets/street-cloudless-v1.jpg" alt="圆角薄荷色纸巾铺、橙色零食铺和蓝色厨房铺沿着小路排列" draggable="false">
-            <div class="street-clouds" aria-hidden="true"><span class="street-cloud"></span><span class="street-cloud"></span><span class="street-cloud"></span></div>
-            <button class="shop-hotspot paper" data-slot="paper" data-shop="paper" aria-label="进入纸巾补货铺"><span>进入纸巾铺</span></button>
-            <button class="shop-hotspot snack" data-slot="snack" data-shop="snack" aria-label="查看零食小铺"><span>去零食小铺</span></button>
-            <button class="shop-hotspot kitchen" data-slot="kitchen" data-shop="kitchen" aria-label="查看厨房帮手铺"><span>去厨房帮手铺</span></button>
+          <div class="street-scene">
+            <div class="world" id="world">
+              <img class="street-art" src="assets/street-cloudless-v1.jpg" alt="圆角薄荷色纸巾铺、橙色零食铺和蓝色厨房铺沿着小路排列" draggable="false">
+              <div class="street-clouds" aria-hidden="true"><span class="street-cloud"></span><span class="street-cloud"></span><span class="street-cloud"></span></div>
+              <button class="shop-hotspot paper" data-slot="paper" data-shop="paper" aria-label="进入纸巾补货铺"><span>进入纸巾铺</span></button>
+              <button class="shop-hotspot snack" data-slot="snack" data-shop="snack" aria-label="查看零食小铺"><span>去零食小铺</span></button>
+              <button class="shop-hotspot kitchen" data-slot="kitchen" data-shop="kitchen" aria-label="查看厨房帮手铺"><span>去厨房帮手铺</span></button>
+            </div>
+            <div class="storefront-scene" id="storefrontScene" hidden>
+              <img class="street-art" id="storefrontBackdrop" src="assets/street-cloudless-v1.jpg" alt="当前店铺门前街景" draggable="false">
+              <div class="street-clouds" aria-hidden="true"><span class="street-cloud"></span><span class="street-cloud"></span><span class="street-cloud"></span></div>
+              <div class="storefront-front" id="storefrontFront" role="img" hidden></div>
+              <div class="storefront-neighbor" data-front-neighbor="paper" aria-hidden="true"></div>
+              <div class="storefront-neighbor" data-front-neighbor="snack" aria-hidden="true"></div>
+              <button id="storeDoorHit" hidden aria-label="进入当前店铺"></button>
+            </div>
+            <div id="walkerPosition" aria-hidden="true">
+              <img class="rig-street-placeholder" src="assets/ip-first-frame-v1.webp" alt="" fetchpriority="high">
+              <img id="rigWalkFrames" src="assets/ip-walk-frames-v1.webp" alt="" hidden fetchpriority="high" decoding="async">
+              <canvas id="rigWalkFallback" class="rig-walk-fallback" width="144" height="144" hidden></canvas>
+            </div>
+            <div class="walk-trail" id="walkTrail" aria-hidden="true"></div>
           </div>
-          <div class="storefront-scene" id="storefrontScene" hidden>
-            <img class="street-art" id="storefrontBackdrop" src="assets/street-cloudless-v1.jpg" alt="当前店铺门前街景" draggable="false">
-            <div class="street-clouds" aria-hidden="true"><span class="street-cloud"></span><span class="street-cloud"></span><span class="street-cloud"></span></div>
-            <div class="storefront-front" id="storefrontFront" role="img" hidden></div>
-            <div class="storefront-neighbor" data-front-neighbor="paper" aria-hidden="true"></div>
-            <div class="storefront-neighbor" data-front-neighbor="snack" aria-hidden="true"></div>
-            <button id="storeDoorHit" hidden aria-label="进入当前店铺"></button>
-          </div>
-          <div id="walkerPosition" aria-hidden="true">
-            <img class="rig-street-placeholder" src="assets/ip-first-frame-v1.webp" alt="" fetchpriority="high">
-            <img id="rigWalkFrames" src="assets/ip-walk-frames-v1.webp" alt="" hidden fetchpriority="high" decoding="async">
-            <canvas id="rigWalkFallback" class="rig-walk-fallback" width="144" height="144" hidden></canvas>
-          </div>
-          <div class="walk-trail" id="walkTrail" aria-hidden="true"></div>
           <button class="guide" id="guide" hidden><span class="guide-copy">点家小店，逛逛去～</span></button>
           <button class="skip-walk" id="skipWalk" hidden>跳过动效</button>
           <button class="daily-progress" id="daily" aria-label="已来1天 · 明日5元券，查看七天每日奖励">

@@ -3,6 +3,7 @@ const $ = selector => document.querySelector(selector);
 const icon = name => `<i data-lucide="${name}"></i>`;
 const Flow = window.QiyuRewards, Basket = window.QiyuBasket, RewardGroups = window.QiyuRewardGroups, Catalog=window.QiyuCatalog, DailyStreet=window.QiyuDailyStreet;
 const previewDays=['first','second','third','fourth','fifth','sixth','seventh'];
+const pageVersion = 'responsive-layout-3';
 const params = new URLSearchParams(location.search), demo = [...previewDays,'wallet','freeorder'].includes(params.get('demo')) ? params.get('demo') : null;
 const hasDailyPreview=previewDays.includes(demo);
 const previewProfiles=['simulated','family','laundry','beauty','skin','baby','accessories'];
@@ -80,9 +81,9 @@ function coversWholeStores(c){
  return products.length>0&&products.every(p=>Basket.applies(c,p));
 }
 function priceHtml(p,{quote=Flow.quote(state,p,1,todayKey()),format=money,original=p.price,subtotal=false}={}){
- const label=(quote.discountKind==='benefit'?'专享':'券后')+(subtotal?'小计':'');
+ const label=quote.discountKind==='benefit'?'专享':'券后';
  const price=`<span class="price">${quote.discount?`<small>${label} </small>`:''}<sup>¥</sup>${format(quote.total)}</span>`;
- return quote.discount?`<span class="product-prices">${price}<del class="product-original-price" aria-label="${subtotal?'原小计':'原价'}${format(original)}元">¥${format(original)}</del></span>`:price;
+ return quote.discount?`<span class="product-prices">${price}<del class="product-original-price" aria-label="${subtotal?'原价合计':'原价'}${format(original)}元">¥${format(original)}</del></span>`:price;
 }
 function linePriceHtml(line,order){
  return priceHtml(line.product,{quote:{...line,discountKind:order.discountKind},original:line.subtotal,subtotal:line.quantity>1,format:exact});
@@ -93,17 +94,21 @@ function listedPriceHtml(p,order,format,topup=false){
  return priceHtml(p,{format,quote:line||topup?{total:p.price}:undefined});
 }
 function toast(message){$('#toast').textContent=message;$('#toast').hidden=false;clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('#toast').hidden=true,2300);}
+function fitStreetScene(){
+ const shell = $('#phoneShell');
+ shell.style.setProperty('--scene-scale', String(shell.clientWidth / 414));
+}
 function resize(){
  const viewportWidth=document.documentElement.clientWidth;
  const viewportHeight=window.visualViewport?.scale===1?window.visualViewport.height:innerHeight;
- const scale=Math.min(1,viewportWidth/414);
+ const mobile=viewportWidth<=800;
  const previewBar=$('#dayPreviewBar');if(previewBar)previewBar.hidden=!demo;
  document.body.classList.toggle('has-day-preview',!!demo);
  const previewHeight=previewBar&&!previewBar.hidden?previewBar.getBoundingClientRect().height:0;
  document.documentElement.style.setProperty('--preview-bar-height',previewHeight+'px');
- document.documentElement.style.setProperty('--s',String(scale));
- document.documentElement.style.setProperty('--preview-scale',String(Math.min(1,Math.max(320,viewportHeight-previewHeight-48)/896)));
- document.documentElement.style.setProperty('--app-height',(viewportWidth<=800?Math.max(320,(viewportHeight-previewHeight)/scale):896)+'px');
+ const availableHeight=viewportHeight-previewHeight-(mobile?0:48);
+ document.documentElement.style.setProperty('--app-height',(mobile?Math.max(320,availableHeight):Math.max(320,Math.min(896,availableHeight)))+'px');
+ fitStreetScene();
 }
 function updateCartEntry(){
  const button=$('#homeCart');if(!button)return;
@@ -136,7 +141,7 @@ function renderHome({preserveStreet=!!currentModal}={}){
  document.querySelectorAll('[data-shop]').forEach(el=>{const key=el.dataset.shop;el.setAttribute('aria-label',(key===focusShop?'进入':characterEnabled?'走到':'查看')+shops[key].name);el.classList.toggle('is-current',key===focusShop);});
  const dateLabel=$('#streetDate');if(dateLabel)dateLabel.textContent=todayKey().slice(5).replace('-','月')+'日 · 今日小街';
  const previewDay=$('#previewDay');if(previewDay)previewDay.value=previewDays[state.visits-1]||'first';
- document.querySelectorAll('[data-preview-day]').forEach((link,i)=>{const url=new URL(location.href);url.searchParams.set('demo',link.dataset.previewDay);url.searchParams.set('demoDay',Flow.addDays(state.streetStartedOn||todayKey(),i));url.searchParams.set('v','daily-preferences-1');link.href=url.href;if(i===state.visits-1)link.setAttribute('aria-current','page');else link.removeAttribute('aria-current');});
+ document.querySelectorAll('[data-preview-day]').forEach((link,i)=>{const url=new URL(location.href);url.searchParams.set('demo',link.dataset.previewDay);url.searchParams.set('demoDay',Flow.addDays(state.streetStartedOn||todayKey(),i));url.searchParams.set('v',pageVersion);link.href=url.href;if(i===state.visits-1)link.setAttribute('aria-current','page');else link.removeAttribute('aria-current');});
  const previewCaption=$('#previewDayCaption');if(previewCaption)previewCaption.textContent=`第${state.visits}天 · ${todayKey().slice(5).replace('-','月')}日`;
  const profileSelect=$('#previewProfile');if(profileSelect)profileSelect.value=shopProfile;
  const previewStores=$('#previewStores');
@@ -752,22 +757,16 @@ function positionGuide(key){
   if(!characterEnabled)return;
   const pose=restPose(key),size=window.QiyuIP3D?.perspectiveFor(pose)??pose.size,guide=$('#guide');
   if(riggedEnabled){
-    const scale=size*pose.camera.scale;
-    guide.dataset.side=key===primaryShop()?'right':'left';
-    if(key===primaryShop()){
-      // Keep the first-shop callout on the right without covering the face
-      // or letting its compact shape run past the edge of the street.
-      guide.style.left=`${Math.max(16,Math.min(254,pose.screen.x-28))}px`;
-      guide.style.top=`${Math.max(145,pose.screen.y-112*scale-38)}px`;
-      return;
-    }
-    // The bubble sits beside the face; its right-side tail points at the IP.
-    guide.style.left=`${Math.max(16,Math.min(218,pose.screen.x-48*scale-188))}px`;
-    guide.style.top=`${Math.max(145,pose.screen.y-56*scale-35)}px`;
+    const scale = size * pose.camera.scale;
+    const onHomeShop = key === primaryShop();
+    guide.dataset.side = onHomeShop ? 'right' : 'left';
+    const anchorX = onHomeShop ? Math.max(16, Math.min(254, pose.screen.x - 28)) : pose.screen.x;
+    guide.style.setProperty('--guide-x', `${anchorX}px`);
+    guide.style.setProperty('--guide-y', `${Math.max(145, pose.screen.y - 112 * scale - 44)}px`);
     return;
   }
-  guide.style.left=`${Math.max(18,Math.min(282,pose.screen.x-(pose.screen.x>310?120:-20)))}px`;
-  guide.style.top=`${Math.max(145,pose.screen.y-138*size*pose.camera.scale-40)}px`;
+  guide.style.setProperty('--guide-x',`${Math.max(18,Math.min(282,pose.screen.x-(pose.screen.x>310?120:-20)))}px`);
+  guide.style.setProperty('--guide-y',`${Math.max(145,pose.screen.y-138*size*pose.camera.scale-40)}px`);
 }
 function changeShopView(key){
   closeModal();moving=true;$('#app').classList.add('moving');$('#app').dataset.walking='true';atmosphere?.setBlocked(true);$('#app').dataset.navigation='cut';$('#guide').hidden=true;
@@ -862,7 +861,7 @@ document.addEventListener('click',event=>{
 $('#homeScroll').addEventListener('scroll',()=>$('#app').classList.toggle('home-scrolled',$('#homeScroll').scrollTop>24),{passive:true});
 $('#claim').addEventListener('click',showOffer);$('#enter').addEventListener('click',()=>showShop(focusShop));
 $('#switch').addEventListener('click',()=>goTo(ShopViews?.nextShopFor(focusShop)||secondaryShop()));
-$('#back').addEventListener('click',()=>{if(currentModal)dismissModal();else if(moving)motionFinish?.();else if(focusShop!==primaryShop())goTo(primaryShop());else if(ShopViews&&params.get('from')==='mall')location.href='mall.html';else toast('已经在为你推荐的主推店');});
+$('#back').addEventListener('click',()=>{if(currentModal)dismissModal();else if(moving)motionFinish?.();else if(focusShop!==primaryShop())goTo(primaryShop());else if(ShopViews&&params.get('from')==='mall')location.href='mall.html?v='+pageVersion;else toast('已经在为你推荐的主推店');});
 $('#guide').addEventListener('click',()=>focusShop===primaryShop()?goTo(secondaryShop()):showShop(focusShop));
 $('#skipWalk').addEventListener('click',()=>motionFinish?.());
 $('#daily').addEventListener('click',showDaily);$('#rules').addEventListener('click',showRules);$('#rewards').addEventListener('click',()=>showRewards());$('#favorites').addEventListener('click',showFavorites);
@@ -877,10 +876,11 @@ document.addEventListener('keydown',event=>{
 $('#motionToggle').checked=reduced;$('#motionToggle').addEventListener('change',event=>{reduced=event.target.checked;$('#app').classList.toggle('reduce-motion',reduced);if(reduced)motionFinish?.();});
 $('#replay').addEventListener('click',()=>{if(moving)return;closeModal();goTo(focusShop===primaryShop()?secondaryShop():primaryShop());});
 $('#reset').addEventListener('click',()=>{motionFinish?.();closeModal();state=restoreDailyCouponScopes(fresh());streetSignature='';renderHome();window.QiyuIP3D?.greet();$('#guide').hidden=false;if(demo==='wallet')showRewards();else maybeOfferReward();});
-$('#previewDay')?.addEventListener('change',event=>{const url=new URL(location.href);url.searchParams.set('demo',event.target.value);url.searchParams.set('demoDay',Flow.addDays(state.streetStartedOn||todayKey(),previewDays.indexOf(event.target.value)));url.searchParams.set('v','daily-preferences-1');location.href=url.href;});
-$('#previewProfile')?.addEventListener('change',event=>{const url=new URL(location.href);url.searchParams.set('shopProfile',event.target.value);url.searchParams.set('v','daily-preferences-1');location.href=url.href;});
+$('#previewDay')?.addEventListener('change',event=>{const url=new URL(location.href);url.searchParams.set('demo',event.target.value);url.searchParams.set('demoDay',Flow.addDays(state.streetStartedOn||todayKey(),previewDays.indexOf(event.target.value)));url.searchParams.set('v',pageVersion);location.href=url.href;});
+$('#previewProfile')?.addEventListener('change',event=>{const url=new URL(location.href);url.searchParams.set('shopProfile',event.target.value);url.searchParams.set('v',pageVersion);location.href=url.href;});
 atmosphere=window.QiyuStreetAtmosphere?.mount({document,greet:()=>window.QiyuIP3D?.greet(),reduced:()=>reduced});
 window.addEventListener('resize',resize);window.visualViewport?.addEventListener('resize',resize);
+if ('ResizeObserver' in window) new ResizeObserver(fitStreetScene).observe($('#phoneShell'));
 resize();$('#app').classList.toggle('reduce-motion',reduced);renderHome();if(hasDailyPreview)resize();
 setTimeout(demo==='wallet'?showRewards:maybeOfferReward,450);
 

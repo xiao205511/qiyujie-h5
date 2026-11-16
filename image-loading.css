@@ -1,6 +1,5 @@
 .image-loading-message{position:absolute;inset:0;display:grid;place-content:center;min-height:40px;background:linear-gradient(110deg,var(--q-canvas,#f8f6f3),var(--q-surface,#fffdfa),var(--q-canvas,#f8f6f3));color:var(--q-muted,#747078);font:12px/1.6 -apple-system,BlinkMacSystemFont,"PingFang SC",sans-serif;text-align:center;pointer-events:none;border-radius:inherit;z-index:1}
 .image-loading-message[hidden]{display:none}
-.app[data-character=rigged]:not([data-ip-renderer=skinned-glb]) #guide{visibility:hidden}
 .street .image-loading-message{display:none}
 .image-loading-surface:not(.progressive-storefront):is([data-art-state=loading],[data-art-state=error])>.sprite-image{visibility:hidden}
 .progressive-storefront:not([data-art-preview=true]):not([data-art-state=ready])>.sprite-image{visibility:hidden}

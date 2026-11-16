@@ -48,4 +48,4 @@
 body.has-day-preview .preview-layout{padding-top:calc(var(--preview-bar-height,82px) + 24px)}
 body.has-day-preview .preview-date-control{display:none}
 @media(max-width:800px){body.has-day-preview .preview-layout{padding-top:var(--preview-bar-height,82px)}}
-@media(max-width:360px){.day-preview-bar{padding-left:9px;padding-right:9px}.day-preview-bar nav{gap:4px}.day-preview-bar a{font-size:11px}}
+@media(max-width:360px){.day-preview-bar{padding-left:9px;padding-right:9px}.day-preview-bar nav{gap:4px}}
