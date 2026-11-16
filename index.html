@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="description" content="逛喜欢的小店，领每日好礼。可切换七天与不同店铺偏好。">
-  <meta http-equiv="refresh" content="0;url=street-3d.html?from=mall&amp;demo=first&amp;demoDay=2026-11-10&amp;v=responsive-layout-2">
+  <meta http-equiv="refresh" content="0;url=street-3d.html?from=mall&amp;demo=first&amp;demoDay=2026-11-10&amp;v=responsive-layout-3">
   <title>奇遇街 · 今天逛点喜欢的</title>
   <link rel="icon" href="data:,">
   <script>
@@ -21,10 +21,10 @@
       const offset = day === 'wallet' ? 5 : day === 'freeorder' ? 6 : days.indexOf(day);
       destination.searchParams.set('demoDay', '2026-11-' + String(10 + offset).padStart(2, '0'));
     }
-    destination.searchParams.set('v', 'responsive-layout-2');
+    destination.searchParams.set('v', 'responsive-layout-3');
     destination.hash = location.hash;
     location.replace(destination);
   </script>
 </head>
-<body><a href="street-3d.html?from=mall&amp;demo=first&amp;demoDay=2026-11-10&amp;v=responsive-layout-2">打开奇遇街七天预览</a></body>
+<body><a href="street-3d.html?from=mall&amp;demo=first&amp;demoDay=2026-11-10&amp;v=responsive-layout-3">打开奇遇街七天预览</a></body>
 </html>

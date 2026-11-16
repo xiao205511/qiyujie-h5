@@ -3,7 +3,7 @@ const $ = selector => document.querySelector(selector);
 const icon = name => `<i data-lucide="${name}"></i>`;
 const Flow = window.QiyuRewards, Basket = window.QiyuBasket, RewardGroups = window.QiyuRewardGroups, Catalog=window.QiyuCatalog, DailyStreet=window.QiyuDailyStreet;
 const previewDays=['first','second','third','fourth','fifth','sixth','seventh'];
-const pageVersion = 'responsive-layout-2';
+const pageVersion = 'responsive-layout-3';
 const params = new URLSearchParams(location.search), demo = [...previewDays,'wallet','freeorder'].includes(params.get('demo')) ? params.get('demo') : null;
 const hasDailyPreview=previewDays.includes(demo);
 const previewProfiles=['simulated','family','laundry','beauty','skin','baby','accessories'];
