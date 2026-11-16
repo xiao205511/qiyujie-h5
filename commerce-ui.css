@@ -162,10 +162,7 @@
 #app .edit-dock{padding:17px 20px 22px}
 #app .modal.checkout-edit-sheet{height:65%}
 @media(max-width:360px){#app .cart-settle-row{gap:8px}#app .cart-coupon-banner{padding:12px 10px}}
-/* Keep the local preview within short desktop and mobile windows as well. */
-#app{height:var(--app-height,896px)}
-@media(min-width:801px){.preview-layout{padding:24px;min-height:100dvh}.phone-shell{width:calc(414px * var(--preview-scale,1));height:calc(896px * var(--preview-scale,1))}#app{transform:scale(var(--preview-scale,1))}}
-@media(max-width:800px){.phone-shell{height:calc(var(--app-height,896px) * var(--s))}}
+@media(min-width:801px){.preview-layout{padding:24px;min-height:100dvh}}
 #app .modal.sheet.checkout-popup.commerce-sheet>.commerce-header{padding:25px 22px 17px}
 #app .modal.sheet.checkout-popup.commerce-sheet>.checkout-scroll{padding:4px 16px 28px}
 #app .product-art{position:relative;background-image:none}
@@ -174,7 +171,7 @@
 #app .product-art>.product-image{position:absolute;inset:0;display:block;width:100%;height:100%;object-fit:contain;padding:2.38%;border-radius:inherit;pointer-events:none}
 
 /* Walkthrough polish: legible supporting copy and compact, content-sized sheets. */
-#app{--tap-size:max(44px,calc(44px / var(--s,1)))}
+#app{--tap-size:44px}
 #app .coupon-strip{gap:10px;padding:12px;align-items:center}
 #app .coupon-strip>div{flex:1;min-width:0}
 #app .coupon-strip strong{font-size:13px;line-height:21px}

@@ -66,7 +66,7 @@
  function mount({document:doc,greet,reduced=()=>false}){
   const app=doc.querySelector('#app'),guide=doc.querySelector('#guide'),scroll=doc.querySelector('#homeScroll'),audio=doc.querySelector('#streetMusic');
   if(!app||!scroll||!audio)return null;
-  let context=null,blocked=false,approaching=false,pageHidden=false,welcomeTimer=null;
+  let context=null,blocked=false,approaching=false,pageHidden=false;
   const dialogue=createDialogue({onLine(line){
    const copy=guide?.querySelector('.guide-copy');
    if(copy&&copy.textContent!==line)copy.textContent=line;
@@ -98,11 +98,9 @@
    },
    setBlocked(value,{onTheWay=false}={}){blocked=value;approaching=onTheWay;active();},
    arrive(){
-    if(!context)return;clearTimeout(welcomeTimer);app.classList.remove('shop-welcoming');
-    // Reflow only on arrival, so a second visit can replay the brief welcome.
-    void app.offsetWidth;app.classList.add('shop-welcoming');
+    if(!context)return;
     dialogue.start(dialogueLines(context,true));
-    if(!reduced())greet();welcomeTimer=setTimeout(()=>app.classList.remove('shop-welcoming'),1500);
+    if(!reduced())greet();
    }
   };
  }

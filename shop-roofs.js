@@ -1,70 +1,84 @@
 /* Positions are in the original atlas cells, in right / left / front order. */
 (function(root){
- const tissue=[
-  {outline:'137,27 218,4 276,3 337,23 299,85 176,86',pivot:[237,85]},
-  {outline:'159,25 218,4 261,5 342,34 304,86 278,92 190,85',pivot:[246,87]},
-  {outline:'126,27 211,2 264,1 333,25 294,87 165,88',pivot:[227,86]}
- ];
- const spatula=[
-  {outline:'231,119 233,110 268,68 257,60 261,46 285,10 292,6 305,8 336,24 345,34 344,46 334,59 314,81 302,85 286,84 265,113 253,121',pivot:[243,113],roof:'230,121 247,100 271,77 286,75 304,80 321,83 325,124'},
-  {outline:'187,119 195,103 228,72 232,68 230,60 234,46 266,7 277,3 286,4 318,20 330,32 332,42 322,57 293,85 280,90 267,89 239,114 222,123',pivot:[201,115],roof:'185,121 213,96 235,79 254,74 273,75 297,84 305,126'},
-  {outline:'217,120 219,106 249,68 254,67 239,59 237,48 266,7 275,1 287,2 322,20 331,30 332,41 323,58 297,82 285,86 272,84 247,116 233,123',pivot:[229,115],roof:'216,123 237,97 254,74 270,70 295,75 311,81 318,128'}
- ];
- const nozzles=[[177,23],[173,25],[180,21]];
+ const facings=['right','left','front'];
+ const spatulaPivots=[[243,116],[201,117],[229,118]];
+ const nozzles=[[175,21],[171,24],[180,21]];
  const kinds={paper:'tissue',kitchen:'spatula',face:'foam'};
- // Anchors are percentages of each storefront frame, in right / left / front order.
+ // Anchors follow the props in the source art, in right / left / front order.
  const accents={
-  snack:{points:[[76,12],[72,12],[75,12]],color:'#fff1b7',kind:'steam'},
-  trend:{points:[[77,12],[71,13],[75,12]],color:'#f3e5ff',kind:'spark'},
-  makeup:{points:[[65,9],[64,9],[66,9]],color:'#ffebec',kind:'spark'},
-  skin:{points:[[74,12],[72,13],[70,13]],color:'#fff1a6',kind:'sun'},
-  winter:{points:[[62,12],[63,13],[61,12]],color:'#fff9ee',kind:'snow'},
-  laundry:{points:[[72,11],[66,11],[66,11]],color:'#edf7ff',kind:'bubble'},
-  baby:{points:[[55,11],[40,11],[51,11]],color:'#ffe7ea',kind:'heart'},
-  accessories:{points:[[75,15],[69,15],[68,15]],color:'#fff1ba',kind:'spark'}
+  snack:{points:[[[227,29],[253,30]],[[205,26],[232,28]],[[214,25],[239,26]]],color:'#fff5e1',kind:'steam'},
+  trend:{points:[[[344,73],[207,34]],[[330,73],[217,33]],[[339,75],[200,34]]],color:'#fbf0ff',kind:'sheen'},
+  makeup:{points:[[[274,86],[211,108]],[[251,81],[188,102]],[[252,86],[186,106]]],color:'#fff3cf',kind:'sheen'},
+  skin:{points:[[[291,54],[168,28]],[[266,53],[146,28]],[[271,51],[142,34]]],color:'#fff9ca',kind:'sheen'},
+  winter:{points:[[[107,46],[355,30]],[[103,45],[352,33]],[[104,45],[352,32]]],color:'#fffefd',kind:'snow'},
+  laundry:{points:[[[321,46],[336,29]],[[286,43],[302,29]],[[284,42],[300,25]]],color:'#f2fbff',kind:'bubble'},
+  baby:{points:[[[186,41],[281,55]],[[129,41],[233,56]],[[145,39],[244,57]]],color:'#fff2d8',kind:'sheen'},
+  accessories:{points:[[[298,38],[327,77]],[[253,40],[234,82]],[[261,38],[270,83]]],color:'#fff6dc',kind:'sheen'}
  };
  const accentShapes={
-  steam:'<path d="M-2 6C4 2-4-2 2-7" fill="none" stroke="currentColor" stroke-width="2.7" stroke-linecap="round"/>',
-  spark:'<path d="M0-7Q1-1 7 0Q1 1 0 7Q-1 1-7 0Q-1-1 0-7Z" fill="currentColor"/>',
-  sun:'<path d="M0-5V-9M4-3L7-6M5 1L9 0" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>',
-  snow:'<path d="M0-6V6M-5-3L5 3M-5 3L5-3" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>',
-  bubble:'<circle r="5.2" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="-1.8" cy="-1.8" r="1.2" fill="currentColor"/>',
-  heart:'<path d="M0 5C-2 3-7 0-6-3Q-5-7 0-3Q5-7 6-3C7 0 2 3 0 5Z" fill="currentColor"/>'
+  steam:'<path d="M1 9C-6 4-6 0-1-4C3-8 3-11 0-14" fill="none" stroke="currentColor" stroke-width="3.9" stroke-linecap="round"/>',
+  sheen:'<ellipse rx="7" ry="2.2" fill="currentColor" transform="rotate(-24)"/><ellipse cx="-1.6" cy="-1" rx="2.8" ry="1.1" fill="white" transform="rotate(-24)"/>',
+  snow:'<path d="M0-5V5M-4.4-2.5L4.4 2.5M-4.4 2.5L4.4-2.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>',
+  bubble:'<circle r="5.8" fill="currentColor" fill-opacity=".27" stroke="currentColor" stroke-width="1.35"/><path d="M-2.6.2Q-2.8-2.8.3-3.35" fill="none" stroke="white" stroke-width="1.1" stroke-linecap="round"/>'
  };
- function accentMarkup(shop,angle,viewX,viewY,side){
-  const {points,color,kind}=accents[shop],[px,py]=points[angle];
-  const x=viewX+px*side/100,y=viewY+py*side/100;
-  return `<g class="shop-roof-effect" data-roof-effect="${kind}" style="color:${color}" transform="translate(${x} ${y}) scale(${side/280})">${[[-12,-4,0],[8,-13,-.8],[24,0,-1.6]].map(([dx,dy,delay])=>`<g transform="translate(${dx} ${dy})"><g class="shop-roof-accent" style="--accent-delay:${delay}s">${accentShapes[kind]}</g></g>`).join('')}</g>`;
+ function accentMarkup(shop,angle,x,y){
+  const {points,color,kind}=accents[shop];
+  return `<g class="shop-roof-effect" data-roof-effect="${kind}" style="color:${color}">${points[angle].map(([dx,dy],index)=>`<g transform="translate(${x+dx} ${y+dy})"><g class="shop-roof-accent" style="--accent-delay:${index*.46}s">${accentShapes[kind]}</g></g>`).join('')}</g>`;
+ }
+ function loadRoofImage(stripId,source,kind){
+  // The decorator returns markup. Bind the SVG load event after insertion,
+  // before setting href, so the original roof stays visible until it loads.
+  if(root.document)queueMicrotask(()=>{
+   const strip=root.document.getElementById(stripId);
+   if(!strip)return;
+   strip.addEventListener('load',()=>strip.ownerSVGElement?.setAttribute(`data-${kind}-ready`,''),{once:true});
+   strip.setAttribute('href',source);
+  });
+ }
+ function lowerRoofMask(id,viewX,viewY,side,cutY){
+  return `<mask id="${id}-roof-mask" maskUnits="userSpaceOnUse" x="${viewX}" y="${viewY}" width="${side}" height="${side}"><rect x="${viewX}" y="${cutY}" width="${side}" height="${viewY+side-cutY}" fill="white"/></mask>`;
+ }
+ function tissueMarkup(facing,{id,x,y,viewX,viewY,side}){
+  // The generated strip replaces the entire upper silhouette. The last rows
+  // stay in their original position and overlap the stationary green roof.
+  const stripX=x+42,stripY=y-12,width=362,frameHeight=122,frames=32;
+  const stripId=`${id}-tissue-strip`;
+  loadRoofImage(stripId,`assets/mobile-shops/paper-roof-wave-${facing}-v3.webp`,'tissue');
+  return {
+   cut:'tissue',
+   defs:`<clipPath id="${id}-tissue-window"><rect x="${stripX}" y="${stripY}" width="${width}" height="${frameHeight}"/></clipPath>`+lowerRoofMask(id,viewX,viewY,side,y+103),
+   content:`<g class="shop-roof-effect" data-roof-effect="tissue" clip-path="url(#${id}-tissue-window)"><image id="${stripId}" class="shop-tissue-strip" x="${stripX}" y="${stripY}" width="${width}" height="${frames*frameHeight}" style="--tissue-strip-shift:-${(frames-1)*frameHeight}px"/></g>`
+  };
+ }
+ function spatulaMarkup(facing,angle,{id,x,y,viewX,viewY,side}){
+  // One cached image contains a clean stationary roof above a transparent tool.
+  const width=444,plateHeight=146,propHeight=126,stripId=`${id}-spatula-layers`;
+  const [pivotX,pivotY]=spatulaPivots[angle];
+  const clip=(name,height)=>`<clipPath id="${id}-${name}"><rect x="${x}" y="${y}" width="${width}" height="${height}"/></clipPath>`;
+  loadRoofImage(stripId,`assets/mobile-shops/kitchen-roof-layers-${facing}-v1.webp`,'spatula');
+  return {
+   cut:'spatula',
+   defs:clip('clean-roof',plateHeight)+clip('tool-window',propHeight)+lowerRoofMask(id,viewX,viewY,side,y+134),
+   content:`<g class="shop-roof-effect" data-roof-effect="spatula"><g clip-path="url(#${id}-clean-roof)"><image id="${stripId}" x="${x}" y="${y}" width="${width}" height="${plateHeight+propHeight}"/></g><g class="shop-roof-piece" style="--roof-origin:${x+pivotX}px ${y+pivotY}px"><g clip-path="url(#${id}-tool-window)"><use href="#${stripId}" transform="translate(0,-${plateHeight})"/></g></g></g>`
+  };
  }
  function decorate(shop,facing){
   if(!Object.hasOwn(kinds,shop)&&!Object.hasOwn(accents,shop))return undefined;
-  const angle=['right','left','front'].indexOf(facing),kind=kinds[shop];
-  return ({id,x,y,viewX,viewY,side})=>{
-   if(!kind)return {content:accentMarkup(shop,angle,viewX,viewY,side)};
+  const angle=facings.indexOf(facing),kind=kinds[shop];
+  if(angle<0)return undefined;
+  return frame=>{
+   const {id,x,y}=frame;
+   if(!kind)return {content:accentMarkup(shop,angle,x,y)};
+   if(kind==='tissue')return tissueMarkup(facing,frame);
+   if(kind==='spatula')return spatulaMarkup(facing,angle,frame);
    if(kind==='foam'){
     const [nx,ny]=nozzles[angle];
-    const bubbles=[[-34,-31,9,0],[-47,-45,13,320],[-62,-31,9,640],[-49,-62,7,960]];
+    const bubbles=[[-16,-13,3.8,0],[-27,-21,7.2,185],[-35,-34,5.9,345],[-47,-29,6.3,525]];
     return {
-     defs:`<radialGradient id="${id}-foam" cx="34%" cy="27%" r="72%"><stop stop-color="white"/><stop offset=".67" stop-color="#fffdf4"/><stop offset="1" stop-color="#caedf1"/></radialGradient>`,
+     defs:`<radialGradient id="${id}-foam" cx="32%" cy="25%" r="75%"><stop stop-color="white"/><stop offset=".64" stop-color="#fffdf4"/><stop offset="1" stop-color="#c8ebef"/></radialGradient>`,
      content:`<g class="shop-roof-effect" data-roof-effect="foam" transform="translate(${x+nx} ${y+ny})">${bubbles.map(([dx,dy,r,delay])=>`<circle class="shop-foam-bubble" r="${r}" fill="url(#${id}-foam)" style="--bubble-x:${dx}px;--bubble-y:${dy}px;--bubble-delay:${delay}ms"/>`).join('')}</g>`
     };
    }
-   const {outline,pivot:[px,py],roof}=(kind==='tissue'?tissue:spatula)[angle];
-   const points=outline.split(' ').map(pair=>{
-    const [a,b]=pair.split(',').map(Number);
-    return `${a+x},${b+y}`;
-   }).join(' ');
-   const roofClip=`<polygon points="${points}"/>`;
-   const origin=`${x+px}px ${y+py}px`;
-   const gradient=roof
-    ?`<linearGradient id="${id}-blue" x2=".18" y2="1"><stop stop-color="#42b5f3"/><stop offset="1" stop-color="#078add"/></linearGradient>`
-    :'';
-   const repair=roof?`<g clip-path="url(#${id}-roof-piece)"><polygon transform="translate(${x} ${y})" points="${roof}" fill="url(#${id}-blue)"/></g>`:'';
-   return {
-    cut:true,
-    defs:`${gradient}<clipPath id="${id}-roof-piece">${roofClip}</clipPath><mask id="${id}-roof-mask" maskUnits="userSpaceOnUse" x="${viewX}" y="${viewY}" width="${side}" height="${side}"><rect x="${viewX}" y="${viewY}" width="${side}" height="${side}" fill="white"/><polygon points="${points}" fill="black"/></mask>`,
-    content:`<g class="shop-roof-effect" data-roof-effect="${kind}">${repair}<g class="shop-roof-piece" style="--roof-origin:${origin}"><g clip-path="url(#${id}-roof-piece)"><use href="#${id}-art"/></g></g></g>`
-   };
   };
  }
  root.QiyuShopRoofs={decorate};
