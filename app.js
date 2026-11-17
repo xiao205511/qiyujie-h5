@@ -133,7 +133,8 @@ function renderHome({preserveStreet=!!currentModal}={}){
  $('#claim').classList.toggle('claimed',!!(state.coupon?.date===todayKey()&&state.coupon.used&&!validCoupon()));
  const atStore=ShopViews&&focusShop!==primaryShop(),atFront=ShopViews?.modeFor(focusShop)==='store';
  $('#enter').innerHTML=`${atStore?'进店逛逛':'逛'+shops[focusShop].short}`;
- if(ShopViews){$('#switch').innerHTML=atFront?`${icon('corner-up-left')}<span>返回街道</span>`:`${icon('refresh-cw')}<span>换家店</span>`;$('#back').setAttribute('aria-label',atStore?'返回街道':params.get('from')==='mall'?'返回商城':'返回主推店');}
+ if(ShopViews){$('#switch').innerHTML=atFront?`${icon('corner-up-left')}<span>返回街道</span>`:`${icon('refresh-cw')}<span>换家店</span>`;}
+ $('#back').setAttribute('aria-label','关闭奇遇街');
  const homeScroll=$('#homeScroll'),homeOffset=homeScroll.scrollTop;
  const recentIds=[...new Set([...(state.recentProductIds||[]),...streetSlots.flatMap(s=>shops[s.shop].products.slice(0,4).map(p=>p.id))])].slice(0,12);
  $('#recentGrid').innerHTML=recentIds.map(id=>allProducts.find(p=>p.id===id)).filter(Boolean).map(p=>`<article class="recent-card"><button class="recent-detail" data-detail="${p.id}" aria-label="查看${p.name}详情">${art(p)}<h3>${p.name}</h3><div class="recent-price-row">${priceHtml(p)}</div></button></article>`).join('');
@@ -862,7 +863,19 @@ document.addEventListener('click',event=>{
 $('#homeScroll').addEventListener('scroll',()=>$('#app').classList.toggle('home-scrolled',$('#homeScroll').scrollTop>24),{passive:true});
 $('#claim').addEventListener('click',showOffer);$('#enter').addEventListener('click',()=>showShop(focusShop));
 $('#switch').addEventListener('click',()=>goTo(ShopViews?.nextShopFor(focusShop)||secondaryShop()));
-$('#back').addEventListener('click',()=>{if(currentModal)dismissModal();else if(moving)motionFinish?.();else if(focusShop!==primaryShop())goTo(primaryShop());else if(ShopViews&&params.get('from')==='mall')location.href='mall.html?v='+pageVersion;else toast('已经在为你推荐的主推店');});
+function closeStreetPage(){
+ try{
+  // The LAN demo can use the globally allowed Kwai.exitWebView bridge.
+  if(typeof window.Kwai?.exitWebView==='function'){
+   window.Kwai.exitWebView('{}');return;
+  }
+  if(typeof window.__yodaBridge__?.invoke==='function'){
+   window.__yodaBridge__.invoke('Kwai','exitWebView','{}',null);return;
+  }
+ }catch(error){console.warn('关闭奇遇街失败',error);}
+ window.close();
+}
+$('#back').addEventListener('click',closeStreetPage);
 $('#guide').addEventListener('click',()=>focusShop===primaryShop()?goTo(secondaryShop()):showShop(focusShop));
 $('#skipWalk').addEventListener('click',()=>motionFinish?.());
 $('#daily').addEventListener('click',showDaily);$('#rules').addEventListener('click',showRules);$('#rewards').addEventListener('click',()=>showRewards());$('#favorites').addEventListener('click',showFavorites);
