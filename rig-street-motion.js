@@ -4,9 +4,9 @@
   // The planted hip chain moves 0.31 model units during 62% of a cycle.
   const stride=(.56*(Math.sin(.34)+Math.sin(.22)))/.62;
   function perspectiveFor(pose){
-    // Street artwork and avatar share the same camera zoom. Applying the old
-    // reciprocal depth curve here cancelled that zoom and kept the IP tiny.
-    return pose.scene==='kitchen-front'?1.5:1;
+    // Street travel shares the artwork's camera zoom. Only the doorway approach
+    // supplies a size correction so the next scene keeps the same avatar scale.
+    return pose.scene==='kitchen-front'?1.5:pose.size??1;
   }
   const yawFor=heading=>Math.atan2(heading[0],heading[1]/Math.sin(elevation));
   const strideFor=(point,heading)=>{

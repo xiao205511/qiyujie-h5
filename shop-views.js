@@ -6,7 +6,11 @@
   let slots=[{position:'paper',shop:'paper'},{position:'snack',shop:'snack'},{position:'kitchen',shop:'kitchen'}],shops={},configured=false;
   const positionFor=key=>slots.find(slot=>slot.shop===key)?.position||'front';
   const facingFor=position=>position==='paper'?'right':position==='snack'?'left':'front';
-  const travelKind=(from,to)=>from===to?'enter':positionFor(from)==='paper'&&positionFor(to)==='snack'?'walk':'cut';
+  const travelKind=(from,to)=>{
+    if(from===to)return 'enter';
+    const route=positionFor(from)+':'+positionFor(to);
+    return ['paper:snack','snack:kitchen'].includes(route)?'walk':'cut';
+  };
   const modeFor=key=>['paper','snack'].includes(positionFor(key))?'street':'store';
   const nextShopFor=key=>slots[(slots.findIndex(slot=>slot.shop===key)+1)%slots.length]?.shop;
   function restFor(key,walking){
@@ -16,7 +20,7 @@
     const feet=Object.fromEntries(Object.entries(base.feet).map(([side,foot])=>[side,{...foot,x:foot.x+dx,y:foot.y+dy}]));
     return {...base,point:[302,548],screen:{x:302,y:548},camera:{x:0,y:0,scale:1},size:1,scene:configured?'shop-front':'kitchen-front',feet,arrivalHeading:[0,1]};
   }
-  let doc,art,originalArt,activeRoof,activeSign;
+  let doc,art,originalArt,activeRoof,activeSign,occluders=[];
   function init(document){
     doc=document;art=doc.querySelector('#world .street-art');originalArt=art.getAttribute('src');
   }
@@ -54,15 +58,47 @@
   function configure(nextSlots,nextShops){
     slots=nextSlots;shops=nextShops;configured=true;
     if(!doc)return;
+    updateOcclusion(null,false);occluders=[];
     for(const slot of slots){
       const target=doc.querySelector(`[data-slot="${slot.position}"]`);if(!target)continue;
       target.dataset.shop=slot.shop;target.dataset.role=slot.role||'';
       target.dataset.facing=facingFor(slot.position);
       target.style.cssText=spriteStyle(slot.shop,slot.position);
       target.innerHTML='<span class="storefront-sprite" aria-hidden="true">'+sprite(slot.shop,slot.position,slot.position!=='kitchen')+'</span>';
-
+      occluders.push({source:target,position:slot.position,rank:{kitchen:1,paper:2,snack:3}[slot.position]});
     }
     doc.querySelector('#app').classList.add('has-daily-shops');
+  }
+  function updateOcclusion(pose,walking){
+    const depth=doc?.querySelector('#streetOccluders');if(!depth)return;
+    if(!(walking&&pose?.streetOcclusion)){
+      if(!depth.hidden){
+        for(const {source} of occluders){
+          doc.querySelector('#world').append(source);
+          source.style.removeProperty('transform');source.style.removeProperty('transform-origin');source.style.removeProperty('z-index');
+        }
+        depth.hidden=true;
+      }
+      return;
+    }
+    if(depth.hidden){
+      depth.hidden=false;
+      for(const item of occluders){
+        const source=item.source;
+        item.left=source.offsetLeft;item.top=source.offsetTop;item.width=source.offsetWidth;
+        item.ground=item.top+source.offsetHeight*.94;item.front=false;
+        depth.append(source);source.style.transformOrigin='0 0';
+      }
+    }
+    const camera=pose.camera;
+    for(const item of occluders){
+      const {source,left,top,width,ground,position,rank}=item;
+      // Change depth only after the whole avatar clears the near shop's left edge.
+      // Reusing the original node keeps its image, lighting and shadows unchanged.
+      if(pose.point[1]<ground&&(position!=='snack'||pose.point[0]+56*pose.size<=left+width*.04))item.front=true;
+      source.style.zIndex=String(rank+(item.front?5:0));
+      source.style.transform=`translate(${camera.x+(camera.scale-1)*left}px, ${camera.y+(camera.scale-1)*top}px) scale(${camera.scale})`;
+    }
   }
   function setView(key){
     const position=positionFor(key),front=position==='kitchen'||position==='front';
@@ -99,5 +135,5 @@
     commit();
     return ()=>{};
   }
-  return {travelKind,modeFor,nextShopFor,positionFor,restFor,init,configure,setView,transition,hitAreaFor,activateStreetRoof};
+  return {travelKind,modeFor,nextShopFor,positionFor,restFor,init,configure,setView,transition,hitAreaFor,activateStreetRoof,updateOcclusion};
 });

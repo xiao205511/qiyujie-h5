@@ -10,18 +10,18 @@
   <link rel="stylesheet" href="styles.css?v=responsive-layout-1">
   <script defer src="assets/icons.js"></script>
   <script defer src="walking.js?v=depth-navigation-1"></script>
-  <script defer src="rig-street-motion.js?v=street-polish-2"></script>
-  <script defer src="street-navigation.js?v=street-polish-2"></script>
+  <script defer src="rig-street-motion.js?v=third-shop-walk-20261116"></script>
+  <script defer src="street-navigation.js?v=stable-shop-depth-20261116"></script>
   <script defer src="shop-hit-areas.js?v=1"></script>
   <script defer src="sprite-art.js?v=mobile-launch-1"></script>
   <script defer src="shop-roofs.js?v=roof-detail-1"></script>
   <script defer src="shop-sign-lights.js?v=sign-lights-6"></script>
-  <script defer src="shop-views.js?v=mobile-launch-1"></script>
+  <script defer src="shop-views.js?v=stable-shop-depth-20261116"></script>
   <link rel="stylesheet" href="popup-ui.css?v=fixed-type-3">
   <link rel="stylesheet" href="home-scroll.css?v=responsive-safe-area-rounded-20261116">
   <link rel="stylesheet" href="image-loading.css?v=responsive-layout-3">
   <link rel="stylesheet" href="commerce-ui.css?v=responsive-layout-1">
-  <link rel="stylesheet" href="daily-shops.css?v=fixed-type-4">
+  <link rel="stylesheet" href="daily-shops.css?v=stable-shop-depth-20261116">
   <link rel="stylesheet" href="palette.css?v=street-ui-refresh-1">
   <script defer src="rewards-flow.js?v=coupon-store-scope-1"></script>
   <script defer src="shopping-basket.js?v=3"></script>
@@ -117,6 +117,7 @@
               <img id="rigWalkFrames" src="assets/ip-walk-frames-v1.webp" alt="" hidden fetchpriority="high" decoding="async">
               <canvas id="rigWalkFallback" class="rig-walk-fallback" width="144" height="144" hidden></canvas>
             </div>
+            <div id="streetOccluders" aria-hidden="true" inert hidden></div>
             <div class="walk-trail" id="walkTrail" aria-hidden="true"></div>
           </div>
           <button class="guide" id="guide" hidden><span class="guide-copy">点家小店，逛逛去～</span></button>

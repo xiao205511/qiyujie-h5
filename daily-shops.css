@@ -22,6 +22,9 @@
 #app.has-daily-shops #storeDoorHit{position:absolute;left:72px;top:160px;width:270px;height:270px;background:transparent;z-index:4}
 #storeDoorHit[hidden]{display:none}
 .has-daily-shops .street-depth-mask{display:none!important}
+/* Original shop nodes share the avatar's stacking context during the second walk. */
+#streetOccluders{display:contents;pointer-events:none}
+#streetOccluders *{pointer-events:none!important}
 .preview-product{display:grid;grid-template-columns:112px minmax(0,1fr);gap:18px;align-items:center;padding:20px 0;border-bottom:1px solid #eddfd2}
 .preview-product:last-child{border-bottom:0}
 .preview-product .product-art{width:112px;height:112px;background-color:#fff;border-radius:14px}

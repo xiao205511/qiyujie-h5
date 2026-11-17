@@ -711,6 +711,7 @@ function drawRigWalkFrames(anchor,pose,walking){
 function drawWalker(pose,walking=false){
   const camera=pose.camera;
   $('#world').style.transform=`translate(${camera.x}px, ${camera.y}px) scale(${camera.scale})`;
+  ShopViews?.updateOcclusion(pose,walking);
   if(!characterEnabled)return;
   const rig=$('#walkerPosition'),scale=(window.QiyuIP3D?.perspectiveFor(pose)??pose.size)*camera.scale;
   rig.style.transform=`translate(${pose.screen.x}px, ${pose.screen.y}px) scale(${scale})`;
